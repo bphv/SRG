@@ -1,0 +1,12 @@
+export type EventTypes =
+  | 'GenerationRequested'
+  | 'GenerationCompleted'
+  | 'ExecutionStarted'
+  | 'ExecutionCompleted'
+  | 'ProviderSelected'
+  | 'ProviderFailed'
+  | 'ArtifactCreated'
+  | 'ValidationFailed'
+  | 'WorkflowUpdated'
+  | 'AgentTriggered'
+  | 'DomainError'

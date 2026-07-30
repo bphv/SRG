@@ -1,0 +1,10 @@
+export type ArtifactType =
+  | 'text'
+  | 'json'
+  | 'image'
+  | 'audio'
+  | 'video'
+  | 'document'
+  | 'model'
+  | 'binary'
+  | 'other'

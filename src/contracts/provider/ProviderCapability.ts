@@ -1,0 +1,11 @@
+export type ProviderCapability =
+  | 'chat'
+  | 'completion'
+  | 'streaming'
+  | 'vision'
+  | 'image'
+  | 'audio'
+  | 'embedding'
+  | 'toolCalling'
+  | 'jsonMode'
+  | 'structuredOutput'
