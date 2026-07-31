@@ -19,6 +19,7 @@ import { Route as KnowledgeCenterRouteImport } from './routes/knowledge-center'
 import { Route as ObservabilityRouteImport } from './routes/observability'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PromptStudioRouteImport } from './routes/prompt-studio'
+import { Route as PromptTemplatesRouteImport } from './routes/prompt-templates'
 import { Route as ProvidersRouteImport } from './routes/providers'
 import { Route as SettingsRouteImport } from './routes/settings'
 
@@ -72,6 +73,11 @@ const PromptStudioRoute = PromptStudioRouteImport.update({
   path: '/prompt-studio',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PromptTemplatesRoute = PromptTemplatesRouteImport.update({
+  id: '/prompt-templates',
+  path: '/prompt-templates',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProvidersRoute = ProvidersRouteImport.update({
   id: '/providers',
   path: '/providers',
@@ -94,6 +100,7 @@ export interface FileRoutesByFullPath {
   '/observability': typeof ObservabilityRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
+  '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
   '/settings': typeof SettingsRoute
 }
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/observability': typeof ObservabilityRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
+  '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
   '/settings': typeof SettingsRoute
 }
@@ -123,6 +131,7 @@ export interface FileRoutesById {
   '/observability': typeof ObservabilityRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
+  '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
   '/settings': typeof SettingsRoute
 }
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/observability'
     | '/projects'
     | '/prompt-studio'
+    | '/prompt-templates'
     | '/providers'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
@@ -153,6 +163,7 @@ export interface FileRouteTypes {
     | '/observability'
     | '/projects'
     | '/prompt-studio'
+    | '/prompt-templates'
     | '/providers'
     | '/settings'
   id:
@@ -167,6 +178,7 @@ export interface FileRouteTypes {
     | '/observability'
     | '/projects'
     | '/prompt-studio'
+    | '/prompt-templates'
     | '/providers'
     | '/settings'
   fileRoutesById: FileRoutesById
@@ -182,6 +194,7 @@ export interface RootRouteChildren {
   ObservabilityRoute: typeof ObservabilityRoute
   ProjectsRoute: typeof ProjectsRoute
   PromptStudioRoute: typeof PromptStudioRoute
+  PromptTemplatesRoute: typeof PromptTemplatesRoute
   ProvidersRoute: typeof ProvidersRoute
   SettingsRoute: typeof SettingsRoute
 }
@@ -258,6 +271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PromptStudioRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/prompt-templates': {
+      id: '/prompt-templates'
+      path: '/prompt-templates'
+      fullPath: '/prompt-templates'
+      preLoaderRoute: typeof PromptTemplatesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/providers': {
       id: '/providers'
       path: '/providers'
@@ -286,6 +306,7 @@ const rootRouteChildren: RootRouteChildren = {
   ObservabilityRoute: ObservabilityRoute,
   ProjectsRoute: ProjectsRoute,
   PromptStudioRoute: PromptStudioRoute,
+  PromptTemplatesRoute: PromptTemplatesRoute,
   ProvidersRoute: ProvidersRoute,
   SettingsRoute: SettingsRoute,
 }

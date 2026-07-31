@@ -36,6 +36,13 @@ export const navItems: AppNavItem[] = [
     icon: '🎯',
   },
   {
+    id: 'prompt-templates',
+    title: 'Prompt Templates',
+    description: 'Manage reusable template library and publishing workflows.',
+    path: '/prompt-templates',
+    icon: '🧩',
+  },
+  {
     id: 'generate',
     title: 'Generate',
     description: 'Create content and code with AI.',
