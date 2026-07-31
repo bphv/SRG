@@ -1,8 +1,8 @@
-import type { GenerationRequest } from '#/generator/request/GenerationRequest'
-import type { GenerationResponse } from '#/generator/response/GenerationResponse'
+import type { ExecutionRequest } from '#/execution/request/ExecutionRequest'
+import type { ExecutionResponse } from '#/execution/response/ExecutionResponse'
 
 export interface IExecutionEngine {
-  execute(request: GenerationRequest): Promise<GenerationResponse>
+  execute(request: ExecutionRequest): Promise<ExecutionResponse>
   prepare(): Promise<void>
   selectProvider(): Promise<void>
   createSession(): Promise<void>

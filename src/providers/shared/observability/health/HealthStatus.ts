@@ -1,0 +1,9 @@
+export enum HealthStatus {
+  UNKNOWN = 'UNKNOWN',
+  STARTING = 'STARTING',
+  READY = 'READY',
+  DEGRADED = 'DEGRADED',
+  STOPPING = 'STOPPING',
+  STOPPED = 'STOPPED',
+  FAILED = 'FAILED',
+}

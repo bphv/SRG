@@ -11,6 +11,16 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AdministrationRouteImport } from './routes/administration'
+import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as GenerateRouteImport } from './routes/generate'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as KnowledgeCenterRouteImport } from './routes/knowledge-center'
+import { Route as ObservabilityRouteImport } from './routes/observability'
+import { Route as ProjectsRouteImport } from './routes/projects'
+import { Route as PromptStudioRouteImport } from './routes/prompt-studio'
+import { Route as ProvidersRouteImport } from './routes/providers'
+import { Route as SettingsRouteImport } from './routes/settings'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +32,158 @@ const AboutRoute = AboutRouteImport.update({
   path: '/about',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdministrationRoute = AdministrationRouteImport.update({
+  id: '/administration',
+  path: '/administration',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GenerateRoute = GenerateRouteImport.update({
+  id: '/generate',
+  path: '/generate',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HistoryRoute = HistoryRouteImport.update({
+  id: '/history',
+  path: '/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KnowledgeCenterRoute = KnowledgeCenterRouteImport.update({
+  id: '/knowledge-center',
+  path: '/knowledge-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ObservabilityRoute = ObservabilityRouteImport.update({
+  id: '/observability',
+  path: '/observability',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectsRoute = ProjectsRouteImport.update({
+  id: '/projects',
+  path: '/projects',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PromptStudioRoute = PromptStudioRouteImport.update({
+  id: '/prompt-studio',
+  path: '/prompt-studio',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProvidersRoute = ProvidersRouteImport.update({
+  id: '/providers',
+  path: '/providers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SettingsRoute = SettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/administration': typeof AdministrationRoute
+  '/dashboard': typeof DashboardRoute
+  '/generate': typeof GenerateRoute
+  '/history': typeof HistoryRoute
+  '/knowledge-center': typeof KnowledgeCenterRoute
+  '/observability': typeof ObservabilityRoute
+  '/projects': typeof ProjectsRoute
+  '/prompt-studio': typeof PromptStudioRoute
+  '/providers': typeof ProvidersRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/administration': typeof AdministrationRoute
+  '/dashboard': typeof DashboardRoute
+  '/generate': typeof GenerateRoute
+  '/history': typeof HistoryRoute
+  '/knowledge-center': typeof KnowledgeCenterRoute
+  '/observability': typeof ObservabilityRoute
+  '/projects': typeof ProjectsRoute
+  '/prompt-studio': typeof PromptStudioRoute
+  '/providers': typeof ProvidersRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/administration': typeof AdministrationRoute
+  '/dashboard': typeof DashboardRoute
+  '/generate': typeof GenerateRoute
+  '/history': typeof HistoryRoute
+  '/knowledge-center': typeof KnowledgeCenterRoute
+  '/observability': typeof ObservabilityRoute
+  '/projects': typeof ProjectsRoute
+  '/prompt-studio': typeof PromptStudioRoute
+  '/providers': typeof ProvidersRoute
+  '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/about'
+  fullPaths:
+    | '/'
+    | '/about'
+    | '/administration'
+    | '/dashboard'
+    | '/generate'
+    | '/history'
+    | '/knowledge-center'
+    | '/observability'
+    | '/projects'
+    | '/prompt-studio'
+    | '/providers'
+    | '/settings'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/about'
-  id: '__root__' | '/' | '/about'
+  to:
+    | '/'
+    | '/about'
+    | '/administration'
+    | '/dashboard'
+    | '/generate'
+    | '/history'
+    | '/knowledge-center'
+    | '/observability'
+    | '/projects'
+    | '/prompt-studio'
+    | '/providers'
+    | '/settings'
+  id:
+    | '__root__'
+    | '/'
+    | '/about'
+    | '/administration'
+    | '/dashboard'
+    | '/generate'
+    | '/history'
+    | '/knowledge-center'
+    | '/observability'
+    | '/projects'
+    | '/prompt-studio'
+    | '/providers'
+    | '/settings'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AdministrationRoute: typeof AdministrationRoute
+  DashboardRoute: typeof DashboardRoute
+  GenerateRoute: typeof GenerateRoute
+  HistoryRoute: typeof HistoryRoute
+  KnowledgeCenterRoute: typeof KnowledgeCenterRoute
+  ObservabilityRoute: typeof ObservabilityRoute
+  ProjectsRoute: typeof ProjectsRoute
+  PromptStudioRoute: typeof PromptStudioRoute
+  ProvidersRoute: typeof ProvidersRoute
+  SettingsRoute: typeof SettingsRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -65,22 +202,93 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/administration': {
+      id: '/administration'
+      path: '/administration'
+      fullPath: '/administration'
+      preLoaderRoute: typeof AdministrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/generate': {
+      id: '/generate'
+      path: '/generate'
+      fullPath: '/generate'
+      preLoaderRoute: typeof GenerateRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/knowledge-center': {
+      id: '/knowledge-center'
+      path: '/knowledge-center'
+      fullPath: '/knowledge-center'
+      preLoaderRoute: typeof KnowledgeCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/observability': {
+      id: '/observability'
+      path: '/observability'
+      fullPath: '/observability'
+      preLoaderRoute: typeof ObservabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/projects': {
+      id: '/projects'
+      path: '/projects'
+      fullPath: '/projects'
+      preLoaderRoute: typeof ProjectsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prompt-studio': {
+      id: '/prompt-studio'
+      path: '/prompt-studio'
+      fullPath: '/prompt-studio'
+      preLoaderRoute: typeof PromptStudioRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/providers': {
+      id: '/providers'
+      path: '/providers'
+      fullPath: '/providers'
+      preLoaderRoute: typeof ProvidersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/settings': {
+      id: '/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof SettingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AdministrationRoute: AdministrationRoute,
+  DashboardRoute: DashboardRoute,
+  GenerateRoute: GenerateRoute,
+  HistoryRoute: HistoryRoute,
+  KnowledgeCenterRoute: KnowledgeCenterRoute,
+  ObservabilityRoute: ObservabilityRoute,
+  ProjectsRoute: ProjectsRoute,
+  PromptStudioRoute: PromptStudioRoute,
+  ProvidersRoute: ProvidersRoute,
+  SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}
