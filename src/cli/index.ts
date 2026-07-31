@@ -5,7 +5,7 @@
 export interface CliCommand {
   name: string
   description: string
-  execute(args: string[]): Promise<number>
+  execute: (args: string[]) => Promise<number>
 }
 
 export class CliManager {

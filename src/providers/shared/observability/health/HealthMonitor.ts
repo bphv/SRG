@@ -22,21 +22,21 @@ export class HealthMonitor implements IHealthMonitor {
   }
 
   heartbeat(component: string): void {
-    const entry = this.entries[component]
-    if (!entry) {
+    if (!(component in this.entries)) {
       return
     }
 
+    const entry = this.entries[component]
     entry.lastHeartbeat = Date.now()
   }
 
   update(component: string, status: string, metadata: Record<string, unknown> = {}): void {
-    const entry = this.entries[component]
-    if (!entry) {
+    if (!(component in this.entries)) {
       this.register(component, status, metadata)
       return
     }
 
+    const entry = this.entries[component]
     entry.status = status as HealthStatus
     entry.metadata = {
       ...entry.metadata,
@@ -45,11 +45,11 @@ export class HealthMonitor implements IHealthMonitor {
   }
 
   snapshot(component: string): HealthSnapshot | undefined {
-    const entry = this.entries[component]
-    if (!entry) {
+    if (!(component in this.entries)) {
       return undefined
     }
 
+    const entry = this.entries[component]
     return {
       component,
       status: entry.status,

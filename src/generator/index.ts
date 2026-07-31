@@ -27,7 +27,7 @@ export * from './types/GeneratorTypes'
  * Future implementation will orchestrate project generation workflows.
  */
 export interface GeneratorService {
-  generateProject(templateName: string, options?: Record<string, unknown>): Promise<unknown>
+  generateProject: (templateName: string, options?: Record<string, unknown>) => Promise<unknown>
 }
 
 export class GeneratorServiceImpl implements GeneratorService {

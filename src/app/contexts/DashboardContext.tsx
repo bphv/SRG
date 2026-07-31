@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import { DashboardService, type DashboardState } from '#/app/services/DashboardService'
+import { DashboardService  } from '#/app/services/DashboardService'
+import type {DashboardState} from '#/app/services/DashboardService';
 
 type DashboardContextValue = {
   dashboardState: DashboardState
@@ -22,7 +23,6 @@ export function DashboardProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     refresh()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const value = useMemo(

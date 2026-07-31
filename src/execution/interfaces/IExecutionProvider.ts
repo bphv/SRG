@@ -5,5 +5,5 @@ export interface IExecutionProvider {
   id: string
   name: string
   capabilities: Record<string, boolean>
-  execute(request: ExecutionRequest): Promise<ExecutionResponse>
+  execute: (request: ExecutionRequest) => Promise<ExecutionResponse>
 }

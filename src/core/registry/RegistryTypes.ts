@@ -3,12 +3,12 @@ export interface RegistryEntry {
 }
 
 export interface RegistryContract<T extends RegistryEntry> {
-  register(entry: T): void
-  unregister(id: string): void
-  has(id: string): boolean
-  get(id: string): T | undefined
-  getAll(): T[]
-  clear(): void
+  register: (entry: T) => void
+  unregister: (id: string) => void
+  has: (id: string) => boolean
+  get: (id: string) => T | undefined
+  getAll: () => T[]
+  clear: () => void
 }
 
 export abstract class BaseRegistry<T extends RegistryEntry> implements RegistryContract<T> {

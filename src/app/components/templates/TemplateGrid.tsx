@@ -1,4 +1,5 @@
-import TemplateCard, { type TemplateCardData } from '#/app/components/templates/TemplateCard'
+import TemplateCard from '#/app/components/templates/TemplateCard'
+import type {TemplateCardData} from '#/app/components/templates/TemplateCard';
 
 export default function TemplateGrid({
   templates,

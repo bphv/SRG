@@ -10,9 +10,9 @@ export interface IProvider {
   status: ProviderStatus
   metadata?: Record<string, unknown>
 
-  initialize(): Promise<void>
-  health(): Promise<ProviderHealth>
-  supports(capability: string): boolean
-  execute(request: unknown): Promise<unknown>
-  shutdown(): Promise<void>
+  initialize: () => Promise<void>
+  health: () => Promise<ProviderHealth>
+  supports: (capability: string) => boolean
+  execute: (request: unknown) => Promise<unknown>
+  shutdown: () => Promise<void>
 }

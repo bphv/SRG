@@ -2,6 +2,7 @@ import type { ExecutionRequest } from '#/execution/request/ExecutionRequest'
 import type { ExecutionResponse } from '#/execution/response/ExecutionResponse'
 import type { TransportRequest } from '#/providers/shared/transport/TransportRequest'
 import type { TransportResponse } from '#/providers/shared/transport/TransportResponse'
+import type { JsonValue } from '#/types'
 import type {
   ChatCompletionCreateParamsNonStreaming,
   ChatCompletion,
@@ -82,7 +83,7 @@ export class OpenAIMapper {
         tokensOutput: openAIResponse.tokensOutput ?? 0,
         duration: openAIResponse.durationMs ?? 0,
       },
-      metadata: openAIResponse.metadata as Record<string, import('#/types').JsonValue> | undefined,
+      metadata: openAIResponse.metadata as Record<string, JsonValue> | undefined,
       errors: openAIResponse.status === 'error' ? [openAIResponse.errorMessage ?? 'unknown_error'] : undefined,
     }
   }
@@ -95,7 +96,7 @@ export class OpenAIMapper {
       headers: request.headers ?? {},
       body: {
         id: sdkResponse.id,
-        text: sdkResponse.choices?.[0]?.message?.content ?? undefined,
+        text: sdkResponse.choices[0]?.message?.content,
         usage: sdkResponse.usage,
       },
       latency,

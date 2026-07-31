@@ -5,6 +5,7 @@ import { ThemeProvider } from '#/app/contexts/ThemeContext'
 import { DashboardProvider } from '#/app/contexts/DashboardContext'
 import { ProjectProvider } from '#/app/contexts/ProjectContext'
 import { PromptProvider } from '#/app/contexts/PromptContext'
+import { BusinessProvider } from '#/app/contexts/BusinessContext'
 
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
@@ -13,7 +14,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
         <NavigationProvider>
           <DashboardProvider>
             <ProjectProvider>
-              <PromptProvider>{children}</PromptProvider>
+              <PromptProvider>
+                <BusinessProvider>{children}</BusinessProvider>
+              </PromptProvider>
             </ProjectProvider>
           </DashboardProvider>
         </NavigationProvider>

@@ -5,9 +5,9 @@ export interface EventPayload {
 export type EventListener = (payload: EventPayload) => void | Promise<void>
 
 export interface EventBus {
-  on(event: string, listener: EventListener): void
-  off(event: string, listener: EventListener): void
-  emit(event: string, payload?: EventPayload): Promise<void>
+  on: (event: string, listener: EventListener) => void
+  off: (event: string, listener: EventListener) => void
+  emit: (event: string, payload?: EventPayload) => Promise<void>
 }
 
 export class EventBusImpl implements EventBus {

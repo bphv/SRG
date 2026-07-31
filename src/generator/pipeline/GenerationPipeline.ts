@@ -17,7 +17,7 @@ export class GenerationPipeline {
     let response: GenerationResponse = { id: request.id, status: 'pending' }
     for (const stage of this.stages) {
       // stub: execute stages sequentially
-      // eslint-disable-next-line no-await-in-loop
+       
       response = await stage.run(context, request)
     }
     return response

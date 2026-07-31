@@ -14,7 +14,8 @@ import TemplateRating from '#/app/components/templates/TemplateRating'
 import TemplateSearch from '#/app/components/templates/TemplateSearch'
 import TemplateStatistics from '#/app/components/templates/TemplateStatistics'
 import TemplateToolbar from '#/app/components/templates/TemplateToolbar'
-import TemplateVariables, { type TemplateVariable } from '#/app/components/templates/TemplateVariables'
+import TemplateVariables from '#/app/components/templates/TemplateVariables'
+import type {TemplateVariable} from '#/app/components/templates/TemplateVariables';
 import PublishTemplateDialog from '#/app/components/templates/PublishTemplateDialog'
 import DuplicateTemplateDialog from '#/app/components/templates/DuplicateTemplateDialog'
 import ArchiveTemplateDialog from '#/app/components/templates/ArchiveTemplateDialog'
@@ -73,7 +74,7 @@ function PromptTemplatesPage() {
 
   const templates = useMemo<TemplateWorkspaceItem[]>(() => {
     return prompts.map((prompt) => {
-      const latestVersion = prompt.versions[prompt.versions.length - 1]
+      const latestVersion = prompt.versions.at(-1)
       const variables = latestVersion?.variables ?? []
       const recommendedOutput = prompt.content.slice(0, 260)
       const status: TemplateStatus =
@@ -99,7 +100,7 @@ function PromptTemplatesPage() {
         createdAt: prompt.createdAt,
         language: prompt.language,
         model: prompt.model,
-        author: latestVersion?.author ?? 'System',
+        author: latestVersion?.author || 'System',
         content: prompt.content,
         variables: variables.map((variable) => ({
           name: `{{${variable.name}}}`,
@@ -175,7 +176,7 @@ function PromptTemplatesPage() {
     return visibleTemplates[0] ?? null
   }, [templates, visibleTemplates, selectedTemplateId])
 
-  const selectedTemplateName = selectedTemplate?.name ?? ''
+  const selectedTemplateName = selectedTemplate.name
 
   const quickStats = useMemo(
     () => ({
@@ -276,30 +277,22 @@ function PromptTemplatesPage() {
   }
 
   const confirmDuplicate = () => {
-    if (selectedTemplate?.id) {
-      duplicatePrompt(selectedTemplate.id)
-    }
+    duplicatePrompt(selectedTemplate.id)
     closeDialogs()
   }
 
   const confirmArchive = () => {
-    if (selectedTemplate?.id) {
-      archivePrompt(selectedTemplate.id)
-    }
+    archivePrompt(selectedTemplate.id)
     closeDialogs()
   }
 
   const confirmDelete = () => {
-    if (selectedTemplate?.id) {
-      deletePrompt(selectedTemplate.id)
-      setSelectedTemplateId(null)
-    }
+    deletePrompt(selectedTemplate.id)
+    setSelectedTemplateId(null)
     closeDialogs()
   }
 
   const compiledPrompt = useMemo(() => {
-    if (!selectedTemplate) return ''
-
     return selectedTemplate.variables.reduce((promptText, variable) => {
       const key = variable.name
       const value = variable.defaultValue ?? `[${variable.name}]`
@@ -447,53 +440,45 @@ function PromptTemplatesPage() {
         </section>
 
         <section className="space-y-6">
-          {selectedTemplate ? (
-            <>
-              <TemplateActionsMenu
-                onEdit={() => setWizardOpen(true)}
-                onDuplicate={() => setPendingDialog('duplicate')}
-                onCreatePrompt={() => undefined}
-                onPublish={() => setPendingDialog('publish')}
-                onArchive={() => setPendingDialog('archive')}
-                onDelete={() => setPendingDialog('delete')}
-              />
+          <TemplateActionsMenu
+            onEdit={() => setWizardOpen(true)}
+            onDuplicate={() => setPendingDialog('duplicate')}
+            onCreatePrompt={() => undefined}
+            onPublish={() => setPendingDialog('publish')}
+            onArchive={() => setPendingDialog('archive')}
+            onDelete={() => setPendingDialog('delete')}
+          />
 
-              <TemplatePreview
-                description={selectedTemplate.description}
-                content={selectedTemplate.content}
-                variables={selectedTemplate.variables}
-                exampleInput={selectedTemplate.exampleInput}
-                compiledPrompt={compiledPrompt}
-              />
+          <TemplatePreview
+            description={selectedTemplate.description}
+            content={selectedTemplate.content}
+            variables={selectedTemplate.variables}
+            exampleInput={selectedTemplate.exampleInput}
+            compiledPrompt={compiledPrompt}
+          />
 
-              <TemplateMetadata
-                author={selectedTemplate.author}
-                version={selectedTemplate.version}
-                createdAt={selectedTemplate.createdAt}
-                updatedAt={selectedTemplate.updatedAt}
-                language={selectedTemplate.language}
-                provider={selectedTemplate.provider}
-                recommendedModel={selectedTemplate.model}
-              />
+          <TemplateMetadata
+            author={selectedTemplate.author}
+            version={selectedTemplate.version}
+            createdAt={selectedTemplate.createdAt}
+            updatedAt={selectedTemplate.updatedAt}
+            language={selectedTemplate.language}
+            provider={selectedTemplate.provider}
+            recommendedModel={selectedTemplate.model}
+          />
 
-              <TemplateVariables variables={selectedTemplate.variables} />
+          <TemplateVariables variables={selectedTemplate.variables} />
 
-              <TemplateExamples
-                promptExample={selectedTemplate.exampleInput}
-                outputExample={selectedTemplate.outputExample}
-              />
+          <TemplateExamples
+            promptExample={selectedTemplate.exampleInput}
+            outputExample={selectedTemplate.outputExample}
+          />
 
-              <TemplateRating
-                score={Math.min(5, 3.5 + selectedTemplate.uses / 20)}
-                uses={selectedTemplate.uses}
-                popularity={Math.min(100, Math.round((selectedTemplate.uses / Math.max(1, quickStats.uses)) * 100))}
-              />
-            </>
-          ) : (
-            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--sea-ink-soft)] shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
-              Sélectionnez un template pour afficher son aperçu.
-            </div>
-          )}
+          <TemplateRating
+            score={Math.min(5, 3.5 + selectedTemplate.uses / 20)}
+            uses={selectedTemplate.uses}
+            popularity={Math.min(100, Math.round((selectedTemplate.uses / Math.max(1, quickStats.uses)) * 100))}
+          />
         </section>
       </div>
 

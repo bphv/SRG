@@ -177,6 +177,8 @@ const initialPrompts: Prompt[] = [
 ]
 
 function createVersion(prompt: Prompt, comment = 'Sauvegarde automatique'): PromptVersion {
+  const latestVersion = prompt.versions[prompt.versions.length - 1]
+
   return {
     id: `${prompt.id}-v${prompt.versions.length + 1}`,
     version: prompt.versions.length + 1,
@@ -184,7 +186,7 @@ function createVersion(prompt: Prompt, comment = 'Sauvegarde automatique'): Prom
     author: 'System',
     comment,
     content: prompt.content,
-    variables: prompt.versions[prompt.versions.length - 1]?.variables ?? prompt.versions[0]?.variables ?? [],
+    variables: latestVersion.variables,
   }
 }
 

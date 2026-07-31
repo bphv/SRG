@@ -1,5 +1,5 @@
 export interface RetryStrategy {
-  nextDelay(attempt: number): number
+  nextDelay: (attempt: number) => number
 }
 
 export class FixedDelayStrategy implements RetryStrategy {

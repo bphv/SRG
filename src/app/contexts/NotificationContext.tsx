@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react'
-import { notificationService, type NotificationItem } from '#/app/services/NotificationService'
+import { notificationService  } from '#/app/services/NotificationService'
+import type {NotificationItem} from '#/app/services/NotificationService';
 
 type NotificationContextValue = {
   notifications: NotificationItem[]

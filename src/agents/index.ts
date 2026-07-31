@@ -4,7 +4,7 @@
  */
 export interface Agent {
   id: string
-  run(payload: unknown): Promise<unknown>
+  run: (payload: unknown) => Promise<unknown>
 }
 
 export class AgentManager {

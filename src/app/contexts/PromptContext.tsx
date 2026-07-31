@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState } from 'react'
-import { PromptService, type Prompt, type PromptFilters, type PromptCreatePayload, type PromptUpdatePayload, type PromptVersion } from '#/app/services/PromptService'
+import { PromptService      } from '#/app/services/PromptService'
+import type {Prompt, PromptFilters, PromptCreatePayload, PromptUpdatePayload, PromptVersion} from '#/app/services/PromptService';
 
 const defaultFilters: PromptFilters = {
   query: '',

@@ -1,5 +1,5 @@
 export interface KnowledgeIndexer {
-  index(data: unknown): Promise<void>
+  index: (data: unknown) => Promise<void>
 }
 
 export class KnowledgeIndexerImpl implements KnowledgeIndexer {

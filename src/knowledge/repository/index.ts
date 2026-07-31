@@ -1,6 +1,6 @@
 export interface KnowledgeRepository {
-  get(id: string): Promise<unknown | undefined>
-  save(id: string, payload: unknown): Promise<void>
+  get: (id: string) => Promise<unknown | undefined>
+  save: (id: string, payload: unknown) => Promise<void>
 }
 
 export class KnowledgeRepositoryImpl implements KnowledgeRepository {

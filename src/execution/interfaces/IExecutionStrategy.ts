@@ -1,3 +1,3 @@
 export interface IExecutionStrategy {
-  execute(...args: unknown[]): Promise<unknown>
+  execute: (...args: unknown[]) => Promise<unknown>
 }

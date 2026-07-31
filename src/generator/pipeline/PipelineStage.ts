@@ -7,5 +7,5 @@ import type { GenerationContext } from '#/generator/context/GenerationContext'
  */
 export interface PipelineStage {
   name: string
-  run(context: GenerationContext, request: GenerationRequest): Promise<GenerationResponse>
+  run: (context: GenerationContext, request: GenerationRequest) => Promise<GenerationResponse>
 }

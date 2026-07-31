@@ -23,7 +23,7 @@ export class ProviderRegistry {
   findByCapability(cap: keyof ProviderCapabilities): ExecutionProvider[] {
     const out: ExecutionProvider[] = []
     for (const p of this.providers.values()) {
-      if (p.capabilities && p.capabilities[cap]) out.push(p)
+      if (p.capabilities[cap]) out.push(p)
     }
     return out
   }

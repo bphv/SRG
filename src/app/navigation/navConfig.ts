@@ -8,6 +8,20 @@ export type AppNavItem = {
 
 export const navItems: AppNavItem[] = [
   {
+    id: 'profile',
+    title: 'Profile',
+    description: 'Manage account profile, password, and connected devices.',
+    path: '/profile',
+    icon: '👤',
+  },
+  {
+    id: 'auth',
+    title: 'Authentication',
+    description: 'Register accounts, login, OTP, and device sessions.',
+    path: '/auth',
+    icon: '🔐',
+  },
+  {
     id: 'dashboard',
     title: 'Dashboard',
     description: 'Overview of SRG activity and health.',

@@ -16,7 +16,7 @@ export class LifecyclePipeline {
   async runHook(name: string): Promise<void> {
     const handlers = this.hooks[name] ?? []
     for (const h of handlers) {
-      // eslint-disable-next-line no-await-in-loop
+       
       await h()
     }
   }

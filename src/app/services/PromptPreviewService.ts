@@ -1,7 +1,9 @@
 import type { PromptVariable } from '#/app/services/PromptService'
 
 export function replaceVariables(content: string, variables: Record<string, string>): string {
-  return content.replace(/{{\s*([\w]+)\s*}}/g, (_, name) => variables[name] ?? `{{${name}}}`)
+  return content.replace(/{{\s*([\w]+)\s*}}/g, (_, name) =>
+    Object.hasOwn(variables, name) ? variables[name] : `{{${name}}}`,
+  )
 }
 
 export function buildDefaultVariables(variables: PromptVariable[]) {

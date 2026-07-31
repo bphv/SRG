@@ -4,8 +4,8 @@
  */
 export interface Connector {
   id: string
-  connect(): Promise<void>
-  disconnect(): Promise<void>
+  connect: () => Promise<void>
+  disconnect: () => Promise<void>
 }
 
 export class ConnectorManager {

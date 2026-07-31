@@ -6,7 +6,7 @@ import type { Component } from './Component'
  * No business logic is implemented here — it merely maps metadata to a component instance.
  */
 export interface ComponentFactory {
-  create(metadata: ComponentMetadata): Component
+  create: (metadata: ComponentMetadata) => Component
 }
 
 export class DefaultComponentFactory implements ComponentFactory {

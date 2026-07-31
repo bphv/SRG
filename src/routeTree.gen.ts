@@ -12,11 +12,13 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdministrationRouteImport } from './routes/administration'
+import { Route as AuthRouteImport } from './routes/auth'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as KnowledgeCenterRouteImport } from './routes/knowledge-center'
 import { Route as ObservabilityRouteImport } from './routes/observability'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PromptStudioRouteImport } from './routes/prompt-studio'
 import { Route as PromptTemplatesRouteImport } from './routes/prompt-templates'
@@ -36,6 +38,11 @@ const AboutRoute = AboutRouteImport.update({
 const AdministrationRoute = AdministrationRouteImport.update({
   id: '/administration',
   path: '/administration',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -61,6 +68,11 @@ const KnowledgeCenterRoute = KnowledgeCenterRouteImport.update({
 const ObservabilityRoute = ObservabilityRouteImport.update({
   id: '/observability',
   path: '/observability',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -93,11 +105,13 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
   '/observability': typeof ObservabilityRoute
+  '/profile': typeof ProfileRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
@@ -108,11 +122,13 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
   '/observability': typeof ObservabilityRoute
+  '/profile': typeof ProfileRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
@@ -124,11 +140,13 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
+  '/auth': typeof AuthRoute
   '/dashboard': typeof DashboardRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
   '/observability': typeof ObservabilityRoute
+  '/profile': typeof ProfileRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
@@ -141,11 +159,13 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/administration'
+    | '/auth'
     | '/dashboard'
     | '/generate'
     | '/history'
     | '/knowledge-center'
     | '/observability'
+    | '/profile'
     | '/projects'
     | '/prompt-studio'
     | '/prompt-templates'
@@ -156,11 +176,13 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/administration'
+    | '/auth'
     | '/dashboard'
     | '/generate'
     | '/history'
     | '/knowledge-center'
     | '/observability'
+    | '/profile'
     | '/projects'
     | '/prompt-studio'
     | '/prompt-templates'
@@ -171,11 +193,13 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/administration'
+    | '/auth'
     | '/dashboard'
     | '/generate'
     | '/history'
     | '/knowledge-center'
     | '/observability'
+    | '/profile'
     | '/projects'
     | '/prompt-studio'
     | '/prompt-templates'
@@ -187,11 +211,13 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdministrationRoute: typeof AdministrationRoute
+  AuthRoute: typeof AuthRoute
   DashboardRoute: typeof DashboardRoute
   GenerateRoute: typeof GenerateRoute
   HistoryRoute: typeof HistoryRoute
   KnowledgeCenterRoute: typeof KnowledgeCenterRoute
   ObservabilityRoute: typeof ObservabilityRoute
+  ProfileRoute: typeof ProfileRoute
   ProjectsRoute: typeof ProjectsRoute
   PromptStudioRoute: typeof PromptStudioRoute
   PromptTemplatesRoute: typeof PromptTemplatesRoute
@@ -220,6 +246,13 @@ declare module '@tanstack/react-router' {
       path: '/administration'
       fullPath: '/administration'
       preLoaderRoute: typeof AdministrationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -255,6 +288,13 @@ declare module '@tanstack/react-router' {
       path: '/observability'
       fullPath: '/observability'
       preLoaderRoute: typeof ObservabilityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -299,11 +339,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdministrationRoute: AdministrationRoute,
+  AuthRoute: AuthRoute,
   DashboardRoute: DashboardRoute,
   GenerateRoute: GenerateRoute,
   HistoryRoute: HistoryRoute,
   KnowledgeCenterRoute: KnowledgeCenterRoute,
   ObservabilityRoute: ObservabilityRoute,
+  ProfileRoute: ProfileRoute,
   ProjectsRoute: ProjectsRoute,
   PromptStudioRoute: PromptStudioRoute,
   PromptTemplatesRoute: PromptTemplatesRoute,

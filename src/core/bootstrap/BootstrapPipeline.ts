@@ -7,7 +7,7 @@ import type { BootstrapResult } from './BootstrapResult'
  */
 export interface BootstrapStep {
   stage: BootstrapStage
-  run(context: BootstrapContext): Promise<BootstrapResult>
+  run: (context: BootstrapContext) => Promise<BootstrapResult>
 }
 
 export class BootstrapPipeline {
@@ -22,7 +22,7 @@ export class BootstrapPipeline {
     for (const step of this.steps) {
       // Each step is responsible for its own implementation (stub for now)
       // We still call it to keep structure valid.
-      // eslint-disable-next-line no-await-in-loop
+       
       const res = await step.run(context)
       results.push(res)
     }

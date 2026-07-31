@@ -1,11 +1,12 @@
+import { createKernel } from '../kernel'
+import type { KernelOptions } from '#/types'
+
 export * from './Bootstrap'
 export * from './BootstrapContext'
 export * from './BootstrapPipeline'
 export * from './BootstrapResult'
 export * from './BootstrapStage'
 export * from './BootstrapOptions'
-import { createKernel } from '../kernel'
-import type { KernelOptions } from '#/types'
 
 /**
  * Kernel bootstrapper.

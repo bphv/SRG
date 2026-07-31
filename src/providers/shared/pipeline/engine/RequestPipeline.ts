@@ -83,7 +83,7 @@ export class RequestPipeline implements IRequestPipeline {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        'user-agent': (currentContext.options?.userAgent as string) ?? 'srg-transport/1.0',
+        'user-agent': typeof currentContext.options?.userAgent === 'string' ? currentContext.options.userAgent : 'srg-transport/1.0',
       },
       body: {
         input: currentContext.request.input,

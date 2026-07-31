@@ -1,5 +1,5 @@
 import type { Event } from './Event'
-import { EventBus } from './EventBus'
+import type { EventBus } from './EventBus'
 
 export class EventPublisher {
   constructor(private readonly bus: EventBus) {}

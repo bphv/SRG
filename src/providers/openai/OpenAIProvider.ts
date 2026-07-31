@@ -9,7 +9,7 @@ import type { OpenAIResponse } from '#/providers/openai/OpenAIMapper'
 import { OpenAIMapper } from '#/providers/openai/OpenAIMapper'
 import { OpenAIProviderCapabilities } from '#/providers/openai/OpenAIProviderCapabilities'
 import { OpenAIModels } from '#/providers/openai/OpenAIModels'
-import { OpenAIClient } from '#/providers/openai/client/OpenAIClient'
+import type { OpenAIClient } from '#/providers/openai/client/OpenAIClient'
 import { OpenAIClientFactory } from '#/providers/openai/client/OpenAIClientFactory'
 
 export class OpenAIProvider extends BaseProvider implements IProvider {
@@ -52,11 +52,16 @@ export class OpenAIProvider extends BaseProvider implements IProvider {
     return Object.keys(OpenAIProviderCapabilities).includes(capability)
   }
 
-  async execute(request: ExecutionRequest): Promise<ExecutionResponse> {
-    const clientResponse = await this.client.execute(request)
+  async execute(request: unknown): Promise<ExecutionResponse> {
+    if (!request || typeof request !== 'object' || !("id" in request)) {
+      throw new Error('Invalid execution request payload for OpenAIProvider.execute')
+    }
+
+    const executionRequest = request as ExecutionRequest
+    const clientResponse = await this.client.execute(executionRequest)
 
     const openAIResponse: OpenAIResponse = {
-      id: request.id,
+      id: executionRequest.id,
       status: clientResponse.status === 'success' ? 'success' : 'error',
       output: clientResponse.content,
       tokensInput: clientResponse.usage?.tokensInput,

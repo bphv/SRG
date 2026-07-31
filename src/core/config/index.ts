@@ -1,10 +1,10 @@
 import type { JsonValue } from '#/types'
 
 export interface ConfigManagerContract {
-  get<T = JsonValue>(key: string): T | undefined
-  set<T = JsonValue>(key: string, value: T): void
-  has(key: string): boolean
-  entries(): Array<[string, JsonValue]>
+  get: <T = JsonValue>(key: string) => T | undefined
+  set: <T = JsonValue>(key: string, value: T) => void
+  has: (key: string) => boolean
+  entries: () => Array<[string, JsonValue]>
 }
 
 export class ConfigManager implements ConfigManagerContract {

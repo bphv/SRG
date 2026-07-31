@@ -5,8 +5,8 @@ import { EventBusImpl } from '../events'
 import { KernelRegistryImpl } from '../registry'
 
 export interface Kernel {
-  start(): Promise<void>
-  stop(): Promise<void>
+  start: () => Promise<void>
+  stop: () => Promise<void>
   readonly name: string
   readonly environment: string
   readonly config: ConfigManager

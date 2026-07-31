@@ -26,7 +26,7 @@ export class TraceManager {
     }
 
     const span = this.spans[this.currentTraceContext.spanId]
-    span?.finish('OK')
+    span.finish('OK')
     this.currentTraceContext = undefined
   }
 
@@ -46,9 +46,8 @@ export class TraceManager {
   }
 
   finishSpan(spanId: string, status: string = 'OK'): void {
-    const span = this.spans[spanId]
-    if (span) {
-      span.finish(status)
+    if (spanId in this.spans) {
+      this.spans[spanId].finish(status)
     }
   }
 

@@ -25,7 +25,9 @@ export function runPromptTest(prompt: Prompt, provider: PromptProvider, model: s
     }
   }
 
-  const replaced = prompt.content.replace(/{{\s*([\w]+)\s*}}/g, (_, name) => values[name] ?? `{{${name}}}`)
+  const replaced = prompt.content.replace(/{{\s*([\w]+)\s*}}/g, (_, name) =>
+    Object.hasOwn(values, name) ? values[name] : `{{${name}}}`,
+  )
   const output = `Réponse simulée pour ${prompt.name} avec ${provider}/${model} :\n\n${replaced}\n\n---\nRéponse générée avec succès.`
   const tokens = Math.max(20, Math.ceil(replaced.length / 5))
   const durationMs = 300 + Math.round(tokens * 2.5)

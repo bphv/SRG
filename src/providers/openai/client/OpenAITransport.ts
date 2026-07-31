@@ -1,4 +1,4 @@
-import OpenAI from 'openai'
+import type OpenAI from 'openai'
 import { BaseTransport } from '#/providers/shared/transport/BaseTransport'
 import type { TransportRequest } from '#/providers/shared/transport/TransportRequest'
 import type { TransportResponse } from '#/providers/shared/transport/TransportResponse'
@@ -45,7 +45,7 @@ export class OpenAITransport extends BaseTransport {
       })
 
       const chatResponse = sdkResponse as ChatCompletion
-      if (!chatResponse || typeof chatResponse.id !== 'string' || !Array.isArray(chatResponse.choices)) {
+      if (typeof chatResponse.id !== 'string' || !Array.isArray(chatResponse.choices)) {
         throw new NetworkError('Unexpected OpenAI response shape')
       }
 

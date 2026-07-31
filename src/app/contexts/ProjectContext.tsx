@@ -1,5 +1,6 @@
 import { createContext, useContext, useMemo, useState } from 'react'
-import { ProjectService, type Project, type ProjectFilters, type ProjectCreatePayload, type ProjectUpdatePayload } from '#/app/services/ProjectService'
+import { ProjectService     } from '#/app/services/ProjectService'
+import type {Project, ProjectFilters, ProjectCreatePayload, ProjectUpdatePayload} from '#/app/services/ProjectService';
 
 type ProjectContextValue = {
   projects: Project[]

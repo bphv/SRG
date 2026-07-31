@@ -15,7 +15,7 @@ export class Bootstrap {
     // register empty stages (stubs) in order
     for (const stage of ALL_BOOTSTRAP_STAGES) {
       this.pipeline.addStep({
-        stage: stage as any,
+        stage: stage,
         run: async (_context: BootstrapContext) => ({ stage, success: true }),
       })
     }

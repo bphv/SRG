@@ -1,4 +1,5 @@
-import { navItems, type AppNavItem } from '#/app/navigation/navConfig'
+import { navItems  } from '#/app/navigation/navConfig'
+import type {AppNavItem} from '#/app/navigation/navConfig';
 
 export function getNavigationItems(): AppNavItem[] {
   return navItems

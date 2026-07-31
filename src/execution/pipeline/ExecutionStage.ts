@@ -4,5 +4,5 @@ import type { ExecutionContext } from '#/execution/context/ExecutionContext'
 
 export interface ExecutionStage {
   name: string
-  run(context: ExecutionContext, request: ExecutionRequest): Promise<ExecutionResponse>
+  run: (context: ExecutionContext, request: ExecutionRequest) => Promise<ExecutionResponse>
 }
