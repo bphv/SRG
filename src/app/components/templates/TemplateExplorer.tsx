@@ -1,6 +1,5 @@
 import TemplateSearch from '#/app/components/templates/TemplateSearch'
 import TemplateCategorySidebar from '#/app/components/templates/TemplateCategorySidebar'
-import TemplateFilters from '#/app/components/templates/TemplateFilters'
 import TemplateTags from '#/app/components/templates/TemplateTags'
 
 export default function TemplateExplorer({

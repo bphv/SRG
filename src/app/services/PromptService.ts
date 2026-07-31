@@ -70,10 +70,9 @@ export type PromptCreatePayload = {
 }
 
 export type PromptUpdatePayload = Partial<Omit<Prompt, 'id' | 'createdAt' | 'projectId'>> & {
+  variables?: PromptVariable[]
   versionComment?: string
 }
-
-const now = new Date().toISOString().split('T')[0]
 
 const initialPrompts: Prompt[] = [
   {
@@ -252,7 +251,11 @@ export class PromptService {
 
       const shouldVersion = updates.content !== undefined || updates.description !== undefined || updates.tags !== undefined || updates.variables !== undefined
       if (shouldVersion) {
-        updatedPrompt.versions = [...updatedPrompt.versions, createVersion(updatedPrompt, updates.versionComment ?? 'Mise à jour')]
+        const nextVersion = createVersion(updatedPrompt, updates.versionComment ?? 'Mise à jour')
+        if (updates.variables) {
+          nextVersion.variables = updates.variables
+        }
+        updatedPrompt.versions = [...updatedPrompt.versions, nextVersion]
       }
 
       return updatedPrompt

@@ -1,4 +1,4 @@
-import type { Prompt, PromptVariable, PromptProvider } from '#/app/services/PromptService'
+import type { Prompt, PromptProvider } from '#/app/services/PromptService'
 
 export type PromptTestResult = {
   output: string

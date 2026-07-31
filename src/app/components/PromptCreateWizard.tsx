@@ -26,7 +26,7 @@ export default function PromptCreateWizard({
   const [model, setModel] = useState<OpenAIModel>(OpenAIModels.GPT_4_1)
   const [language, setLanguage] = useState<PromptLanguage>('Français')
   const [content, setContent] = useState('')
-  const [variables, setVariables] = useState([{ name: 'projectName', description: 'Nom du projet', example: 'SRG Launch', required: true }])
+  const [variables] = useState([{ name: 'projectName', description: 'Nom du projet', example: 'SRG Launch', required: true }])
 
   const isStepOneValid = useMemo(() => name.trim().length > 0 && projectId.length > 0, [name, projectId])
   const isStepTwoValid = useMemo(() => category.length > 0 && description.trim().length > 0, [category, description])

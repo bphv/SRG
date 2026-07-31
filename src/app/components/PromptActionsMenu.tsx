@@ -1,5 +1,3 @@
-import type { Prompt } from '#/app/services/PromptService'
-
 export default function PromptActionsMenu({
   onDuplicate,
   onArchive,

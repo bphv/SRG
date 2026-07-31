@@ -47,8 +47,8 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   }
 
   const selectPrompt = (id: string | null) => {
-    const prompt = id ? PromptService.getPrompt(id) ?? null : null
-    setSelectedPrompt(prompt)
+    const prompt = id ? PromptService.getPrompt(id) : undefined
+    setSelectedPrompt(prompt ?? null)
     setHistory(prompt ? PromptService.getHistory(prompt.id) : [])
   }
 
@@ -66,8 +66,10 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
     const prompt = PromptService.updatePrompt(id, payload)
     refresh()
     if (prompt?.id === selectedPrompt?.id) {
-      setSelectedPrompt(prompt)
-      setHistory(PromptService.getHistory(prompt.id))
+      setSelectedPrompt(prompt ?? null)
+      if (prompt) {
+        setHistory(PromptService.getHistory(prompt.id))
+      }
     }
     return prompt
   }

@@ -15,14 +15,10 @@ export type TemplateListData = {
 export default function TemplateList({
   templates,
   onOpen,
-  onDuplicate,
-  onCreatePrompt,
   onToggleFavorite,
 }: {
   templates: TemplateListData[]
   onOpen: (id: string) => void
-  onDuplicate: (id: string) => void
-  onCreatePrompt: (id: string) => void
   onToggleFavorite: (id: string) => void
 }) {
   return (
