@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
+import { useTheme } from '#/app/hooks/useTheme'
 
 export const Route = createFileRoute('/profile')({
   component: ProfilePage,
@@ -10,6 +11,7 @@ export const Route = createFileRoute('/profile')({
 
 function ProfilePage() {
   const business = useBusiness()
+  const theme = useTheme()
   const fallbackUserId = business.currentSession?.userId ?? business.snapshot.users.at(0)?.id ?? ''
 
   const profile = useMemo(
@@ -21,6 +23,10 @@ function ProfilePage() {
   const [nextPassword, setNextPassword] = useState('')
   const [phone, setPhone] = useState(profile?.phone ?? '')
   const [language, setLanguage] = useState(profile?.language ?? '')
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const [company, setCompany] = useState(profile?.company ?? '')
+  const [notifyByEmail, setNotifyByEmail] = useState(true)
+  const [notifyBySms, setNotifyBySms] = useState(false)
   const [sessionQuery, setSessionQuery] = useState('')
   const [sessionState, setSessionState] = useState<'all' | 'active' | 'closed'>('all')
   const [sessionSort, setSessionSort] = useState<'lastActivityDesc' | 'createdDesc' | 'deviceAsc'>('lastActivityDesc')
@@ -172,6 +178,27 @@ function ProfilePage() {
       <PageHeader title="Profil Utilisateur" description="Matricule, sécurité, wallet, crédits, plan et appareils connectés." />
 
       <Section title="Informations" description="Identité et attributs de profil.">
+        <div className="mb-4 flex flex-wrap items-center gap-4 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-[var(--lagoon-deep)] text-2xl font-semibold text-white">
+            {photoPreview ? <img src={photoPreview} alt="Photo utilisateur" className="h-20 w-20 object-cover" /> : profile.username.slice(0, 2).toUpperCase()}
+          </div>
+          <label className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]">
+            Ajouter une photo
+            <input
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(event) => {
+                const file = event.target.files?.[0]
+                if (!file) {
+                  return
+                }
+
+                setPhotoPreview(URL.createObjectURL(file))
+              }}
+            />
+          </label>
+        </div>
         <div className="grid gap-3 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm md:grid-cols-2">
           <p><strong>Matricule:</strong> {profile.matricule}</p>
           <p><strong>Username:</strong> {profile.username}</p>
@@ -223,6 +250,31 @@ function ProfilePage() {
         <div className="flex flex-wrap gap-3">
           <input value={language} onChange={(event) => setLanguage(event.target.value)} className="min-w-[260px] rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
           <button type="button" onClick={changeLanguage} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm">Mettre à jour</button>
+        </div>
+      </Section>
+
+      <Section title="Préférences" description="Thème, entreprise et canaux de notifications préparés.">
+        <div className="grid gap-4 md:grid-cols-2">
+          <label className="grid gap-2 text-sm">
+            <span className="font-semibold text-[var(--sea-ink)]">Entreprise</span>
+            <input value={company} onChange={(event) => setCompany(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
+          </label>
+          <label className="grid gap-2 text-sm">
+            <span className="font-semibold text-[var(--sea-ink)]">Thème</span>
+            <select value={theme.mode} onChange={(event) => theme.setMode(event.target.value as 'light' | 'dark' | 'system')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+              <option value="system">System</option>
+            </select>
+          </label>
+          <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
+            <input type="checkbox" checked={notifyByEmail} onChange={(event) => setNotifyByEmail(event.target.checked)} />
+            <span>Notifications Email</span>
+          </label>
+          <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
+            <input type="checkbox" checked={notifyBySms} onChange={(event) => setNotifyBySms(event.target.checked)} />
+            <span>Notifications SMS</span>
+          </label>
         </div>
       </Section>
 

@@ -5,8 +5,12 @@ import PromptEditor from '#/app/components/PromptEditor'
 import PromptList from '#/app/components/PromptList'
 import PromptSearch from '#/app/components/PromptSearch'
 import PromptVariablesPanel from '#/app/components/PromptVariablesPanel'
+import { useBusiness } from '#/app/hooks/useBusiness'
+import { useNotifications } from '#/app/hooks/useNotifications'
 import { usePrompts } from '#/app/hooks/usePrompts'
 import { useProjects } from '#/app/hooks/useProjects'
+import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
+import type { WorkspaceHistoryRecord } from '#/app/services/HistoryWorkspaceService'
 import type { Prompt, PromptProvider } from '#/app/services/PromptService'
 import { replaceVariables } from '#/app/services/PromptPreviewService'
 import { GeneratorEngine } from '#/generator/engine/GeneratorEngine'
@@ -27,24 +31,9 @@ type ProviderChoice = 'auto' | 'openai' | 'mock'
 type OutputFormat = 'markdown' | 'json' | 'raw'
 type MobilePane = 'config' | 'prompt' | 'result'
 
-type GenerationHistoryItem = {
-  id: string
-  promptName: string
-  promptText: string
-  output: string
-  provider: string
-  model: string
-  status: 'pending' | 'completed' | 'failed'
-  durationMs: number
-  tokensInput: number
-  tokensOutput: number
-  costEstimate: number
-  createdAt: string
-}
-
-const HISTORY_STORAGE_KEY = 'srg.generate.history.v1'
-
 function GeneratePage() {
+  const business = useBusiness()
+  const notifications = useNotifications()
   const { prompts, createPrompt, updatePrompt, favoritePrompt } = usePrompts()
   const { projects, selectedProject } = useProjects()
 
@@ -60,9 +49,13 @@ function GeneratePage() {
   const [temperature, setTemperature] = useState(0.7)
   const [maxTokens, setMaxTokens] = useState(1200)
   const [topP, setTopP] = useState(1)
+  const [topK, setTopK] = useState(40)
   const [seed, setSeed] = useState(42)
   const [streaming, setStreaming] = useState(true)
   const [jsonMode, setJsonMode] = useState(false)
+  const [visionEnabled, setVisionEnabled] = useState(false)
+  const [audioEnabled, setAudioEnabled] = useState(false)
+  const [imageEnabled, setImageEnabled] = useState(false)
 
   const [status, setStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle')
   const [resultOutput, setResultOutput] = useState('')
@@ -78,9 +71,11 @@ function GeneratePage() {
   const [isStreamingPaused, setIsStreamingPaused] = useState(false)
   const streamTimerRef = useRef<number | null>(null)
 
-  const [history, setHistory] = useState<GenerationHistoryItem[]>([])
+  const [history, setHistory] = useState<WorkspaceHistoryRecord[]>([])
   const [showCompare, setShowCompare] = useState(false)
   const [quickPromptName, setQuickPromptName] = useState('')
+  const activeUserId = business.currentSession?.userId ?? business.snapshot.users[0]?.id
+  const activeProfile = activeUserId ? business.getUserProfileSnapshot(activeUserId) : undefined
 
   useEffect(() => {
     if (!selectedPromptId) return
@@ -93,22 +88,25 @@ function GeneratePage() {
   }, [selectedPromptId, prompts])
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem(HISTORY_STORAGE_KEY)
-      if (saved) {
-        const parsed = JSON.parse(saved) as GenerationHistoryItem[]
-        if (Array.isArray(parsed)) {
-          setHistory(parsed)
-        }
-      }
-    } catch {
-      setHistory([])
-    }
+    setHistory(HistoryWorkspaceService.getRecords())
   }, [])
 
   useEffect(() => {
-    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(history.slice(0, 20)))
-  }, [history])
+    const rerunDraft = HistoryWorkspaceService.consumePendingRerun()
+    if (!rerunDraft) {
+      return
+    }
+
+    const importedPrompt = buildFallbackPrompt()
+    importedPrompt.name = rerunDraft.promptName
+    importedPrompt.content = rerunDraft.promptText
+    importedPrompt.model = rerunDraft.model
+
+    setWorkingPrompt(importedPrompt)
+    setSelectedPromptId(null)
+    setProviderChoice(rerunDraft.provider === 'openai' ? 'openai' : rerunDraft.provider === 'mock' ? 'mock' : 'auto')
+    setModel(rerunDraft.model)
+  }, [])
 
   useEffect(() => {
     return () => {
@@ -251,6 +249,7 @@ function GeneratePage() {
         temperature,
         maxTokens,
         topP,
+        topK,
         seed,
         streaming,
         jsonMode,
@@ -272,7 +271,7 @@ function GeneratePage() {
       const tokensOutput = Math.max(12, Math.ceil(output.length / 4))
       const costEstimate = Number(((tokensInput + tokensOutput) * 0.000002).toFixed(6))
 
-      const entry: GenerationHistoryItem = {
+      const entry: WorkspaceHistoryRecord = {
         id: `history-${Date.now()}`,
         promptName: workingPrompt.name,
         promptText: renderedPrompt,
@@ -285,9 +284,21 @@ function GeneratePage() {
         tokensOutput,
         costEstimate,
         createdAt: new Date().toISOString(),
+        requestKind: 'generation',
+        projectId: selectedProject?.id,
+        projectName: selectedProject?.name,
       }
 
-      setHistory((current) => [entry, ...current].slice(0, 20))
+      HistoryWorkspaceService.addRecord(entry)
+      setHistory(HistoryWorkspaceService.getRecords())
+      notifications.publish({
+        title: 'Generation terminee',
+        message: `${workingPrompt.name} est disponible dans l'historique.`,
+        level: 'success',
+        category: 'generation',
+        read: false,
+        channels: ['email', 'whatsapp'],
+      })
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Erreur inconnue'
       setStatus('error')
@@ -514,6 +525,17 @@ function GeneratePage() {
               </label>
 
               <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Top K</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={topK}
+                  onChange={(event) => setTopK(Number(event.target.value))}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                />
+              </label>
+
+              <label className="grid gap-2">
                 <span className="font-semibold text-[var(--sea-ink)]">Seed</span>
                 <input
                   type="number"
@@ -531,6 +553,21 @@ function GeneratePage() {
               <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
                 <input type="checkbox" checked={jsonMode} onChange={(event) => setJsonMode(event.target.checked)} />
                 <span>JSON Mode</span>
+              </label>
+
+              <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                <input type="checkbox" checked={visionEnabled} onChange={(event) => setVisionEnabled(event.target.checked)} />
+                <span>Vision</span>
+              </label>
+
+              <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                <input type="checkbox" checked={audioEnabled} onChange={(event) => setAudioEnabled(event.target.checked)} />
+                <span>Audio</span>
+              </label>
+
+              <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                <input type="checkbox" checked={imageEnabled} onChange={(event) => setImageEnabled(event.target.checked)} />
+                <span>Image</span>
               </label>
             </div>
           </div>
@@ -713,6 +750,8 @@ function GeneratePage() {
               <p><span className="font-semibold text-[var(--sea-ink)]">Coût estimé:</span> ${observability.costEstimate.toFixed(6)}</p>
               <p><span className="font-semibold text-[var(--sea-ink)]">Tokens:</span> {observability.tokensTotal}</p>
               <p><span className="font-semibold text-[var(--sea-ink)]">Statut:</span> {observability.status}</p>
+              <p><span className="font-semibold text-[var(--sea-ink)]">Credits utilisateur:</span> {activeProfile?.credits ?? 0}</p>
+              <p><span className="font-semibold text-[var(--sea-ink)]">Wallet utilisateur:</span> {activeProfile?.wallet ?? 0}</p>
             </div>
           </div>
 
@@ -886,6 +925,7 @@ async function executeGeneration(params: {
   temperature: number
   maxTokens: number
   topP: number
+  topK: number
   seed: number
   streaming: boolean
   jsonMode: boolean
@@ -940,6 +980,7 @@ async function executeGeneration(params: {
       temperature: params.temperature,
       maxTokens: params.maxTokens,
       topP: params.topP,
+      topK: params.topK,
       seed: params.seed,
       streaming: params.streaming,
       jsonMode: params.jsonMode,

@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { useMemo } from 'react'
+import { Suspense, lazy, useMemo, useState } from 'react'
 import { navItems } from '#/app/navigation/navConfig'
 import SearchBar from '#/app/components/SearchBar'
 import ProviderBadge from '#/app/components/ProviderBadge'
@@ -8,11 +8,14 @@ import { useNotifications } from '#/app/hooks/useNotifications'
 import { useTheme } from '#/app/hooks/useTheme'
 import { useBreadcrumb } from '#/app/hooks/useBreadcrumb'
 
+const NotificationCenter = lazy(() => import('#/app/components/NotificationCenter'))
+
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation()
   const breadcrumbs = useBreadcrumb()
   const notifications = useNotifications()
   const theme = useTheme()
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
 
   const activePage = useMemo(
     () => navItems.find((item) => item.path === location.pathname) ?? navItems[0],
@@ -41,8 +44,11 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               className="hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm text-[var(--sea-ink)] transition hover:bg-[var(--surface-strong)] sm:inline-flex"
+              onClick={() => setIsNotificationCenterOpen(true)}
+              aria-expanded={isNotificationCenterOpen}
+              aria-controls="notification-center-panel"
             >
-              Notifications ({notifications.notifications.length})
+              Notifications ({notifications.notifications.filter((item) => !item.read).length})
             </button>
             <button
               type="button"
@@ -114,6 +120,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+
+      {isNotificationCenterOpen ? (
+        <div className="fixed inset-0 z-50 flex items-start justify-end bg-black/30 p-4 sm:p-6">
+          <div id="notification-center-panel" className="w-full max-w-md">
+            <Suspense
+              fallback={
+                <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--sea-ink-soft)] shadow-[0_24px_50px_rgba(13,30,14,0.26)]">
+                  Chargement du centre de notifications…
+                </div>
+              }
+            >
+              <NotificationCenter
+                notifications={notifications.notifications}
+                onClose={() => setIsNotificationCenterOpen(false)}
+                onDismiss={notifications.dismiss}
+                onClear={notifications.clear}
+                onMarkRead={notifications.markRead}
+                onMarkAllRead={notifications.markAllRead}
+              />
+            </Suspense>
+          </div>
+        </div>
+      ) : null}
 
       <footer className="page-wrap border-t border-[var(--line)] py-10 text-sm text-[var(--sea-ink-soft)]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

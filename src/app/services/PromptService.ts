@@ -74,6 +74,12 @@ export type PromptUpdatePayload = Partial<Omit<Prompt, 'id' | 'createdAt' | 'pro
   versionComment?: string
 }
 
+export type PromptPublicationRecord = {
+  promptId: string
+  publishedAt: string
+  visibility: 'internal' | 'public'
+}
+
 const initialPrompts: Prompt[] = [
   {
     id: 'prompt-1',
@@ -192,6 +198,7 @@ function createVersion(prompt: Prompt, comment = 'Sauvegarde automatique'): Prom
 
 export class PromptService {
   private static prompts: Prompt[] = [...initialPrompts]
+  private static publications: PromptPublicationRecord[] = []
 
   static getPrompts(): Prompt[] {
     return [...this.prompts].sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
@@ -302,6 +309,37 @@ export class PromptService {
     if (!prompt) return undefined
 
     return this.updatePrompt(id, { favorite: !prompt.favorite })
+  }
+
+  static publishPrompt(id: string, visibility: 'internal' | 'public' = 'internal'): Prompt | undefined {
+    const prompt = this.getPrompt(id)
+    if (!prompt) {
+      return undefined
+    }
+
+    const nextPrompt = this.updatePrompt(id, {
+      status: 'active',
+      versionComment: visibility === 'public' ? 'Publication publique' : 'Publication interne',
+    })
+
+    if (!nextPrompt) {
+      return undefined
+    }
+
+    this.publications = [
+      {
+        promptId: id,
+        publishedAt: new Date().toISOString(),
+        visibility,
+      },
+      ...this.publications.filter((item) => item.promptId !== id),
+    ]
+
+    return nextPrompt
+  }
+
+  static getPublication(promptId: string): PromptPublicationRecord | undefined {
+    return this.publications.find((item) => item.promptId === promptId)
   }
 
   static getProjectName(projectId: string) {

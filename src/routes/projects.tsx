@@ -15,6 +15,7 @@ import ArchiveProjectDialog from '#/app/components/ArchiveProjectDialog'
 import DuplicateProjectDialog from '#/app/components/DuplicateProjectDialog'
 import Loading from '#/app/components/Loading'
 import { useProjects } from '#/app/hooks/useProjects'
+import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
 export const Route = createFileRoute('/projects')({
   component: ProjectsPage,
@@ -32,6 +33,7 @@ function ProjectsPage() {
     applyFilters,
     selectProject,
     createProject,
+    updateProject,
     archiveProject,
     deleteProject,
     duplicateProject,
@@ -41,6 +43,8 @@ function ProjectsPage() {
   const [wizardOpen, setWizardOpen] = useState(false)
   const [pendingAction, setPendingAction] = useState<PendingActionType>(null)
   const [pendingProjectId, setPendingProjectId] = useState<string | null>(null)
+  const [renameValue, setRenameValue] = useState('')
+  const [shareLink, setShareLink] = useState('')
 
   const filteredProjects = useMemo(() => {
     return projects
@@ -72,6 +76,54 @@ function ProjectsPage() {
   }, [projects, filters])
 
   const projectName = selectedProject?.name ?? ''
+
+  const exportProjects = () => {
+    WorkspaceExchangeService.downloadJson('srg-projects-export.json', filteredProjects)
+  }
+
+  const shareProject = () => {
+    if (!selectedProject) {
+      return
+    }
+
+    setShareLink(WorkspaceExchangeService.createShareLink('project', selectedProject.id, selectedProject.name))
+  }
+
+  const renameSelectedProject = () => {
+    if (!selectedProject || !renameValue.trim()) {
+      return
+    }
+
+    updateProject(selectedProject.id, { name: renameValue.trim() })
+    setRenameValue('')
+  }
+
+  const importProjects = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    const imported = await WorkspaceExchangeService.parseJsonFile<Array<{
+      name: string
+      description: string
+      provider: 'OpenAI' | 'Anthropic' | 'Azure OpenAI' | 'Cohere'
+      language: string
+      type: 'content' | 'research' | 'product'
+    }>>(file)
+
+    imported.forEach((item) => {
+      createProject({
+        name: item.name,
+        description: item.description,
+        provider: item.provider,
+        language: item.language,
+        type: item.type,
+      })
+    })
+
+    event.target.value = ''
+  }
 
   const handleCreateProject = (payload: Parameters<typeof createProject>[0]) => {
     createProject(payload)
@@ -138,13 +190,26 @@ function ProjectsPage() {
               onSortChange={(sortKey) => applyFilters({ sortKey })}
               onCreate={() => setWizardOpen(true)}
               actions={
-                <button
-                  type="button"
-                  onClick={() => refresh()}
-                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
-                >
-                  Actualiser
-                </button>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => refresh()}
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
+                  >
+                    Actualiser
+                  </button>
+                  <button
+                    type="button"
+                    onClick={exportProjects}
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
+                  >
+                    Exporter
+                  </button>
+                  <label className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]">
+                    Importer
+                    <input type="file" accept="application/json" className="hidden" onChange={importProjects} />
+                  </label>
+                </div>
               }
             />
           </div>
@@ -191,6 +256,21 @@ function ProjectsPage() {
                 >
                   {selectedProject.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 </button>
+                <div className="grid gap-2">
+                  <input
+                    value={renameValue}
+                    onChange={(event) => setRenameValue(event.target.value)}
+                    placeholder="Renommer le projet"
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]"
+                  />
+                  <button
+                    type="button"
+                    onClick={renameSelectedProject}
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
+                  >
+                    Renommer
+                  </button>
+                </div>
                 <button
                   type="button"
                   onClick={() => {
@@ -200,6 +280,13 @@ function ProjectsPage() {
                   className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                 >
                   Dupliquer
+                </button>
+                <button
+                  type="button"
+                  onClick={shareProject}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
+                >
+                  Partager
                 </button>
                 <button
                   type="button"
@@ -221,6 +308,7 @@ function ProjectsPage() {
                 >
                   Supprimer
                 </button>
+                {shareLink ? <p className="text-xs text-[var(--sea-ink-soft)]">Lien de partage: {shareLink}</p> : null}
               </div>
             </div>
           ) : null}

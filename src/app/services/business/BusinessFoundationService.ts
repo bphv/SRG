@@ -431,24 +431,24 @@ export class BusinessFoundationService {
   private static ensureInit() {
     if (this.initialized) return
 
-    const organization = this.createOrganization({
+    const organization = this.createOrganizationInternal({
       name: 'SRG Corporation',
       legalName: 'SRG Corporation Ltd',
       country: 'France',
       city: 'Paris',
     })
 
-    const department = this.createDepartment({
+    const department = this.createDepartmentInternal({
       organizationId: organization.id,
       name: 'AI Platform',
     })
 
-    const team = this.createTeam({
+    const team = this.createTeamInternal({
       departmentId: department.id,
       name: 'Core Workspace',
     })
 
-    const superAdmin = this.createUser({
+    const superAdmin = this.createUserInternal({
       username: 'superadmin',
       phone: '+33100000001',
       email: 'admin@srg.local',
@@ -467,7 +467,7 @@ export class BusinessFoundationService {
       teamId: team.id,
     })
 
-    this.createUser({
+    this.createUserInternal({
       username: 'manager',
       phone: '+33100000002',
       email: 'manager@srg.local',
@@ -486,7 +486,7 @@ export class BusinessFoundationService {
       teamId: team.id,
     })
 
-    this.addPaymentMethod({
+    this.addPaymentMethodInternal({
       userId: superAdmin.id,
       type: 'card',
       provider: 'stripe',
@@ -564,74 +564,7 @@ export class BusinessFoundationService {
   }): UserIdentity {
     this.ensureInit()
 
-    if (!input.phone.trim()) {
-      throw new Error('Phone is required for user creation.')
-    }
-
-    if (this.users.some((user) => user.username.toLowerCase() === input.username.toLowerCase())) {
-      throw new Error('Username already exists.')
-    }
-
-    if (this.users.some((user) => user.phone.trim() === input.phone.trim())) {
-      throw new Error('Phone already exists.')
-    }
-
-    const traceStart = nowIso()
-    const userId = randomId('usr')
-    const matricule = this.generateMatricule()
-
-    const user: UserIdentity = {
-      id: userId,
-      matricule,
-      username: input.username,
-      phone: input.phone,
-      email: input.email,
-      role: input.role,
-      organizationId: input.organizationId,
-      departmentId: input.departmentId,
-      teamId: input.teamId,
-      createdAt: nowIso(),
-    }
-
-    const profile: UserProfile = {
-      userId,
-      ...input.profile,
-    }
-
-    const passwordSalt = randomId('salt')
-    const credential: AuthCredential = {
-      userId,
-      passwordHash: simpleHash(input.password, passwordSalt),
-      passwordSalt,
-      passwordUpdatedAt: nowIso(),
-    }
-
-    this.users = [user, ...this.users]
-    this.profiles = [profile, ...this.profiles]
-    this.credentials = [credential, ...this.credentials]
-
-    this.ensureWallet(userId)
-    this.ensureCreditAccount(userId)
-    this.ensureDefaultSubscription(userId)
-    this.featureFlagsByUser[userId] = defaultFeatureFlags()
-
-    this.observe('identity.user.create', 'User created', {
-      userId,
-      role: input.role,
-      matricule,
-    })
-    this.traces = [
-      {
-        id: randomId('trace'),
-        operation: 'identity.user.create',
-        startedAt: traceStart,
-        endedAt: nowIso(),
-        status: 'ok',
-      },
-      ...this.traces,
-    ]
-
-    return user
+    return this.createUserInternal(input)
   }
 
   static authenticate(identifier: string, password: string): AuthResult {
@@ -680,7 +613,6 @@ export class BusinessFoundationService {
     this.forgotTickets = [ticket, ...this.forgotTickets]
     this.observe('auth.password.forgot', 'Forgot password ticket created', { userId: user.id, ticketId: ticket.id })
 
-    // Returning ticket id only keeps secret token out of visible payload.
     return { ticketId: ticket.id }
   }
 
@@ -720,50 +652,17 @@ export class BusinessFoundationService {
 
   static createOrganization(input: { name: string; legalName: string; country: string; city: string }): Organization {
     this.ensureInit()
-    const organization: Organization = {
-      id: randomId('org'),
-      name: input.name,
-      legalName: input.legalName,
-      country: input.country,
-      city: input.city,
-      createdAt: nowIso(),
-    }
-
-    this.organizations = [organization, ...this.organizations]
-    this.observe('organization.create', 'Organization created', { organizationId: organization.id })
-    return organization
+    return this.createOrganizationInternal(input)
   }
 
   static createDepartment(input: { organizationId: string; name: string; managerUserId?: string }): Department {
     this.ensureInit()
-
-    const department: Department = {
-      id: randomId('dep'),
-      organizationId: input.organizationId,
-      name: input.name,
-      managerUserId: input.managerUserId,
-      createdAt: nowIso(),
-    }
-
-    this.departments = [department, ...this.departments]
-    this.observe('organization.department.create', 'Department created', { departmentId: department.id, organizationId: input.organizationId })
-    return department
+    return this.createDepartmentInternal(input)
   }
 
   static createTeam(input: { departmentId: string; name: string; leadUserId?: string }): Team {
     this.ensureInit()
-
-    const team: Team = {
-      id: randomId('team'),
-      departmentId: input.departmentId,
-      name: input.name,
-      leadUserId: input.leadUserId,
-      createdAt: nowIso(),
-    }
-
-    this.teams = [team, ...this.teams]
-    this.observe('organization.team.create', 'Team created', { teamId: team.id, departmentId: input.departmentId })
-    return team
+    return this.createTeamInternal(input)
   }
 
   static assignUserToStructure(input: { userId: string; organizationId?: string; departmentId?: string; teamId?: string }): void {
@@ -984,23 +883,7 @@ export class BusinessFoundationService {
 
   static createSubscription(input: { userId: string; planName: SubscriptionPlanName; status?: UserSubscription['status'] }): UserSubscription {
     this.ensureInit()
-
-    const now = new Date()
-    const renewal = new Date(now)
-    renewal.setMonth(renewal.getMonth() + 1)
-
-    const subscription: UserSubscription = {
-      id: randomId('sub'),
-      userId: input.userId,
-      planName: input.planName,
-      startedAt: now.toISOString(),
-      renewalAt: renewal.toISOString(),
-      status: input.status ?? 'active',
-    }
-
-    this.subscriptions = [subscription, ...this.subscriptions.filter((item) => item.userId !== input.userId)]
-    this.observe('subscription.create', 'Subscription created or updated', { userId: input.userId, planName: input.planName })
-    return subscription
+    return this.createSubscriptionInternal(input)
   }
 
   static createInvoice(input: { userId: string; amount: number; currency?: string; taxAmount?: number }): Invoice {
@@ -1023,15 +906,7 @@ export class BusinessFoundationService {
 
   static addPaymentMethod(input: Omit<PaymentMethod, 'id'>): PaymentMethod {
     this.ensureInit()
-
-    const method: PaymentMethod = {
-      id: randomId('pm'),
-      ...input,
-    }
-
-    this.paymentMethods = [method, ...this.paymentMethods]
-    this.observe('billing.payment-method.create', 'Payment method registered', { userId: input.userId, methodId: method.id })
-    return method
+    return this.addPaymentMethodInternal(input)
   }
 
   static recordPayment(input: { invoiceId: string; userId: string; methodId: string; provider: string; amount: number }): Payment {
@@ -1149,9 +1024,135 @@ export class BusinessFoundationService {
     }
   }
 
-  private static ensureWallet(userId: string): Wallet {
+  private static createOrganizationInternal(input: { name: string; legalName: string; country: string; city: string }): Organization {
+    const organization: Organization = {
+      id: randomId('org'),
+      name: input.name,
+      legalName: input.legalName,
+      country: input.country,
+      city: input.city,
+      createdAt: nowIso(),
+    }
+
+    this.organizations = [organization, ...this.organizations]
+    this.observe('organization.create', 'Organization created', { organizationId: organization.id })
+    return organization
+  }
+
+  private static createDepartmentInternal(input: { organizationId: string; name: string; managerUserId?: string }): Department {
+    const department: Department = {
+      id: randomId('dep'),
+      organizationId: input.organizationId,
+      name: input.name,
+      managerUserId: input.managerUserId,
+      createdAt: nowIso(),
+    }
+
+    this.departments = [department, ...this.departments]
+    this.observe('organization.department.create', 'Department created', { departmentId: department.id, organizationId: input.organizationId })
+    return department
+  }
+
+  private static createTeamInternal(input: { departmentId: string; name: string; leadUserId?: string }): Team {
+    const team: Team = {
+      id: randomId('team'),
+      departmentId: input.departmentId,
+      name: input.name,
+      leadUserId: input.leadUserId,
+      createdAt: nowIso(),
+    }
+
+    this.teams = [team, ...this.teams]
+    this.observe('organization.team.create', 'Team created', { teamId: team.id, departmentId: input.departmentId })
+    return team
+  }
+
+  private static createUserInternal(input: {
+    username: string
+    phone: string
+    email?: string
+    password: string
+    role: UserRole
+    profile: Omit<UserProfile, 'userId'>
+    organizationId?: string
+    departmentId?: string
+    teamId?: string
+  }): UserIdentity {
+    if (!input.phone.trim()) {
+      throw new Error('Phone is required for user creation.')
+    }
+
+    if (this.users.some((user) => user.username.toLowerCase() === input.username.toLowerCase())) {
+      throw new Error('Username already exists.')
+    }
+
+    if (this.users.some((user) => user.phone.trim() === input.phone.trim())) {
+      throw new Error('Phone already exists.')
+    }
+
+    const traceStart = nowIso()
+    const userId = randomId('usr')
+    const matricule = this.generateMatricule()
+
+    const user: UserIdentity = {
+      id: userId,
+      matricule,
+      username: input.username,
+      phone: input.phone,
+      email: input.email,
+      role: input.role,
+      organizationId: input.organizationId,
+      departmentId: input.departmentId,
+      teamId: input.teamId,
+      createdAt: nowIso(),
+    }
+
+    const profile: UserProfile = {
+      userId,
+      ...input.profile,
+    }
+
+    const passwordSalt = randomId('salt')
+    const credential: AuthCredential = {
+      userId,
+      passwordHash: simpleHash(input.password, passwordSalt),
+      passwordSalt,
+      passwordUpdatedAt: nowIso(),
+    }
+
+    this.users = [user, ...this.users]
+    this.profiles = [profile, ...this.profiles]
+    this.credentials = [credential, ...this.credentials]
+
+    this.createWalletInternal(userId)
+    this.ensureDefaultSubscriptionInternal(userId)
+    this.ensureCreditAccount(userId)
+    this.featureFlagsByUser[userId] = defaultFeatureFlags()
+
+    this.observe('identity.user.create', 'User created', {
+      userId,
+      role: input.role,
+      matricule,
+    })
+    this.traces = [
+      {
+        id: randomId('trace'),
+        operation: 'identity.user.create',
+        startedAt: traceStart,
+        endedAt: nowIso(),
+        status: 'ok',
+      },
+      ...this.traces,
+    ]
+
+    return user
+  }
+
+  private static createWalletInternal(userId: string): Wallet {
     const existing = this.wallets.find((wallet) => wallet.userId === userId)
-    if (existing) return existing
+    if (existing) {
+      return existing
+    }
 
     const wallet: Wallet = {
       id: randomId('wallet'),
@@ -1162,6 +1163,40 @@ export class BusinessFoundationService {
     }
     this.wallets = [wallet, ...this.wallets]
     return wallet
+  }
+
+  private static createSubscriptionInternal(input: { userId: string; planName: SubscriptionPlanName; status?: UserSubscription['status'] }): UserSubscription {
+    const now = new Date()
+    const renewal = new Date(now)
+    renewal.setMonth(renewal.getMonth() + 1)
+
+    const subscription: UserSubscription = {
+      id: randomId('sub'),
+      userId: input.userId,
+      planName: input.planName,
+      startedAt: now.toISOString(),
+      renewalAt: renewal.toISOString(),
+      status: input.status ?? 'active',
+    }
+
+    this.subscriptions = [subscription, ...this.subscriptions.filter((item) => item.userId !== input.userId)]
+    this.observe('subscription.create', 'Subscription created or updated', { userId: input.userId, planName: input.planName })
+    return subscription
+  }
+
+  private static addPaymentMethodInternal(input: Omit<PaymentMethod, 'id'>): PaymentMethod {
+    const method: PaymentMethod = {
+      id: randomId('pm'),
+      ...input,
+    }
+
+    this.paymentMethods = [method, ...this.paymentMethods]
+    this.observe('billing.payment-method.create', 'Payment method registered', { userId: input.userId, methodId: method.id })
+    return method
+  }
+
+  private static ensureWallet(userId: string): Wallet {
+    return this.createWalletInternal(userId)
   }
 
   private static ensureCreditAccount(userId: string): CreditAccount {
@@ -1194,10 +1229,10 @@ export class BusinessFoundationService {
     return account
   }
 
-  private static ensureDefaultSubscription(userId: string): UserSubscription {
+  private static ensureDefaultSubscriptionInternal(userId: string): UserSubscription {
     const existing = this.subscriptions.find((item) => item.userId === userId)
     if (existing) return existing
-    return this.createSubscription({ userId, planName: 'Free' })
+    return this.createSubscriptionInternal({ userId, planName: 'Free' })
   }
 
   private static pushCreditSnapshot(userId: string): void {

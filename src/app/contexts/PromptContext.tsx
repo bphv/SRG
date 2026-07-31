@@ -29,6 +29,7 @@ type PromptContextValue = {
   duplicatePrompt: (id: string) => Prompt | undefined
   archivePrompt: (id: string) => Prompt | undefined
   favoritePrompt: (id: string) => Prompt | undefined
+  publishPrompt: (id: string, visibility?: 'internal' | 'public') => Prompt | undefined
 }
 
 const PromptContext = createContext<PromptContextValue | undefined>(undefined)
@@ -102,6 +103,16 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
     return prompt
   }
 
+  const publishPrompt = (id: string, visibility: 'internal' | 'public' = 'internal') => {
+    const prompt = PromptService.publishPrompt(id, visibility)
+    refresh()
+    if (prompt && prompt.id === selectedPrompt?.id) {
+      setSelectedPrompt(prompt)
+      setHistory(PromptService.getHistory(prompt.id))
+    }
+    return prompt
+  }
+
   const value = useMemo(
     () => ({
       prompts,
@@ -118,6 +129,7 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
       duplicatePrompt,
       archivePrompt,
       favoritePrompt,
+      publishPrompt,
     }),
     [prompts, selectedPrompt, loading, filters, history],
   )

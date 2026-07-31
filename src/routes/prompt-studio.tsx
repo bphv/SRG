@@ -11,9 +11,12 @@ import PromptPreview from '#/app/components/PromptPreview'
 import PromptHistory from '#/app/components/PromptHistory'
 import PromptMetadataPanel from '#/app/components/PromptMetadataPanel'
 import PromptTestPanel from '#/app/components/PromptTestPanel'
+import PromptVersionPanel from '#/app/components/PromptVersionPanel'
 import { useProjects } from '#/app/hooks/useProjects'
 import { usePrompts } from '#/app/hooks/usePrompts'
 import { runPromptTest } from '#/app/services/PromptTestService'
+import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
+import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
 export const Route = createFileRoute('/prompt-studio')({
   component: PromptStudioPage,
@@ -31,6 +34,7 @@ function PromptStudioPage() {
     duplicatePrompt,
     deletePrompt,
     favoritePrompt,
+    publishPrompt,
     filters,
     applyFilters,
   } = usePrompts()
@@ -40,6 +44,8 @@ function PromptStudioPage() {
   const [testResult, setTestResult] = useState<string>('')
   const [testError, setTestError] = useState<string | null>(null)
   const [testStatus, setTestStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle')
+  const [versionCompareIds, setVersionCompareIds] = useState<string[]>([])
+  const [publishVisibility, setPublishVisibility] = useState<'internal' | 'public'>('internal')
 
   const visiblePrompts = useMemo(
     () =>
@@ -73,6 +79,22 @@ function PromptStudioPage() {
       setTestStatus('success')
       setTestError(null)
       setTestResult(result.output)
+      HistoryWorkspaceService.addRecord({
+        id: `prompt-test-${Date.now()}`,
+        promptName: selectedPrompt.name,
+        promptText: selectedPrompt.content,
+        output: result.output,
+        provider,
+        model,
+        status: 'completed',
+        durationMs: result.durationMs,
+        tokensInput: result.tokens,
+        tokensOutput: Math.max(10, Math.ceil(result.output.length / 4)),
+        costEstimate: Number(((result.tokens + Math.ceil(result.output.length / 4)) * 0.000002).toFixed(6)),
+        createdAt: new Date().toISOString(),
+        requestKind: 'prompt-test',
+        projectId: selectedPrompt.projectId,
+      })
     }
   }
 
@@ -87,6 +109,15 @@ function PromptStudioPage() {
   }
 
   const currentProjectId = selectedProject?.id ?? 'all'
+  const comparedVersions = selectedPrompt?.versions.filter((version) => versionCompareIds.includes(version.id)).slice(0, 2) ?? []
+
+  const exportPrompt = () => {
+    if (!selectedPrompt) {
+      return
+    }
+
+    WorkspaceExchangeService.downloadJson(`${selectedPrompt.name}-prompt.json`, selectedPrompt)
+  }
 
   return (
     <div className="space-y-6">
@@ -165,6 +196,7 @@ function PromptStudioPage() {
           <PromptMetadataPanel prompt={selectedPrompt} />
           <PromptPreview prompt={selectedPrompt} variables={testValues} />
           <PromptHistory history={selectedPrompt?.versions ?? []} />
+          <PromptVersionPanel versions={selectedPrompt?.versions ?? []} />
         </div>
       </div>
 
@@ -185,6 +217,62 @@ function PromptStudioPage() {
           result={testResult}
           error={testError}
         />
+
+        {selectedPrompt ? (
+          <div className="mt-6 grid gap-6 xl:grid-cols-2">
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Publication</p>
+                  <p className="text-sm text-[var(--sea-ink-soft)]">Publiez le prompt et exportez sa definition.</p>
+                </div>
+                <button type="button" onClick={exportPrompt} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter</button>
+              </div>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <select value={publishVisibility} onChange={(event) => setPublishVisibility(event.target.value as 'internal' | 'public')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
+                  <option value="internal">Interne</option>
+                  <option value="public">Public</option>
+                </select>
+                <button type="button" onClick={() => publishPrompt(selectedPrompt.id, publishVisibility)} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Publier</button>
+              </div>
+            </div>
+
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Comparaison de versions</p>
+              <div className="mt-4 space-y-3">
+                {selectedPrompt.versions.map((version) => (
+                  <label key={version.id} className="flex items-center justify-between rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
+                    <span>Version {version.version} • {version.date}</span>
+                    <input
+                      type="checkbox"
+                      checked={versionCompareIds.includes(version.id)}
+                      onChange={(event) => {
+                        setVersionCompareIds((current) => {
+                          if (event.target.checked) {
+                            return [...current.filter((item) => item !== version.id), version.id].slice(-2)
+                          }
+                          return current.filter((item) => item !== version.id)
+                        })
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : null}
+
+        {comparedVersions.length === 2 ? (
+          <div className="mt-6 grid gap-4 xl:grid-cols-2">
+            {comparedVersions.map((version) => (
+              <div key={version.id} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+                <p className="font-semibold text-[var(--sea-ink)]">Version {version.version}</p>
+                <p className="mt-1 text-sm text-[var(--sea-ink-soft)]">{version.comment}</p>
+                <pre className="mt-4 whitespace-pre-wrap break-words rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs text-[var(--sea-ink)]">{version.content}</pre>
+              </div>
+            ))}
+          </div>
+        ) : null}
       </section>
 
       {wizardOpen ? (

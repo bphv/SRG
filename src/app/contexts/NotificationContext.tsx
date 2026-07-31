@@ -7,6 +7,8 @@ type NotificationContextValue = {
   publish: (notification: Omit<NotificationItem, 'id' | 'createdAt'>) => void
   dismiss: (id: string) => void
   clear: () => void
+  markRead: (id: string) => void
+  markAllRead: () => void
 }
 
 const NotificationContext = createContext<NotificationContextValue | undefined>(undefined)
@@ -25,6 +27,8 @@ export function NotificationProvider({ children }: { children: React.ReactNode }
         publish: notificationService.publish.bind(notificationService),
         dismiss: notificationService.dismiss.bind(notificationService),
         clear: notificationService.clear.bind(notificationService),
+        markRead: notificationService.markRead.bind(notificationService),
+        markAllRead: notificationService.markAllRead.bind(notificationService),
       }}
     >
       {children}
