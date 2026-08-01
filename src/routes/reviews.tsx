@@ -2,8 +2,10 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
+import SearchBar from '#/app/components/SearchBar'
 import Section from '#/app/components/Section'
 import WorkspaceSkeleton from '#/app/components/WorkspaceSkeleton'
+import { Field, FieldGroup, FormSection } from '#/app/components/ui/FormPrimitives'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { PromptReviewService } from '#/app/services/PromptReviewService'
 import type { PromptReview, PromptReviewDecisionAction, PromptReviewRole, PromptReviewStatus } from '#/app/services/PromptReviewService'
@@ -120,29 +122,46 @@ function ReviewsPage() {
       </Section>
 
       <Section title="Recherche et filtres" description="Statut, rôle, texte et pagination.">
-        <div className="grid gap-3 md:grid-cols-4">
-          <input value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} placeholder="Recherche review, raison, note interne" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-          <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value as 'all' | PromptReviewStatus); setPage(1) }} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            <option value="all">Tous les statuts</option>
-            <option value="pending">Pending</option>
-            <option value="approved">Approved</option>
-            <option value="rejected">Rejected</option>
-            <option value="hidden">Hidden</option>
-            <option value="reported">Reported</option>
-            <option value="deleted">Deleted</option>
-          </select>
-          <select value={roleFilter} onChange={(event) => { setRoleFilter(event.target.value as 'all' | PromptReviewRole); setPage(1) }} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            <option value="all">Tous les rôles</option>
-            <option value="reviewer">Reviewer</option>
-            <option value="moderator">Moderator</option>
-            <option value="administrator">Administrator</option>
-          </select>
-          <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1) }} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            <option value={6}>6 lignes</option>
-            <option value={8}>8 lignes</option>
-            <option value={12}>12 lignes</option>
-          </select>
-        </div>
+        <FormSection title="Review filters" description="Cross-workspace search and role/status slicing.">
+          <FieldGroup columns={4}>
+            <Field label="Search">
+              <SearchBar
+                value={search}
+                onSearch={(value) => { setSearch(value); setPage(1) }}
+                onValueChange={(value) => { setSearch(value); setPage(1) }}
+                placeholder="Search review, reason, internal note"
+                instant
+                persistKey="reviews-search"
+              />
+            </Field>
+            <Field label="Status">
+              <select value={statusFilter} onChange={(event) => { setStatusFilter(event.target.value as 'all' | PromptReviewStatus); setPage(1) }}>
+                <option value="all">All statuses</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="rejected">Rejected</option>
+                <option value="hidden">Hidden</option>
+                <option value="reported">Reported</option>
+                <option value="deleted">Deleted</option>
+              </select>
+            </Field>
+            <Field label="Role">
+              <select value={roleFilter} onChange={(event) => { setRoleFilter(event.target.value as 'all' | PromptReviewRole); setPage(1) }}>
+                <option value="all">All roles</option>
+                <option value="reviewer">Reviewer</option>
+                <option value="moderator">Moderator</option>
+                <option value="administrator">Administrator</option>
+              </select>
+            </Field>
+            <Field label="Page size">
+              <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1) }}>
+                <option value={6}>6 rows</option>
+                <option value={8}>8 rows</option>
+                <option value={12}>12 rows</option>
+              </select>
+            </Field>
+          </FieldGroup>
+        </FormSection>
       </Section>
 
       <Section title="Queue de reviews" description="Reviews en attente, signalées, rejetées et approuvées.">

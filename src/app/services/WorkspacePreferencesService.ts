@@ -2,12 +2,16 @@ export type ThemePreferenceMode = 'light' | 'dark' | 'system'
 
 export type WorkspacePreferences = {
   sidebarOpen: boolean
+  sidebarWidth: number
   themeMode: ThemePreferenceMode
   favoriteProvider: string
   favoriteModel: string
   recentPage: string
+  recentSearches: string[]
+  commandFavorites: string[]
   pageLayouts: Record<string, string>
   tableSizes: Record<string, number>
+  tablePages: Record<string, number>
   visibleColumns: Record<string, string[]>
   sorts: Record<string, string>
   filters: Record<string, Record<string, string | boolean | number>>
@@ -18,12 +22,16 @@ const STORAGE_KEY = 'srg.workspace.preferences.v1'
 
 const defaultPreferences = (): WorkspacePreferences => ({
   sidebarOpen: true,
+  sidebarWidth: 280,
   themeMode: 'system',
   favoriteProvider: 'openai',
   favoriteModel: 'gpt-4.1',
   recentPage: '/dashboard',
+  recentSearches: [],
+  commandFavorites: [],
   pageLayouts: {},
   tableSizes: {},
+  tablePages: {},
   visibleColumns: {},
   sorts: {},
   filters: {},
@@ -50,8 +58,11 @@ export class WorkspacePreferencesService {
       return {
         ...defaultPreferences(),
         ...parsed,
+        recentSearches: parsed.recentSearches ?? defaultPreferences().recentSearches,
+        commandFavorites: parsed.commandFavorites ?? defaultPreferences().commandFavorites,
         pageLayouts: { ...defaultPreferences().pageLayouts, ...parsed.pageLayouts },
         tableSizes: { ...defaultPreferences().tableSizes, ...parsed.tableSizes },
+        tablePages: { ...defaultPreferences().tablePages, ...parsed.tablePages },
         visibleColumns: { ...defaultPreferences().visibleColumns, ...parsed.visibleColumns },
         sorts: { ...defaultPreferences().sorts, ...parsed.sorts },
         filters: { ...defaultPreferences().filters, ...parsed.filters },
@@ -95,6 +106,11 @@ export class WorkspacePreferencesService {
     this.updatePreferences((current) => ({ ...current, sidebarOpen }))
   }
 
+  static setSidebarWidth(sidebarWidth: number): void {
+    const clampedWidth = Math.min(420, Math.max(240, Math.round(sidebarWidth)))
+    this.updatePreferences((current) => ({ ...current, sidebarWidth: clampedWidth }))
+  }
+
   static setFavoriteProvider(provider: string): void {
     this.updatePreferences((current) => ({ ...current, favoriteProvider: provider }))
   }
@@ -114,6 +130,13 @@ export class WorkspacePreferencesService {
     this.updatePreferences((current) => ({
       ...current,
       tableSizes: { ...current.tableSizes, [pageId]: size },
+    }))
+  }
+
+  static setTablePage(pageId: string, page: number): void {
+    this.updatePreferences((current) => ({
+      ...current,
+      tablePages: { ...current.tablePages, [pageId]: Math.max(1, Math.floor(page)) },
     }))
   }
 
@@ -143,5 +166,30 @@ export class WorkspacePreferencesService {
       ...current,
       favorites: { ...current.favorites, [scope]: ids },
     }))
+  }
+
+  static pushRecentSearch(search: string): void {
+    const normalized = search.trim()
+    if (!normalized) return
+
+    this.updatePreferences((current) => {
+      const deduped = [normalized, ...current.recentSearches.filter((item) => item.toLowerCase() !== normalized.toLowerCase())]
+      return {
+        ...current,
+        recentSearches: deduped.slice(0, 20),
+      }
+    })
+  }
+
+  static toggleCommandFavorite(commandId: string): void {
+    this.updatePreferences((current) => {
+      const exists = current.commandFavorites.includes(commandId)
+      return {
+        ...current,
+        commandFavorites: exists
+          ? current.commandFavorites.filter((item) => item !== commandId)
+          : [commandId, ...current.commandFavorites].slice(0, 30),
+      }
+    })
   }
 }

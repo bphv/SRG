@@ -15,6 +15,8 @@ export default function TemplateSearch({
       value={value}
       onSearch={onSearch}
       onValueChange={onValueChange}
+      instant
+      persistKey="template-search"
     />
   )
 }

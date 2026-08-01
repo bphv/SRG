@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
+import SearchBar from '#/app/components/SearchBar'
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import type { NotificationItem } from '#/app/services/NotificationService'
 
 function formatChannelList(channels: NotificationItem['channels']): string {
@@ -29,6 +31,7 @@ export default function NotificationCenter({
   const [statusFilter, setStatusFilter] = useState<'all' | 'read' | 'unread'>('all')
   const [categoryFilter, setCategoryFilter] = useState<'all' | NotificationItem['category']>('all')
   const [priorityFilter, setPriorityFilter] = useState<'all' | NotificationItem['priority']>('all')
+  const [textQuery, setTextQuery] = useState('')
 
   const availableCategories = useMemo(
     () => Array.from(new Set(notifications.map((item) => item.category))),
@@ -49,9 +52,16 @@ export default function NotificationCenter({
       if (priorityFilter !== 'all' && item.priority !== priorityFilter) {
         return false
       }
+      if (textQuery.trim()) {
+        const query = textQuery.trim().toLowerCase()
+        const haystack = `${item.title} ${item.message} ${item.category} ${item.priority}`.toLowerCase()
+        if (!haystack.includes(query)) {
+          return false
+        }
+      }
       return true
     }),
-    [notifications, statusFilter, categoryFilter, priorityFilter],
+    [notifications, statusFilter, categoryFilter, priorityFilter, textQuery],
   )
 
   return (
@@ -77,6 +87,19 @@ export default function NotificationCenter({
         >
           Fermer
         </button>
+      </div>
+
+      <div className="mt-4">
+        <SearchBar
+          placeholder="Search notifications"
+          value={textQuery}
+          onSearch={(value) => {
+            setTextQuery(value)
+            WorkspacePreferencesService.pushRecentSearch(value)
+          }}
+          onValueChange={setTextQuery}
+          instant
+        />
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
@@ -158,6 +181,7 @@ export default function NotificationCenter({
                   setStatusFilter('all')
                   setCategoryFilter('all')
                   setPriorityFilter('all')
+                    setTextQuery('')
                 }}
                 className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white"
               >

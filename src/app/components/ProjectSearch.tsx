@@ -9,5 +9,5 @@ export default function ProjectSearch({
   onSearch: (value: string) => void
   onValueChange: (value: string) => void
 }) {
-  return <SearchBar placeholder="Rechercher un projet..." value={value} onSearch={onSearch} onValueChange={onValueChange} />
+  return <SearchBar placeholder="Rechercher un projet..." value={value} onSearch={onSearch} onValueChange={onValueChange} instant persistKey="project-search" />
 }

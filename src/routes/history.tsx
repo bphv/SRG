@@ -1,9 +1,14 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
+import SearchBar from '#/app/components/SearchBar'
 import Section from '#/app/components/Section'
 import CollaborationActivityFeed from '#/app/components/collaboration/CollaborationActivityFeed'
+import DataTable from '#/app/components/ui/DataTable'
+import type { DataTableColumn } from '#/app/components/ui/DataTable'
+import { Field, FieldGroup, FormSection } from '#/app/components/ui/FormPrimitives'
+import { useNotifications } from '#/app/hooks/useNotifications'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { AgentWorkspaceService } from '#/app/services/AgentWorkspaceService'
@@ -24,6 +29,8 @@ export const Route = createFileRoute('/history')({
 
 function HistoryPage() {
   const navigate = useNavigate()
+  const notifications = useNotifications()
+  const searchHostRef = useRef<HTMLDivElement | null>(null)
   const historyPreferences = WorkspacePreferencesService.getPreferences()
   const persistedFilters = (historyPreferences.filters.history as Record<string, string | boolean | number> | undefined) || {}
   const persistedSort = (historyPreferences.sorts.history as string | undefined) || 'createdAt:desc'
@@ -41,8 +48,6 @@ function HistoryPage() {
   const [typeFilter, setTypeFilter] = useState(typeof persistedFilters.typeFilter === 'string' ? persistedFilters.typeFilter : '')
   const [activeSortKey, setActiveSortKey] = useState<'createdAt' | 'durationMs' | 'costEstimate'>(sortKey)
   const [activeSortOrder, setActiveSortOrder] = useState<'asc' | 'desc'>(sortOrder)
-  const [pageSize, setPageSize] = useState(historyPreferences.tableSizes.history || 8)
-  const [page, setPage] = useState(1)
   const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>([])
 
   useEffect(() => {
@@ -59,8 +64,7 @@ function HistoryPage() {
       typeFilter,
     })
     WorkspacePreferencesService.setSort('history', `${activeSortKey}:${activeSortOrder}`)
-    WorkspacePreferencesService.setTableSize('history', pageSize)
-  }, [search, dateFilter, projectFilter, providerFilter, modelFilter, statusFilter, authorFilter, collaboratorFilter, versionFilter, typeFilter, activeSortKey, activeSortOrder, pageSize])
+  }, [search, dateFilter, projectFilter, providerFilter, modelFilter, statusFilter, authorFilter, collaboratorFilter, versionFilter, typeFilter, activeSortKey, activeSortOrder])
 
   const projects = useMemo(
     () => ['all', ...Array.from(new Set(records.map((item) => item.projectName).filter((item): item is string => Boolean(item))))],
@@ -127,9 +131,6 @@ function HistoryPage() {
     })
   }, [filteredRecords, activeSortKey, activeSortOrder])
 
-  const totalPages = Math.max(1, Math.ceil(sortedRecords.length / pageSize))
-  const paginatedRecords = sortedRecords.slice((page - 1) * pageSize, page * pageSize)
-
   const comparedRecords = sortedRecords.filter((item) => selectedCompareIds.includes(item.id)).slice(0, 2)
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
   const agentSummary = AgentWorkspaceService.getSummary()
@@ -149,6 +150,15 @@ function HistoryPage() {
     HistoryWorkspaceService.deleteRecord(id)
     setSelectedCompareIds((current) => current.filter((item) => item !== id))
     refresh()
+    notifications.publish({
+      title: 'Historique mis à jour',
+      message: `Run ${id} supprimé.`,
+      level: 'info',
+      priority: 'low',
+      category: 'generation',
+      read: false,
+      channels: ['email'],
+    })
   }
 
   const rerunRecord = (id: string) => {
@@ -165,15 +175,46 @@ function HistoryPage() {
       projectId: record.projectId,
       projectName: record.projectName,
     })
+    notifications.publish({
+      title: 'Relance préparée',
+      message: `Le run ${record.promptName} est chargé dans Generate.`,
+      level: 'info',
+      priority: 'medium',
+      category: 'generation',
+      read: false,
+      channels: ['email'],
+    })
     void navigate({ to: '/generate' })
   }
 
   const exportFiltered = () => {
     WorkspaceExchangeService.downloadJson('srg-history-export.json', sortedRecords)
+    notifications.publish({
+      title: 'Export history',
+      message: 'Le fichier JSON filtré a été exporté.',
+      level: 'success',
+      priority: 'low',
+      category: 'system',
+      read: false,
+      channels: ['email'],
+    })
   }
 
   const exportHistoryBundle = () => {
     CollaborationWorkspaceService.exportHistory('json')
+  }
+
+  const resetFilters = () => {
+    setSearch('')
+    setDateFilter('')
+    setProjectFilter('all')
+    setProviderFilter('all')
+    setModelFilter('all')
+    setStatusFilter('all')
+    setAuthorFilter('')
+    setCollaboratorFilter('')
+    setVersionFilter('')
+    setTypeFilter('')
   }
 
   const toggleCompare = (id: string, checked: boolean) => {
@@ -185,57 +226,183 @@ function HistoryPage() {
     })
   }
 
+  const executionColumns: Array<DataTableColumn<(typeof sortedRecords)[number]>> = [
+    {
+      key: 'promptName',
+      label: 'Prompt',
+      sortable: true,
+      render: (row) => (
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-[var(--srg-text-title)]">{row.promptName}</p>
+          <p className="text-xs text-[var(--srg-text-muted)]">{row.projectName ?? 'No project'} • {row.provider}/{row.model}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (row) => <span className="rounded-full bg-[var(--srg-surface-strong)] px-2 py-1 text-xs text-[var(--srg-text-muted)]">{row.status}</span>,
+    },
+    {
+      key: 'durationMs',
+      label: 'Duration',
+      sortable: true,
+      render: (row) => `${row.durationMs} ms`,
+    },
+    {
+      key: 'costEstimate',
+      label: 'Cost',
+      sortable: true,
+      render: (row) => `$${row.costEstimate.toFixed(6)}`,
+    },
+    {
+      key: 'createdAt',
+      label: 'Created',
+      sortable: true,
+      render: (row) => new Date(row.createdAt).toLocaleString(),
+    },
+    {
+      key: 'output',
+      label: 'Preview',
+      render: (row) => <span className="line-clamp-2 text-xs text-[var(--srg-text-muted)]">{row.output || row.promptText}</span>,
+    },
+    {
+      key: 'id',
+      label: 'Actions',
+      render: (row) => (
+        <div className="flex flex-wrap items-center gap-2">
+          <button type="button" onClick={() => rerunRecord(row.id)} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-1.5 text-xs font-semibold text-white">Relancer</button>
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadJson(`${row.id}.json`, row)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-1.5 text-xs font-semibold text-[var(--srg-text-title)]">Exporter</button>
+          <button type="button" onClick={() => deleteRecord(row.id)} className="rounded-2xl border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] px-3 py-1.5 text-xs font-semibold text-[#9b2f2f]">Supprimer</button>
+          <label className="inline-flex items-center gap-1 text-xs text-[var(--srg-text-muted)]">
+            <input type="checkbox" checked={selectedCompareIds.includes(row.id)} onChange={(event) => toggleCompare(row.id, event.target.checked)} />
+            <span>Comparer</span>
+          </label>
+        </div>
+      ),
+    },
+  ]
+
+  const bulkActions = [
+    {
+      label: 'Exporter sélection',
+      onClick: (rows: typeof sortedRecords) => {
+        WorkspaceExchangeService.downloadJson('srg-history-selected.json', rows)
+      },
+    },
+    {
+      label: 'Supprimer sélection',
+      onClick: (rows: typeof sortedRecords) => {
+        rows.forEach((row) => HistoryWorkspaceService.deleteRecord(row.id))
+        refresh()
+      },
+    },
+  ]
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.ctrlKey && event.key.toLowerCase() === 'k') {
+        event.preventDefault()
+        const input = searchHostRef.current?.querySelector('input')
+        input?.focus()
+      }
+
+      if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'e') {
+        event.preventDefault()
+        exportFiltered()
+      }
+
+      if (event.ctrlKey && event.shiftKey && event.key === 'Backspace') {
+        event.preventDefault()
+        resetFilters()
+      }
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  })
+
   return (
     <div className="space-y-6">
       <PageHeader title="History" description="Filtrez, comparez, exportez et relancez vos executions SRG." />
 
       <Section title="Filtres" description="Date, projet, provider, modele et statut.">
-        <div className="grid gap-3 md:grid-cols-6">
-          <input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} placeholder="Recherche avancée" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-          <input type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-          <select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            {projects.map((project) => <option key={project} value={project}>{project}</option>)}
-          </select>
-          <select value={providerFilter} onChange={(event) => setProviderFilter(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            {providers.map((provider) => <option key={provider} value={provider}>{provider}</option>)}
-          </select>
-          <select value={modelFilter} onChange={(event) => setModelFilter(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            {models.map((model) => <option key={model} value={model}>{model}</option>)}
-          </select>
-          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'all' | 'pending' | 'completed' | 'failed' | 'cancelled')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            <option value="all">all</option>
-            <option value="pending">pending</option>
-            <option value="completed">completed</option>
-            <option value="failed">failed</option>
-            <option value="cancelled">cancelled</option>
-          </select>
-        </div>
-        <div className="mt-3 grid gap-3 md:grid-cols-4">
-          <input type="search" value={authorFilter} onChange={(event) => setAuthorFilter(event.target.value)} placeholder="Auteur" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-          <input type="search" value={collaboratorFilter} onChange={(event) => setCollaboratorFilter(event.target.value)} placeholder="Collaborateur" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-          <input type="search" value={versionFilter} onChange={(event) => setVersionFilter(event.target.value)} placeholder="Version" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-          <input type="search" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} placeholder="Type" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-        </div>
+        <FormSection title="Recherche avancée" description="Filtres persistés, historique de recherche et raccourcis clavier (Ctrl+K, Ctrl+Shift+E, Ctrl+Shift+Backspace).">
+          <FieldGroup columns={3}>
+            <Field label="Recherche">
+              <div ref={searchHostRef}>
+                <SearchBar
+                  value={search}
+                  onSearch={(value) => setSearch(value)}
+                  onValueChange={setSearch}
+                  placeholder="Recherche avancée"
+                  instant
+                  persistKey="history-search"
+                />
+              </div>
+            </Field>
+            <Field label="Date">
+              <input type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} />
+            </Field>
+            <Field label="Statut">
+              <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'all' | 'pending' | 'completed' | 'failed' | 'cancelled')}>
+                <option value="all">all</option>
+                <option value="pending">pending</option>
+                <option value="completed">completed</option>
+                <option value="failed">failed</option>
+                <option value="cancelled">cancelled</option>
+              </select>
+            </Field>
+            <Field label="Projet">
+              <select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)}>
+                {projects.map((project) => <option key={project} value={project}>{project}</option>)}
+              </select>
+            </Field>
+            <Field label="Provider">
+              <select value={providerFilter} onChange={(event) => setProviderFilter(event.target.value)}>
+                {providers.map((provider) => <option key={provider} value={provider}>{provider}</option>)}
+              </select>
+            </Field>
+            <Field label="Modèle">
+              <select value={modelFilter} onChange={(event) => setModelFilter(event.target.value)}>
+                {models.map((model) => <option key={model} value={model}>{model}</option>)}
+              </select>
+            </Field>
+            <Field label="Auteur">
+              <input type="search" value={authorFilter} onChange={(event) => setAuthorFilter(event.target.value)} placeholder="Auteur" />
+            </Field>
+            <Field label="Collaborateur">
+              <input type="search" value={collaboratorFilter} onChange={(event) => setCollaboratorFilter(event.target.value)} placeholder="Collaborateur" />
+            </Field>
+            <Field label="Version">
+              <input type="search" value={versionFilter} onChange={(event) => setVersionFilter(event.target.value)} placeholder="Version" />
+            </Field>
+            <Field label="Type">
+              <input type="search" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} placeholder="Type" />
+            </Field>
+            <Field label="Tri clé">
+              <select value={activeSortKey} onChange={(event) => setActiveSortKey(event.target.value as 'createdAt' | 'durationMs' | 'costEstimate')}>
+                <option value="createdAt">Tri: date</option>
+                <option value="durationMs">Tri: durée</option>
+                <option value="costEstimate">Tri: coût</option>
+              </select>
+            </Field>
+            <Field label="Tri ordre">
+              <select value={activeSortOrder} onChange={(event) => setActiveSortOrder(event.target.value as 'asc' | 'desc')}>
+                <option value="desc">Desc</option>
+                <option value="asc">Asc</option>
+              </select>
+            </Field>
+          </FieldGroup>
+        </FormSection>
         <div className="mt-3 flex flex-wrap gap-2">
-          <select value={activeSortKey} onChange={(event) => setActiveSortKey(event.target.value as 'createdAt' | 'durationMs' | 'costEstimate')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">
-            <option value="createdAt">Tri: date</option>
-            <option value="durationMs">Tri: durée</option>
-            <option value="costEstimate">Tri: coût</option>
-          </select>
-          <select value={activeSortOrder} onChange={(event) => setActiveSortOrder(event.target.value as 'asc' | 'desc')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">
-            <option value="desc">Desc</option>
-            <option value="asc">Asc</option>
-          </select>
-          <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1) }} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">
-            <option value={6}>6 lignes</option>
-            <option value={8}>8 lignes</option>
-            <option value={12}>12 lignes</option>
-          </select>
           <button type="button" onClick={exportFiltered} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter JSON</button>
           <button type="button" onClick={() => CollaborationWorkspaceService.exportHistory('csv')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter CSV</button>
           <button type="button" onClick={() => CollaborationWorkspaceService.exportHistory('markdown')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Markdown</button>
           <button type="button" onClick={exportHistoryBundle} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Export Bundle</button>
           <button type="button" onClick={() => { HistoryWorkspaceService.clear(); refresh() }} className="rounded-3xl border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] px-4 py-2 text-sm font-semibold text-[#9b2f2f]">Vider</button>
+          <button type="button" onClick={resetFilters} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Réinitialiser filtres</button>
         </div>
       </Section>
 
@@ -558,45 +725,27 @@ function HistoryPage() {
       </Section>
 
       <Section title="Executions" description="Historique complet des runs visibles.">
-        <div className="space-y-3 text-sm">
-          {sortedRecords.length === 0 ? (
-            <EmptyState
-              eyebrow="History"
-              illustration={<span aria-hidden>⌛</span>}
-              title="Aucun historique"
-              description="Aucun run ne correspond aux filtres actifs. Lancez une génération ou réinitialisez la recherche avancée."
-              action={<button type="button" onClick={() => { setSearch(''); setDateFilter(''); setProjectFilter('all'); setProviderFilter('all'); setModelFilter('all'); setStatusFilter('all') }} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Réinitialiser</button>}
-            />
-          ) : null}
-          {paginatedRecords.map((item) => (
-            <article key={item.id} className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-[var(--srg-text-title)]">{item.promptName}</p>
-                  <p className="mt-1 text-[var(--srg-text-muted)]">{item.projectName ?? 'No project'} • {item.provider} / {item.model}</p>
-                </div>
-                <label className="inline-flex items-center gap-2 text-xs text-[var(--srg-text-muted)]">
-                  <input type="checkbox" checked={selectedCompareIds.includes(item.id)} onChange={(event) => toggleCompare(item.id, event.target.checked)} />
-                  <span>Comparer</span>
-                </label>
-              </div>
-              <p className="mt-3 text-[var(--srg-text-muted)]">Statut: {item.status} • {new Date(item.createdAt).toLocaleString()} • {item.durationMs} ms • ${item.costEstimate.toFixed(6)}</p>
-              <p className="mt-2 line-clamp-3 text-[var(--srg-text-muted)]">{item.output || item.promptText}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => rerunRecord(item.id)} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-xs font-semibold text-white">Relancer</button>
-                <button type="button" onClick={() => WorkspaceExchangeService.downloadJson(`${item.id}.json`, item)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]">Exporter</button>
-                <button type="button" onClick={() => deleteRecord(item.id)} className="rounded-3xl border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] px-4 py-2 text-xs font-semibold text-[#9b2f2f]">Supprimer</button>
-              </div>
-            </article>
-          ))}
-        </div>
-        <div className="mt-4 flex items-center justify-between text-sm text-[var(--srg-text-muted)]">
-          <span>Page {page} / {totalPages}</span>
-          <div className="flex gap-2">
-            <button type="button" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 disabled:opacity-50">Précédente</button>
-            <button type="button" disabled={page >= totalPages} onClick={() => setPage((current) => Math.min(totalPages, current + 1))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 disabled:opacity-50">Suivante</button>
-          </div>
-        </div>
+        {sortedRecords.length === 0 ? (
+          <EmptyState
+            eyebrow="History"
+            illustration={<span aria-hidden>⌛</span>}
+            title="Aucun historique"
+            description="Aucun run ne correspond aux filtres actifs. Lancez une génération ou réinitialisez la recherche avancée."
+            action={<button type="button" onClick={resetFilters} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Réinitialiser</button>}
+          />
+        ) : (
+          <DataTable
+            tableId="history-executions"
+            title="Runs"
+            rows={sortedRecords}
+            columns={executionColumns}
+            searchable={false}
+            pageSize={8}
+            exportFileName="srg-history-executions.csv"
+            multiSelect
+            bulkActions={bulkActions}
+          />
+        )}
       </Section>
 
       {comparedRecords.length === 2 ? (

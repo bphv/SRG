@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 
 export function FormSection({
@@ -143,5 +144,143 @@ export function SwitchField({
       />
       {label}
     </button>
+  )
+}
+
+export function CollapsibleFormSection({
+  id,
+  title,
+  description,
+  children,
+  defaultOpen = true,
+}: {
+  id: string
+  title: string
+  description?: string
+  children: ReactNode
+  defaultOpen?: boolean
+}) {
+  const storageKey = `srg.form.section.${id}`
+  const [open, setOpen] = useState(() => {
+    if (typeof window === 'undefined') return defaultOpen
+    const value = window.localStorage.getItem(storageKey)
+    return value === null ? defaultOpen : value === 'open'
+  })
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(storageKey, open ? 'open' : 'closed')
+    }
+  }, [open, storageKey])
+
+  return (
+    <section className="rounded-[var(--srg-radius-lg)] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 shadow-[var(--srg-shadow-sm)]">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-3 rounded-xl px-1 py-1 text-left"
+        aria-expanded={open}
+        aria-controls={`${id}-content`}
+        onClick={() => setOpen((current) => !current)}
+      >
+        <div>
+          <h3 className="srg-h4">{title}</h3>
+          {description ? <p className="srg-body mt-1 text-sm">{description}</p> : null}
+        </div>
+        <span className="text-xs text-[var(--srg-text-muted)]">{open ? 'Hide' : 'Show'}</span>
+      </button>
+      {open ? <div id={`${id}-content`} className="mt-3">{children}</div> : null}
+    </section>
+  )
+}
+
+export function FormProgress({
+  completed,
+  total,
+  label = 'Completion',
+}: {
+  completed: number
+  total: number
+  label?: string
+}) {
+  const safeTotal = Math.max(1, total)
+  const clamped = Math.min(safeTotal, Math.max(0, completed))
+  const percent = Math.round((clamped / safeTotal) * 100)
+
+  return (
+    <div className="rounded-xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
+      <div className="mb-1 flex items-center justify-between text-xs">
+        <span className="font-semibold text-[var(--srg-text-label)]">{label}</span>
+        <span className="text-[var(--srg-text-muted)]">{percent}%</span>
+      </div>
+      <div className="h-2 overflow-hidden rounded-full bg-[var(--srg-border)]">
+        <div className="h-full rounded-full bg-[var(--srg-color-primary-500)] transition-[width] duration-200" style={{ width: `${percent}%` }} />
+      </div>
+    </div>
+  )
+}
+
+export function SmartInputField({
+  id,
+  label,
+  value,
+  onValueChange,
+  placeholder,
+  required,
+  validator,
+  autosaveLabel,
+}: {
+  id: string
+  label: string
+  value: string
+  onValueChange: (value: string) => void
+  placeholder?: string
+  required?: boolean
+  validator?: (value: string) => string | null
+  autosaveLabel?: string
+}) {
+  const historyKey = `srg.form.history.${id}`
+  const [history, setHistory] = useState<string[]>([])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    try {
+      const raw = window.localStorage.getItem(historyKey)
+      if (!raw) return
+      const parsed = JSON.parse(raw) as string[]
+      setHistory(Array.isArray(parsed) ? parsed : [])
+    } catch {
+      setHistory([])
+    }
+  }, [historyKey])
+
+  const error = useMemo(() => {
+    if (validator) return validator(value)
+    if (required && !value.trim()) return `${label} is required.`
+    return null
+  }, [label, required, validator, value])
+
+  const commitValueToHistory = () => {
+    const normalized = value.trim()
+    if (!normalized || typeof window === 'undefined') return
+    const next = [normalized, ...history.filter((item) => item.toLowerCase() !== normalized.toLowerCase())].slice(0, 10)
+    setHistory(next)
+    window.localStorage.setItem(historyKey, JSON.stringify(next))
+  }
+
+  return (
+    <Field label={label} required={required} error={error ?? undefined} hint={error ? undefined : autosaveLabel}>
+      <>
+        <input
+          value={value}
+          onChange={(event) => onValueChange(event.target.value)}
+          onBlur={commitValueToHistory}
+          placeholder={placeholder}
+          list={`${id}-history`}
+        />
+        <datalist id={`${id}-history`}>
+          {history.map((item) => <option key={item} value={item} />)}
+        </datalist>
+      </>
+    </Field>
   )
 }

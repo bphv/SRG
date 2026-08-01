@@ -2,11 +2,17 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
+import SearchBar from '#/app/components/SearchBar'
 import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
+import type { ProviderWorkspaceHealth, ProviderWorkspaceItem } from '#/app/services/ProviderWorkspaceService'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
+import DataTable from '#/app/components/ui/DataTable'
+import type { DataTableColumn } from '#/app/components/ui/DataTable'
+import Button from '#/app/components/ui/Button'
+import { Field, FieldGroup, FormSection } from '#/app/components/ui/FormPrimitives'
 
 export const Route = createFileRoute('/providers')({
   component: ProvidersPage,
@@ -17,7 +23,7 @@ function ProvidersPage() {
   const [providers, setProviders] = useState(() => ProviderWorkspaceService.list())
   const preferences = WorkspacePreferencesService.getPreferences()
   const [search, setSearch] = useState('')
-  const [healthFilter, setHealthFilter] = useState<'all' | 'healthy' | 'degraded' | 'offline'>('all')
+  const [healthFilter, setHealthFilter] = useState<'all' | ProviderWorkspaceHealth>('all')
   const [favoriteProvider, setFavoriteProvider] = useState(preferences.favoriteProvider)
   const actorId = business.currentSession ? business.currentSession.userId : (business.snapshot.users[0]?.id ?? 'system')
   const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
@@ -40,9 +46,148 @@ function ProvidersPage() {
   const enabledCount = providers.filter((item) => item.status === 'enabled').length
   const averageLatency = Math.round(providers.reduce((sum, item) => sum + item.latencyMs, 0) / Math.max(1, providers.length))
 
+  const toggleProvider = (provider: ProviderWorkspaceItem) => {
+    setProviders(ProviderWorkspaceService.toggle(provider.id))
+    CollaborationWorkspaceService.logProviderUpdated({
+      actorId,
+      actorName,
+      providerId: provider.id,
+      action: provider.status === 'enabled' ? 'disabled' : 'enabled',
+    })
+  }
+
+  const testProvider = (provider: ProviderWorkspaceItem) => {
+    setProviders(ProviderWorkspaceService.test(provider.id))
+    CollaborationWorkspaceService.logProviderUpdated({
+      actorId,
+      actorName,
+      providerId: provider.id,
+      action: 'tested',
+    })
+  }
+
+  const bulkActions = [
+    {
+      label: 'Enable selected',
+      onClick: (rows: ProviderWorkspaceItem[]) => {
+        let next = ProviderWorkspaceService.list()
+        rows.forEach((row) => {
+          const current = next.find((item) => item.id === row.id)
+          if (current?.status === 'disabled') {
+            next = ProviderWorkspaceService.toggle(row.id)
+            CollaborationWorkspaceService.logProviderUpdated({
+              actorId,
+              actorName,
+              providerId: row.id,
+              action: 'enabled',
+            })
+          }
+        })
+        setProviders(next)
+      },
+    },
+    {
+      label: 'Disable selected',
+      onClick: (rows: ProviderWorkspaceItem[]) => {
+        let next = ProviderWorkspaceService.list()
+        rows.forEach((row) => {
+          const current = next.find((item) => item.id === row.id)
+          if (current?.status === 'enabled') {
+            next = ProviderWorkspaceService.toggle(row.id)
+            CollaborationWorkspaceService.logProviderUpdated({
+              actorId,
+              actorName,
+              providerId: row.id,
+              action: 'disabled',
+            })
+          }
+        })
+        setProviders(next)
+      },
+    },
+    {
+      label: 'Test selected',
+      onClick: (rows: ProviderWorkspaceItem[]) => {
+        let next = ProviderWorkspaceService.list()
+        rows.forEach((row) => {
+          next = ProviderWorkspaceService.test(row.id)
+          CollaborationWorkspaceService.logProviderUpdated({
+            actorId,
+            actorName,
+            providerId: row.id,
+            action: 'tested',
+          })
+        })
+        setProviders(next)
+      },
+    },
+  ]
+
+  const columns: Array<DataTableColumn<ProviderWorkspaceItem>> = [
+    {
+      key: 'label',
+      label: 'Provider',
+      sortable: true,
+      render: (row: ProviderWorkspaceItem) => (
+        <div className="space-y-1">
+          <p className="text-sm font-semibold text-[var(--srg-text-title)]">{row.label}</p>
+          <p className="text-xs text-[var(--srg-text-muted)]">{row.type} · {row.sdkVersion}</p>
+        </div>
+      ),
+    },
+    {
+      key: 'status',
+      label: 'Status',
+      sortable: true,
+      render: (row: ProviderWorkspaceItem) => (
+        <span className="rounded-full bg-[var(--srg-surface-strong)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">{row.status}</span>
+      ),
+    },
+    {
+      key: 'health',
+      label: 'Health',
+      sortable: true,
+      render: (row: ProviderWorkspaceItem) => (
+        <span className="rounded-full bg-[var(--srg-surface-strong)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">{row.health}</span>
+      ),
+    },
+    {
+      key: 'latencyMs',
+      label: 'Latency',
+      sortable: true,
+      render: (row: ProviderWorkspaceItem) => `${row.latencyMs} ms`,
+    },
+    {
+      key: 'quota',
+      label: 'Quota',
+      sortable: true,
+    },
+    {
+      key: 'costHint',
+      label: 'Cost',
+      sortable: true,
+    },
+    {
+      key: 'modalities',
+      label: 'Modalities',
+      render: (row: ProviderWorkspaceItem) => row.modalities.join(', '),
+    },
+    {
+      key: 'id',
+      label: 'Actions',
+      render: (row: ProviderWorkspaceItem) => (
+        <div className="flex flex-wrap gap-2">
+          <Button size="sm" onClick={() => toggleProvider(row)}>{row.status === 'enabled' ? 'Disable' : 'Enable'}</Button>
+          <Button size="sm" variant="secondary" onClick={() => testProvider(row)}>Test</Button>
+          <Button size="sm" variant="secondary" onClick={() => setFavoriteProvider(row.id)}>{favoriteProvider === row.id ? 'Favorite active' : 'Set favorite'}</Button>
+        </div>
+      ),
+    },
+  ]
+
   return (
     <div className="space-y-6">
-      <PageHeader title="Providers" description="Statut, sante, quota, latence, cout et disponibilite des providers IA." />
+      <PageHeader title="Providers" description="Status, health, quota, latency, cost and availability of AI providers." />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Providers actifs</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enabledCount}</p></div>
@@ -51,99 +196,57 @@ function ProvidersPage() {
         <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Disponibilite max</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">100%</p></div>
       </div>
 
-      <Section title="Providers" description="Activez, desactivez ou testez chaque provider visible du workspace.">
-        <div className="mb-4 grid gap-3 md:grid-cols-3">
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un provider, SDK ou modalité" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
-          <select value={healthFilter} onChange={(event) => setHealthFilter(event.target.value as 'all' | 'healthy' | 'degraded' | 'offline')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
-            <option value="all">Tous les états</option>
-            <option value="healthy">Healthy</option>
-            <option value="degraded">Degraded</option>
-            <option value="offline">Offline</option>
-          </select>
-          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm text-[var(--srg-text-muted)]">Provider favori: <span className="font-semibold text-[var(--srg-text-title)]">{favoriteProvider}</span></div>
-        </div>
-        <div className="grid gap-4 xl:grid-cols-2">
-          {filteredProviders.length === 0 ? (
-            <div className="xl:col-span-2">
-              <EmptyState
-                eyebrow="Providers"
-                illustration={<span aria-hidden>◎</span>}
-                title="Aucun provider visible"
-                description="Aucun provider ne correspond à la recherche ou au filtre de santé actuel."
+      <Section title="Provider operations" description="Search, filter, sort and run bulk actions with persisted table settings.">
+        <FormSection title="Filters" description="Workspace-level filters for provider operations.">
+          <FieldGroup columns={3}>
+            <Field label="Search">
+              <SearchBar
+                placeholder="Search provider, SDK or modality"
+                value={search}
+                onSearch={(value) => setSearch(value)}
+                onValueChange={setSearch}
+                instant
+                persistKey="providers-search"
               />
-            </div>
-          ) : null}
-          {filteredProviders.map((provider) => (
-            <article key={provider.id} className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{provider.type}</p>
-                  <h3 className="mt-2 text-xl font-semibold text-[var(--srg-text-title)]">{provider.label}</h3>
-                </div>
-                <span className="rounded-full bg-[var(--srg-surface-strong)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">{provider.health}</span>
-              </div>
-              <div className="mt-4 grid gap-2 text-sm text-[var(--srg-text-muted)] sm:grid-cols-2">
-                <p><strong>Statut:</strong> {provider.status}</p>
-                <p><strong>Health:</strong> {provider.health}</p>
-                <p><strong>Quota:</strong> {provider.quota}</p>
-                <p><strong>Latence:</strong> {provider.latencyMs} ms</p>
-                <p><strong>Cout:</strong> {provider.costHint}</p>
-                <p><strong>Disponibilite:</strong> {provider.availability}</p>
-                <p><strong>Version SDK:</strong> {provider.sdkVersion}</p>
-                <p><strong>Wallet:</strong> {provider.wallet}</p>
-                <p><strong>Credits:</strong> {provider.credits}</p>
-                <p><strong>Abonnement:</strong> {provider.subscription}</p>
-                <p><strong>Derniere synchro:</strong> {new Date(provider.lastSyncedAt).toLocaleString()}</p>
-                <p><strong>Modalites:</strong> {provider.modalities.join(', ')}</p>
-                <p><strong>Dernier test:</strong> {new Date(provider.lastTestedAt).toLocaleString()}</p>
-              </div>
-              <div className="mt-4 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs">
-                <p className="font-semibold text-[var(--srg-text-title)]">Matrice de capacités</p>
-                <div className="mt-2 space-y-2 text-[var(--srg-text-muted)]">
-                  {ProviderWorkspaceService.getCapabilityTaxonomy(provider).map((group) => (
-                    <p key={group.category}><strong>{group.category}:</strong> {group.capabilities.length > 0 ? group.capabilities.join(', ') : 'none'}</p>
-                  ))}
-                </div>
-                <p className="mt-2 text-[var(--srg-text-muted)]"><strong>Limitations:</strong> {provider.limitations.join(', ')}</p>
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProviders(ProviderWorkspaceService.toggle(provider.id))
-                    CollaborationWorkspaceService.logProviderUpdated({
-                      actorId,
-                      actorName,
-                      providerId: provider.id,
-                      action: provider.status === 'enabled' ? 'disabled' : 'enabled',
-                    })
-                  }}
-                  className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-xs font-semibold text-white"
-                >
-                  {provider.status === 'enabled' ? 'Desactiver' : 'Activer'}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProviders(ProviderWorkspaceService.test(provider.id))
-                    CollaborationWorkspaceService.logProviderUpdated({
-                      actorId,
-                      actorName,
-                      providerId: provider.id,
-                      action: 'tested',
-                    })
-                  }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
-                >
-                  Tester
-                </button>
-                <button type="button" onClick={() => setFavoriteProvider(provider.id)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]">
-                  {favoriteProvider === provider.id ? 'Favori actif' : 'Définir favori'}
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
+            </Field>
+            <Field label="Health state">
+              <select value={healthFilter} onChange={(event) => setHealthFilter(event.target.value as 'all' | ProviderWorkspaceHealth)}>
+                <option value="all">All states</option>
+                <option value="healthy">Healthy</option>
+                <option value="degraded">Degraded</option>
+                <option value="offline">Offline</option>
+              </select>
+            </Field>
+            <Field label="Favorite provider" hint="Persisted in workspace preferences.">
+              <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 text-sm text-[var(--srg-text-title)]">{favoriteProvider}</div>
+            </Field>
+          </FieldGroup>
+        </FormSection>
+
+        {filteredProviders.length === 0 ? (
+          <div className="mt-4">
+            <EmptyState
+              eyebrow="Providers"
+              illustration={<span aria-hidden>◎</span>}
+              title="No provider visible"
+              description="No provider matches the active search or health filter."
+            />
+          </div>
+        ) : (
+          <div className="mt-4">
+            <DataTable
+              tableId="providers-workspace-table"
+              title="Provider inventory"
+              rows={filteredProviders}
+              columns={columns}
+              searchable={false}
+              pageSize={8}
+              exportFileName="srg-providers-table.csv"
+              multiSelect
+              bulkActions={bulkActions}
+            />
+          </div>
+        )}
       </Section>
     </div>
   )

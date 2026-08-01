@@ -5,6 +5,7 @@ import PromptEditor from '#/app/components/PromptEditor'
 import PromptList from '#/app/components/PromptList'
 import PromptSearch from '#/app/components/PromptSearch'
 import PromptVariablesPanel from '#/app/components/PromptVariablesPanel'
+import { CollapsibleFormSection, Field, FieldGroup, FormProgress, FormSection, FormToolbar, SmartInputField, SwitchField, ValidationMessage } from '#/app/components/ui/FormPrimitives'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { usePrompts } from '#/app/hooks/usePrompts'
@@ -21,6 +22,7 @@ import type { Prompt, PromptProvider } from '#/app/services/PromptService'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { replaceVariables } from '#/app/services/PromptPreviewService'
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { GeneratorEngine } from '#/generator/engine/GeneratorEngine'
 import type { GenerationRequest } from '#/generator/request/GenerationRequest'
 import { ExecutionEngine } from '#/execution/engine/ExecutionEngine'
@@ -55,8 +57,9 @@ function GeneratePage() {
 
   const initialPrefs = useMemo(() => GenerateWorkspaceService.getPreferences(), [])
   const initialDraft = useMemo(() => GenerateWorkspaceService.getDraft(), [])
+  const uiPrefs = useMemo(() => WorkspacePreferencesService.getPreferences().filters['generate-ui'] ?? {}, [])
 
-  const [search, setSearch] = useState('')
+  const [search, setSearch] = useState(typeof uiPrefs.search === 'string' ? uiPrefs.search : '')
   const [selectedPromptId, setSelectedPromptId] = useState<string | null>(
     initialDraft.selectedPromptId !== null ? initialDraft.selectedPromptId : (prompts[0]?.id ?? null),
   )
@@ -88,14 +91,22 @@ function GeneratePage() {
   const [visionEnabled, setVisionEnabled] = useState(initialPrefs.vision)
   const [audioEnabled, setAudioEnabled] = useState(initialPrefs.audio)
   const [imageEnabled, setImageEnabled] = useState(initialPrefs.image)
-  const [splitViewEnabled, setSplitViewEnabled] = useState(initialPrefs.splitView)
-  const [fullscreenEnabled, setFullscreenEnabled] = useState(initialPrefs.fullscreen)
+  const [splitViewEnabled, setSplitViewEnabled] = useState(typeof uiPrefs.splitViewEnabled === 'boolean' ? uiPrefs.splitViewEnabled : initialPrefs.splitView)
+  const [fullscreenEnabled, setFullscreenEnabled] = useState(typeof uiPrefs.fullscreenEnabled === 'boolean' ? uiPrefs.fullscreenEnabled : initialPrefs.fullscreen)
 
   const [status, setStatus] = useState<LifecycleStatus>('idle')
   const [resultOutput, setResultOutput] = useState('')
   const [resultError, setResultError] = useState<string | null>(null)
-  const [outputFormat, setOutputFormat] = useState<GenerateOutputFormat>(initialPrefs.outputFormat)
-  const [mobilePane, setMobilePane] = useState<MobilePane>('prompt')
+  const [outputFormat, setOutputFormat] = useState<GenerateOutputFormat>(
+    uiPrefs.outputFormat === 'markdown' || uiPrefs.outputFormat === 'json' || uiPrefs.outputFormat === 'text'
+      ? uiPrefs.outputFormat
+      : initialPrefs.outputFormat,
+  )
+  const [mobilePane, setMobilePane] = useState<MobilePane>(
+    uiPrefs.mobilePane === 'config' || uiPrefs.mobilePane === 'prompt' || uiPrefs.mobilePane === 'result'
+      ? uiPrefs.mobilePane
+      : 'prompt',
+  )
   const [lastUsedProvider, setLastUsedProvider] = useState('mock')
   const [lastEstimateCredits, setLastEstimateCredits] = useState(0)
   const [lastEstimateCost, setLastEstimateCost] = useState(0)
@@ -227,6 +238,16 @@ function GeneratePage() {
       window.clearTimeout(timer)
     }
   }, [preferences, selectedPromptId, selectedTemplateId, workingPrompt?.name, workingPrompt?.content, variableValues])
+
+  useEffect(() => {
+    WorkspacePreferencesService.setFilters('generate-ui', {
+      search,
+      outputFormat,
+      mobilePane,
+      splitViewEnabled,
+      fullscreenEnabled,
+    })
+  }, [search, outputFormat, mobilePane, splitViewEnabled, fullscreenEnabled])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -371,6 +392,14 @@ function GeneratePage() {
   )
 
   const previousOutput = history[1]?.output ?? ''
+  const requiredVariables = useMemo(
+    () => (workingPrompt?.versions[0]?.variables ?? []).filter((variable) => variable.required),
+    [workingPrompt],
+  )
+  const completedRequiredVariables = useMemo(
+    () => requiredVariables.filter((variable) => (variableValues[variable.name] ?? '').trim().length > 0).length,
+    [requiredVariables, variableValues],
+  )
 
   const observability = useMemo<ObservabilitySnapshot>(() => {
     const latest = history.at(0)
@@ -494,8 +523,8 @@ function GeneratePage() {
       errors.push('Le contenu du prompt est vide.')
     }
 
-    const requiredVariables = workingPrompt.versions[0]?.variables.filter((variable) => variable.required) ?? []
-    const missing = requiredVariables.filter((variable) => !(variableValues[variable.name] ?? '').trim())
+    const requiredPromptVariables = workingPrompt.versions[0]?.variables.filter((variable) => variable.required) ?? []
+    const missing = requiredPromptVariables.filter((variable) => !(variableValues[variable.name] ?? '').trim())
     if (missing.length > 0) {
       errors.push(`Variables obligatoires manquantes: ${missing.map((item) => item.name).join(', ')}`)
     }
@@ -716,6 +745,15 @@ function GeneratePage() {
     }
 
     await navigator.clipboard.writeText(text)
+    notifications.publish({
+      title: 'Sortie copiée',
+      message: 'Le résultat a été copié dans le presse-papiers.',
+      level: 'success',
+      priority: 'low',
+      category: 'system',
+      read: false,
+      channels: ['email'],
+    })
   }
 
   const handleDownload = () => {
@@ -734,6 +772,15 @@ function GeneratePage() {
     anchor.download = `generation-${Date.now()}.${isJson ? 'json' : 'txt'}`
     anchor.click()
     URL.revokeObjectURL(url)
+    notifications.publish({
+      title: 'Téléchargement prêt',
+      message: 'Le fichier de sortie a été exporté.',
+      level: 'success',
+      priority: 'low',
+      category: 'system',
+      read: false,
+      channels: ['email'],
+    })
   }
 
   const handleRetry = async () => {
@@ -755,6 +802,15 @@ function GeneratePage() {
         tags: workingPrompt.tags,
         versionComment: 'Saved from Generate workspace',
       })
+      notifications.publish({
+        title: 'Prompt sauvegardé',
+        message: 'Le prompt existant a été mis à jour.',
+        level: 'success',
+        priority: 'low',
+        category: 'generation',
+        read: false,
+        channels: ['email'],
+      })
       return
     }
 
@@ -769,6 +825,15 @@ function GeneratePage() {
       model,
       language: 'Français',
       variables: workingPrompt.versions[0]?.variables ?? [],
+    })
+    notifications.publish({
+      title: 'Prompt créé',
+      message: 'Le nouveau prompt a été sauvegardé dans votre bibliothèque.',
+      level: 'success',
+      priority: 'low',
+      category: 'generation',
+      read: false,
+      channels: ['email'],
     })
   }
 
@@ -886,218 +951,131 @@ function GeneratePage() {
 
       <div className={`grid gap-6 ${splitViewEnabled ? 'xl:grid-cols-[320px_minmax(0,1fr)_420px]' : 'xl:grid-cols-[360px_minmax(0,1fr)]'}`}>
         <section className={`${mobilePane === 'config' ? 'block' : 'hidden'} space-y-6 xl:block`}>
-          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
-            <h2 className="text-lg font-semibold text-[var(--srg-text-title)]">Configuration</h2>
-            <div className="mt-5 space-y-4 text-sm text-[var(--srg-text-muted)]">
-              <label className="grid gap-2">
-                <span className="font-semibold text-[var(--srg-text-title)]">Provider runtime</span>
-                <select
-                  value={providerChoice}
-                  onChange={(event) => setProviderChoice(event.target.value as GenerateProviderChoice)}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                  aria-label="Provider"
-                >
-                  <option value="auto">Auto (best available)</option>
-                  <option value="openai">OpenAI</option>
-                  <option value="mock">Mock</option>
-                  <option value="claude" disabled>Claude (catalog only)</option>
-                  <option value="gemini" disabled>Gemini (catalog only)</option>
-                  <option value="openrouter" disabled>OpenRouter (catalog only)</option>
-                </select>
-              </label>
+          <CollapsibleFormSection id="generate-config" title="Configuration" description="Paramètres runtime persistés pour la génération." defaultOpen>
+            <FormSection title="Runtime" description="Provider, modèle et paramètres d'inférence.">
+              <FieldGroup columns={2}>
+                <Field label="Provider runtime">
+                  <select value={providerChoice} onChange={(event) => setProviderChoice(event.target.value as GenerateProviderChoice)} aria-label="Provider">
+                    <option value="auto">Auto (best available)</option>
+                    <option value="openai">OpenAI</option>
+                    <option value="mock">Mock</option>
+                    <option value="claude" disabled>Claude (catalog only)</option>
+                    <option value="gemini" disabled>Gemini (catalog only)</option>
+                    <option value="openrouter" disabled>OpenRouter (catalog only)</option>
+                  </select>
+                </Field>
 
-              <label className="grid gap-2">
-                <span className="font-semibold text-[var(--srg-text-title)]">Modèle</span>
-                <select
-                  value={model}
-                  onChange={(event) => setModel(event.target.value)}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                  aria-label="Modèle"
-                >
-                  {Object.values(OpenAIModels).map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                  ))}
-                </select>
-              </label>
+                <Field label="Modèle">
+                  <select value={model} onChange={(event) => setModel(event.target.value)} aria-label="Modèle">
+                    {Object.values(OpenAIModels).map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                  </select>
+                </Field>
 
-              <label className="grid gap-2">
-                <span className="font-semibold text-[var(--srg-text-title)]">Température: {temperature.toFixed(2)}</span>
-                <input
-                  type="range"
-                  min={0}
-                  max={2}
-                  step={0.05}
-                  value={temperature}
-                  onChange={(event) => setTemperature(Number(event.target.value))}
-                />
-              </label>
+                <Field label={`Température: ${temperature.toFixed(2)}`}>
+                  <input type="range" min={0} max={2} step={0.05} value={temperature} onChange={(event) => setTemperature(Number(event.target.value))} />
+                </Field>
 
-              <label className="grid gap-2">
-                <span className="font-semibold text-[var(--srg-text-title)]">Max tokens</span>
-                <input
-                  type="number"
-                  value={maxTokens}
-                  min={1}
-                  onChange={(event) => setMaxTokens(Number(event.target.value))}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                />
-              </label>
+                <Field label="Max tokens">
+                  <input type="number" value={maxTokens} min={1} onChange={(event) => setMaxTokens(Number(event.target.value))} />
+                </Field>
 
-              <label className="grid gap-2">
-                <span className="font-semibold text-[var(--srg-text-title)]">Top P</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={topP}
-                  onChange={(event) => setTopP(Number(event.target.value))}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                />
-              </label>
+                <Field label="Top P">
+                  <input type="number" min={0} max={1} step={0.05} value={topP} onChange={(event) => setTopP(Number(event.target.value))} />
+                </Field>
 
-              <label className="grid gap-2">
-                <span className="font-semibold text-[var(--srg-text-title)]">Top K</span>
-                <input
-                  type="number"
-                  min={1}
-                  value={topK}
-                  onChange={(event) => setTopK(Number(event.target.value))}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                />
-              </label>
+                <Field label="Top K">
+                  <input type="number" min={1} value={topK} onChange={(event) => setTopK(Number(event.target.value))} />
+                </Field>
 
-              <label className="grid gap-2">
-                <span className="font-semibold text-[var(--srg-text-title)]">Seed</span>
-                <input
-                  type="number"
-                  value={seed}
-                  onChange={(event) => setSeed(Number(event.target.value))}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                />
-              </label>
+                <Field label="Seed">
+                  <input type="number" value={seed} onChange={(event) => setSeed(Number(event.target.value))} />
+                </Field>
+              </FieldGroup>
 
-              <div className="grid gap-2 sm:grid-cols-2">
-                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3">
-                  <input type="checkbox" checked={streaming} onChange={(event) => setStreaming(event.target.checked)} />
-                  <span>Streaming</span>
-                </label>
-
-                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3">
-                  <input type="checkbox" checked={jsonMode} onChange={(event) => setJsonMode(event.target.checked)} />
-                  <span>JSON Mode</span>
-                </label>
-
-                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3">
-                  <input type="checkbox" checked={reasoningEnabled} onChange={(event) => setReasoningEnabled(event.target.checked)} />
-                  <span>Reasoning</span>
-                </label>
-
-                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3">
-                  <input type="checkbox" checked={toolsEnabled} onChange={(event) => setToolsEnabled(event.target.checked)} />
-                  <span>Tools</span>
-                </label>
-
-                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3">
-                  <input type="checkbox" checked={visionEnabled} onChange={(event) => setVisionEnabled(event.target.checked)} />
-                  <span>Vision</span>
-                </label>
-
-                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3">
-                  <input type="checkbox" checked={audioEnabled} onChange={(event) => setAudioEnabled(event.target.checked)} />
-                  <span>Audio</span>
-                </label>
-
-                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3 sm:col-span-2">
-                  <input type="checkbox" checked={imageEnabled} onChange={(event) => setImageEnabled(event.target.checked)} />
-                  <span>Image</span>
-                </label>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <SwitchField label="Streaming" checked={streaming} onChange={setStreaming} />
+                <SwitchField label="JSON Mode" checked={jsonMode} onChange={setJsonMode} />
+                <SwitchField label="Reasoning" checked={reasoningEnabled} onChange={setReasoningEnabled} />
+                <SwitchField label="Tools" checked={toolsEnabled} onChange={setToolsEnabled} />
+                <SwitchField label="Vision" checked={visionEnabled} onChange={setVisionEnabled} />
+                <SwitchField label="Audio" checked={audioEnabled} onChange={setAudioEnabled} />
+                <SwitchField label="Image" checked={imageEnabled} onChange={setImageEnabled} />
               </div>
 
-              <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs">
+              <div className="mt-3 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs">
                 <p><span className="font-semibold text-[var(--srg-text-title)]">Estimate:</span> {readiness.estimate.estimatedCredits.toFixed(2)} credits</p>
                 <p><span className="font-semibold text-[var(--srg-text-title)]">Cost:</span> ${readiness.estimate.estimatedCost.toFixed(4)}</p>
                 <p><span className="font-semibold text-[var(--srg-text-title)]">Readiness:</span> {readiness.ok ? 'ok' : 'blocked'}</p>
+                {!readiness.ok ? <ValidationMessage variant="warning">Certaines conditions de readiness ne sont pas satisfaites.</ValidationMessage> : null}
               </div>
-            </div>
-          </div>
+            </FormSection>
+          </CollapsibleFormSection>
 
-          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
-            <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Prompts</h3>
-            <div className="mt-4 space-y-4">
-              <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--srg-text-title)]">Choisir un prompt existant</span>
-                <select
-                  value={selectedPromptId ?? ''}
-                  onChange={(event) => setSelectedPromptId(event.target.value || null)}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                >
+          <CollapsibleFormSection id="generate-prompts" title="Prompts" description="Sélection, template et création rapide.">
+            <FieldGroup columns={1}>
+              <Field label="Choisir un prompt existant">
+                <select value={selectedPromptId ?? ''} onChange={(event) => setSelectedPromptId(event.target.value || null)}>
                   {filteredPrompts.map((prompt) => (
                     <option key={prompt.id} value={prompt.id}>{prompt.name}</option>
                   ))}
                 </select>
-              </label>
+              </Field>
 
-              <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--srg-text-title)]">Choisir un template</span>
-                <select
-                  value={selectedTemplateId}
-                  onChange={(event) => handleUseTemplate(event.target.value)}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                >
+              <Field label="Choisir un template">
+                <select value={selectedTemplateId} onChange={(event) => handleUseTemplate(event.target.value)}>
                   <option value="">Sélectionner</option>
                   {templateCandidates.map((template) => (
                     <option key={template.id} value={template.id}>{template.name}</option>
                   ))}
                 </select>
-              </label>
+              </Field>
 
-              <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--srg-text-title)]">Prompt rapide</span>
-                <input
-                  value={quickPromptName}
-                  onChange={(event) => setQuickPromptName(event.target.value)}
-                  placeholder="Nom du prompt rapide"
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-[var(--srg-text-title)]"
-                />
-              </label>
+              <SmartInputField
+                id="generate-quick-prompt-name"
+                label="Prompt rapide"
+                value={quickPromptName}
+                onValueChange={setQuickPromptName}
+                placeholder="Nom du prompt rapide"
+                autosaveLabel="Draft local"
+              />
+            </FieldGroup>
 
-              <div className="grid gap-2 sm:grid-cols-2">
-                <button
-                  type="button"
-                  onClick={createQuickPrompt}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
-                >
-                  Créer prompt rapide
-                </button>
-                <button
-                  type="button"
-                  onClick={handleSavePrompt}
-                  className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white"
-                >
-                  Sauvegarder
-                </button>
-                <button
-                  type="button"
-                  onClick={handleUndoPrompt}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
-                >
-                  Undo
-                </button>
-                <button
-                  type="button"
-                  onClick={handleRedoPrompt}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
-                >
-                  Redo
-                </button>
-              </div>
-            </div>
-          </div>
+            <FormToolbar autosaveLabel="600 ms">
+              <button
+                type="button"
+                onClick={createQuickPrompt}
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+              >
+                Créer prompt rapide
+              </button>
+              <button
+                type="button"
+                onClick={handleSavePrompt}
+                className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white"
+              >
+                Sauvegarder
+              </button>
+              <button
+                type="button"
+                onClick={handleUndoPrompt}
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+              >
+                Undo
+              </button>
+              <button
+                type="button"
+                onClick={handleRedoPrompt}
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+              >
+                Redo
+              </button>
+            </FormToolbar>
+          </CollapsibleFormSection>
 
-          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
-            <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Provider Matrix</h3>
-            <div className="mt-4 space-y-3">
+          <CollapsibleFormSection id="generate-provider-matrix" title="Provider Matrix" description="Visibilité rapide des providers disponibles.">
+            <div className="space-y-3">
               {providerCatalog.map((provider) => (
                 <div key={provider.id} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-muted)]">
                   <p className="font-semibold text-[var(--srg-text-title)]">{provider.label} ({provider.id})</p>
@@ -1108,7 +1086,7 @@ function GeneratePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </CollapsibleFormSection>
         </section>
 
         <section className={`${mobilePane === 'prompt' ? 'block' : 'hidden'} space-y-6 xl:block`}>
@@ -1128,6 +1106,8 @@ function GeneratePage() {
             variables={workingPrompt?.versions[0]?.variables ?? []}
             onChange={(name, value) => setVariableValues((current) => ({ ...current, [name]: value }))}
           />
+
+          <FormProgress completed={completedRequiredVariables} total={requiredVariables.length} label="Variables requises complétées" />
 
           {validationErrors.length > 0 ? (
             <div className="rounded-[1.75rem] border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] p-4 text-sm text-[#9b2f2f]" role="alert">
