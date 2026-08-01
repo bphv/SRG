@@ -1,3 +1,5 @@
+import { useMemo, useState } from 'react'
+import EmptyState from '#/app/components/EmptyState'
 import type { NotificationItem } from '#/app/services/NotificationService'
 
 function formatChannelList(channels: NotificationItem['channels']): string {
@@ -24,6 +26,33 @@ export default function NotificationCenter({
   onMarkAllRead: () => void
 }) {
   const unreadCount = notifications.filter((item) => !item.read).length
+  const [statusFilter, setStatusFilter] = useState<'all' | 'read' | 'unread'>('all')
+  const [categoryFilter, setCategoryFilter] = useState<'all' | NotificationItem['category']>('all')
+  const [priorityFilter, setPriorityFilter] = useState<'all' | NotificationItem['priority']>('all')
+
+  const availableCategories = useMemo(
+    () => Array.from(new Set(notifications.map((item) => item.category))),
+    [notifications],
+  )
+
+  const filteredNotifications = useMemo(
+    () => notifications.filter((item) => {
+      if (statusFilter === 'read' && !item.read) {
+        return false
+      }
+      if (statusFilter === 'unread' && item.read) {
+        return false
+      }
+      if (categoryFilter !== 'all' && item.category !== categoryFilter) {
+        return false
+      }
+      if (priorityFilter !== 'all' && item.priority !== priorityFilter) {
+        return false
+      }
+      return true
+    }),
+    [notifications, statusFilter, categoryFilter, priorityFilter],
+  )
 
   return (
     <div
@@ -51,6 +80,38 @@ export default function NotificationCenter({
       </div>
 
       <div className="mt-4 flex flex-wrap gap-2">
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as 'all' | 'read' | 'unread')}
+          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+          aria-label="Filtrer par statut de lecture"
+        >
+          <option value="all">Tous</option>
+          <option value="unread">Non lues</option>
+          <option value="read">Lues</option>
+        </select>
+        <select
+          value={categoryFilter}
+          onChange={(event) => setCategoryFilter(event.target.value as 'all' | NotificationItem['category'])}
+          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+          aria-label="Filtrer par catégorie"
+        >
+          <option value="all">Toutes catégories</option>
+          {availableCategories.map((category) => (
+            <option key={category} value={category}>{category}</option>
+          ))}
+        </select>
+        <select
+          value={priorityFilter}
+          onChange={(event) => setPriorityFilter(event.target.value as 'all' | NotificationItem['priority'])}
+          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+          aria-label="Filtrer par priorité"
+        >
+          <option value="all">Toutes priorités</option>
+          <option value="high">Haute</option>
+          <option value="medium">Moyenne</option>
+          <option value="low">Basse</option>
+        </select>
         <button
           type="button"
           onClick={onMarkAllRead}
@@ -69,12 +130,44 @@ export default function NotificationCenter({
 
       <div className="mt-4 max-h-[70vh] space-y-3 overflow-y-auto pr-1">
         {notifications.length === 0 ? (
-          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink-soft)]">
-            Aucune notification disponible.
-          </div>
+          <EmptyState
+            eyebrow="Notifications"
+            illustration={<span aria-hidden>◌</span>}
+            title="Aucune notification"
+            description="Les alertes système, wallet et génération apparaîtront ici dès qu’un événement sera publié."
+            action={
+              <button
+                type="button"
+                onClick={onClose}
+                className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white"
+              >
+                Revenir au workspace
+              </button>
+            }
+          />
+        ) : filteredNotifications.length === 0 ? (
+          <EmptyState
+            eyebrow="Notifications"
+            illustration={<span aria-hidden>⌕</span>}
+            title="Aucun résultat"
+            description="Aucune notification ne correspond aux filtres actifs."
+            action={
+              <button
+                type="button"
+                onClick={() => {
+                  setStatusFilter('all')
+                  setCategoryFilter('all')
+                  setPriorityFilter('all')
+                }}
+                className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white"
+              >
+                Réinitialiser les filtres
+              </button>
+            }
+          />
         ) : null}
 
-        {notifications.map((item) => (
+        {filteredNotifications.map((item) => (
           <article
             key={item.id}
             className={`rounded-3xl border p-4 text-sm ${item.read ? 'border-[var(--line)] bg-[var(--surface-strong)]' : 'border-[var(--lagoon)] bg-[var(--surface)]'}`}
@@ -84,9 +177,14 @@ export default function NotificationCenter({
                 <p className="font-semibold text-[var(--sea-ink)]">{item.title}</p>
                 <p className="mt-1 text-[var(--sea-ink-soft)]">{item.message}</p>
               </div>
-              <span className="rounded-full bg-[var(--surface-strong)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">
-                {item.category}
-              </span>
+              <div className="flex flex-col items-end gap-2">
+                <span className="rounded-full bg-[var(--surface-strong)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">
+                  {item.category}
+                </span>
+                <span className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em] ${item.priority === 'high' ? 'bg-[rgba(223,78,78,0.12)] text-[#9b2f2f]' : item.priority === 'medium' ? 'bg-[rgba(197,145,31,0.12)] text-[#8a5d14]' : 'bg-[rgba(30,90,72,0.12)] text-[var(--lagoon-deep)]'}`}>
+                  {item.priority}
+                </span>
+              </div>
             </div>
             <p className="mt-3 text-xs text-[var(--sea-ink-soft)]">
               {new Date(item.createdAt).toLocaleString()} • Channels: {formatChannelList(item.channels)}

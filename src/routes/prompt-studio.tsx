@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
 import PromptActionsMenu from '#/app/components/PromptActionsMenu'
 import PromptCreateWizard from '#/app/components/PromptCreateWizard'
@@ -12,6 +13,7 @@ import PromptHistory from '#/app/components/PromptHistory'
 import PromptMetadataPanel from '#/app/components/PromptMetadataPanel'
 import PromptTestPanel from '#/app/components/PromptTestPanel'
 import PromptVersionPanel from '#/app/components/PromptVersionPanel'
+import WorkspaceSkeleton from '#/app/components/WorkspaceSkeleton'
 import { useProjects } from '#/app/hooks/useProjects'
 import { usePrompts } from '#/app/hooks/usePrompts'
 import { runPromptTest } from '#/app/services/PromptTestService'
@@ -37,6 +39,7 @@ function PromptStudioPage() {
     publishPrompt,
     filters,
     applyFilters,
+    loading,
   } = usePrompts()
 
   const [wizardOpen, setWizardOpen] = useState(false)
@@ -111,6 +114,15 @@ function PromptStudioPage() {
   const currentProjectId = selectedProject?.id ?? 'all'
   const comparedVersions = selectedPrompt?.versions.filter((version) => versionCompareIds.includes(version.id)).slice(0, 2) ?? []
 
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Prompt Studio" description="Composez, gérez et testez vos prompts prompt engineering." />
+        <WorkspaceSkeleton variant="prompt-studio" description="Chargement du catalogue, de l’éditeur et du panneau de test." />
+      </div>
+    )
+  }
+
   const exportPrompt = () => {
     if (!selectedPrompt) {
       return
@@ -166,11 +178,21 @@ function PromptStudioPage() {
           </div>
 
           <div className="mt-6">
-            <PromptList
-              prompts={visiblePrompts}
-              onSelect={(id) => selectPrompt(id)}
-              onFavorite={(id) => favoritePrompt(id)}
-            />
+            {visiblePrompts.length === 0 ? (
+              <EmptyState
+                eyebrow="Prompt Studio"
+                illustration={<span aria-hidden>◇</span>}
+                title="Aucun prompt visible"
+                description="Aucun prompt ne correspond au projet ou aux filtres actuels."
+                action={<button type="button" onClick={() => setWizardOpen(true)} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Créer un prompt</button>}
+              />
+            ) : (
+              <PromptList
+                prompts={visiblePrompts}
+                onSelect={(id) => selectPrompt(id)}
+                onFavorite={(id) => favoritePrompt(id)}
+              />
+            )}
           </div>
         </section>
 

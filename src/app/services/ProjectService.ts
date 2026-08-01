@@ -37,6 +37,8 @@ export type ProjectCreatePayload = {
 
 export type ProjectUpdatePayload = Partial<Omit<Project, 'id' | 'createdAt'>>
 
+const STORAGE_KEY = 'srg.workspace.projects.v1'
+
 const initialProjects: Project[] = [
   {
     id: 'project-1',
@@ -114,6 +116,7 @@ export class ProjectService {
   private static projects: Project[] = [...initialProjects]
 
   static getProjects(): Project[] {
+    this.projects = this.readStorage()
     return [...this.projects].sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
   }
 
@@ -138,7 +141,7 @@ export class ProjectService {
       language: payload.language,
     }
 
-    this.projects = [project, ...this.projects]
+    this.persist([project, ...this.getProjects()])
     return project
   }
 
@@ -152,7 +155,7 @@ export class ProjectService {
       }
     })
 
-    this.projects = next
+    this.persist(next)
     return this.getProject(id)
   }
 
@@ -161,7 +164,7 @@ export class ProjectService {
   }
 
   static deleteProject(id: string): void {
-    this.projects = this.projects.filter((project) => project.id !== id)
+    this.persist(this.getProjects().filter((project) => project.id !== id))
   }
 
   static duplicateProject(id: string): Project | undefined {
@@ -177,7 +180,7 @@ export class ProjectService {
       favorite: false,
     }
 
-    this.projects = [duplicated, ...this.projects]
+    this.persist([duplicated, ...this.getProjects()])
     return duplicated
   }
 
@@ -186,5 +189,31 @@ export class ProjectService {
     if (!project) return undefined
 
     return this.updateProject(id, { favorite: !project.favorite })
+  }
+
+  private static readStorage(): Project[] {
+    if (typeof window === 'undefined') {
+      return this.projects
+    }
+
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (!raw) {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialProjects))
+        return [...initialProjects]
+      }
+
+      const parsed = JSON.parse(raw) as Project[]
+      return Array.isArray(parsed) ? parsed : [...initialProjects]
+    } catch {
+      return [...initialProjects]
+    }
+  }
+
+  private static persist(projects: Project[]): void {
+    this.projects = projects
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(projects))
+    }
   }
 }

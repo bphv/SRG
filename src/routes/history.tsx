@@ -1,8 +1,10 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
 export const Route = createFileRoute('/history')({
@@ -11,13 +13,35 @@ export const Route = createFileRoute('/history')({
 
 function HistoryPage() {
   const navigate = useNavigate()
+  const historyPreferences = WorkspacePreferencesService.getPreferences()
+  const persistedFilters = (historyPreferences.filters.history as Record<string, string | boolean | number> | undefined) || {}
+  const persistedSort = (historyPreferences.sorts.history as string | undefined) || 'createdAt:desc'
+  const [sortKey, sortOrder] = persistedSort.split(':') as ['createdAt' | 'durationMs' | 'costEstimate', 'asc' | 'desc']
   const [records, setRecords] = useState(() => HistoryWorkspaceService.getRecords())
-  const [dateFilter, setDateFilter] = useState('')
-  const [projectFilter, setProjectFilter] = useState('all')
-  const [providerFilter, setProviderFilter] = useState('all')
-  const [modelFilter, setModelFilter] = useState('all')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'failed'>('all')
+  const [search, setSearch] = useState(typeof persistedFilters.search === 'string' ? persistedFilters.search : '')
+  const [dateFilter, setDateFilter] = useState(typeof persistedFilters.dateFilter === 'string' ? persistedFilters.dateFilter : '')
+  const [projectFilter, setProjectFilter] = useState(typeof persistedFilters.projectFilter === 'string' ? persistedFilters.projectFilter : 'all')
+  const [providerFilter, setProviderFilter] = useState(typeof persistedFilters.providerFilter === 'string' ? persistedFilters.providerFilter : 'all')
+  const [modelFilter, setModelFilter] = useState(typeof persistedFilters.modelFilter === 'string' ? persistedFilters.modelFilter : 'all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'failed'>(persistedFilters.statusFilter === 'pending' || persistedFilters.statusFilter === 'completed' || persistedFilters.statusFilter === 'failed' ? persistedFilters.statusFilter : 'all')
+  const [activeSortKey, setActiveSortKey] = useState<'createdAt' | 'durationMs' | 'costEstimate'>(sortKey)
+  const [activeSortOrder, setActiveSortOrder] = useState<'asc' | 'desc'>(sortOrder)
+  const [pageSize, setPageSize] = useState(historyPreferences.tableSizes.history || 8)
+  const [page, setPage] = useState(1)
   const [selectedCompareIds, setSelectedCompareIds] = useState<string[]>([])
+
+  useEffect(() => {
+    WorkspacePreferencesService.setFilters('history', {
+      search,
+      dateFilter,
+      projectFilter,
+      providerFilter,
+      modelFilter,
+      statusFilter,
+    })
+    WorkspacePreferencesService.setSort('history', `${activeSortKey}:${activeSortOrder}`)
+    WorkspacePreferencesService.setTableSize('history', pageSize)
+  }, [search, dateFilter, projectFilter, providerFilter, modelFilter, statusFilter, activeSortKey, activeSortOrder, pageSize])
 
   const projects = useMemo(
     () => ['all', ...Array.from(new Set(records.map((item) => item.projectName).filter((item): item is string => Boolean(item))))],
@@ -35,6 +59,10 @@ function HistoryPage() {
   const filteredRecords = useMemo(
     () =>
       records.filter((item) => {
+        const query = search.trim().toLowerCase()
+        if (query && !`${item.promptName} ${item.promptText} ${item.output} ${item.provider} ${item.model}`.toLowerCase().includes(query)) {
+          return false
+        }
         if (dateFilter && !item.createdAt.startsWith(dateFilter)) {
           return false
         }
@@ -52,10 +80,26 @@ function HistoryPage() {
         }
         return true
       }),
-    [records, dateFilter, modelFilter, projectFilter, providerFilter, statusFilter],
+    [records, search, dateFilter, modelFilter, projectFilter, providerFilter, statusFilter],
   )
 
-  const comparedRecords = filteredRecords.filter((item) => selectedCompareIds.includes(item.id)).slice(0, 2)
+  const sortedRecords = useMemo(() => {
+    const direction = activeSortOrder === 'asc' ? 1 : -1
+    return [...filteredRecords].sort((left, right) => {
+      if (activeSortKey === 'durationMs') {
+        return (left.durationMs - right.durationMs) * direction
+      }
+      if (activeSortKey === 'costEstimate') {
+        return (left.costEstimate - right.costEstimate) * direction
+      }
+      return (left.createdAt > right.createdAt ? 1 : -1) * direction
+    })
+  }, [filteredRecords, activeSortKey, activeSortOrder])
+
+  const totalPages = Math.max(1, Math.ceil(sortedRecords.length / pageSize))
+  const paginatedRecords = sortedRecords.slice((page - 1) * pageSize, page * pageSize)
+
+  const comparedRecords = sortedRecords.filter((item) => selectedCompareIds.includes(item.id)).slice(0, 2)
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -85,7 +129,7 @@ function HistoryPage() {
   }
 
   const exportFiltered = () => {
-    WorkspaceExchangeService.downloadJson('srg-history-export.json', filteredRecords)
+    WorkspaceExchangeService.downloadJson('srg-history-export.json', sortedRecords)
   }
 
   const toggleCompare = (id: string, checked: boolean) => {
@@ -102,7 +146,8 @@ function HistoryPage() {
       <PageHeader title="History" description="Filtrez, comparez, exportez et relancez vos executions SRG." />
 
       <Section title="Filtres" description="Date, projet, provider, modele et statut.">
-        <div className="grid gap-3 md:grid-cols-5">
+        <div className="grid gap-3 md:grid-cols-6">
+          <input type="search" value={search} onChange={(event) => { setSearch(event.target.value); setPage(1) }} placeholder="Recherche avancée" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
           <input type="date" value={dateFilter} onChange={(event) => setDateFilter(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
           <select value={projectFilter} onChange={(event) => setProjectFilter(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
             {projects.map((project) => <option key={project} value={project}>{project}</option>)}
@@ -121,6 +166,20 @@ function HistoryPage() {
           </select>
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
+          <select value={activeSortKey} onChange={(event) => setActiveSortKey(event.target.value as 'createdAt' | 'durationMs' | 'costEstimate')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">
+            <option value="createdAt">Tri: date</option>
+            <option value="durationMs">Tri: durée</option>
+            <option value="costEstimate">Tri: coût</option>
+          </select>
+          <select value={activeSortOrder} onChange={(event) => setActiveSortOrder(event.target.value as 'asc' | 'desc')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">
+            <option value="desc">Desc</option>
+            <option value="asc">Asc</option>
+          </select>
+          <select value={pageSize} onChange={(event) => { setPageSize(Number(event.target.value)); setPage(1) }} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">
+            <option value={6}>6 lignes</option>
+            <option value={8}>8 lignes</option>
+            <option value={12}>12 lignes</option>
+          </select>
           <button type="button" onClick={exportFiltered} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter JSON</button>
           <button type="button" onClick={() => { HistoryWorkspaceService.clear(); refresh() }} className="rounded-3xl border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] px-4 py-2 text-sm font-semibold text-[#9b2f2f]">Vider</button>
         </div>
@@ -128,12 +187,16 @@ function HistoryPage() {
 
       <Section title="Executions" description="Historique complet des runs visibles.">
         <div className="space-y-3 text-sm">
-          {filteredRecords.length === 0 ? (
-            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-8 text-[var(--sea-ink-soft)]">
-              Aucun resultat pour les filtres courants.
-            </div>
+          {sortedRecords.length === 0 ? (
+            <EmptyState
+              eyebrow="History"
+              illustration={<span aria-hidden>⌛</span>}
+              title="Aucun historique"
+              description="Aucun run ne correspond aux filtres actifs. Lancez une génération ou réinitialisez la recherche avancée."
+              action={<button type="button" onClick={() => { setSearch(''); setDateFilter(''); setProjectFilter('all'); setProviderFilter('all'); setModelFilter('all'); setStatusFilter('all') }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Réinitialiser</button>}
+            />
           ) : null}
-          {filteredRecords.map((item) => (
+          {paginatedRecords.map((item) => (
             <article key={item.id} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -154,6 +217,13 @@ function HistoryPage() {
               </div>
             </article>
           ))}
+        </div>
+        <div className="mt-4 flex items-center justify-between text-sm text-[var(--sea-ink-soft)]">
+          <span>Page {page} / {totalPages}</span>
+          <div className="flex gap-2">
+            <button type="button" disabled={page <= 1} onClick={() => setPage((current) => Math.max(1, current - 1))} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 disabled:opacity-50">Précédente</button>
+            <button type="button" disabled={page >= totalPages} onClick={() => setPage((current) => Math.min(totalPages, current + 1))} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 disabled:opacity-50">Suivante</button>
+          </div>
         </div>
       </Section>
 

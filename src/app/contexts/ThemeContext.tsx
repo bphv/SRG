@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 type ThemeMode = 'light' | 'dark' | 'system'
 
@@ -22,8 +23,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [resolvedMode, setResolvedMode] = useState<'light' | 'dark'>('light')
 
   useEffect(() => {
-    const stored = window.localStorage.getItem('theme-mode') as ThemeMode | null
-    const initialMode = stored ?? 'system'
+    const initialMode = WorkspacePreferencesService.getThemeMode()
     setMode(initialMode)
   }, [])
 
@@ -33,7 +33,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.toggle('dark', nextResolved === 'dark')
     document.documentElement.classList.toggle('light', nextResolved === 'light')
     document.documentElement.setAttribute('data-theme', mode === 'system' ? 'auto' : mode)
-    window.localStorage.setItem('theme-mode', mode)
+    WorkspacePreferencesService.setThemeMode(mode)
   }, [mode])
 
   useEffect(() => {

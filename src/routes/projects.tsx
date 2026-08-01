@@ -13,7 +13,7 @@ import ProjectCreateWizard from '#/app/components/ProjectCreateWizard'
 import DeleteProjectDialog from '#/app/components/DeleteProjectDialog'
 import ArchiveProjectDialog from '#/app/components/ArchiveProjectDialog'
 import DuplicateProjectDialog from '#/app/components/DuplicateProjectDialog'
-import Loading from '#/app/components/Loading'
+import WorkspaceSkeleton from '#/app/components/WorkspaceSkeleton'
 import { useProjects } from '#/app/hooks/useProjects'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
@@ -153,7 +153,7 @@ function ProjectsPage() {
     return (
       <div className="space-y-6">
         <PageHeader title="Projects" description="Gérez vos projets IA et vos workflows." />
-        <Loading />
+        <WorkspaceSkeleton variant="projects" description="Chargement des projets, filtres et indicateurs du workspace." />
       </div>
     )
   }

@@ -1,4 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
+import PageHeader from '#/app/components/PageHeader'
+import Section from '#/app/components/Section'
 
 export const Route = createFileRoute('/about')({
   component: About,
@@ -6,18 +8,23 @@ export const Route = createFileRoute('/about')({
 
 function About() {
   return (
-    <main className="page-wrap px-4 py-12">
-      <section className="island-shell rounded-2xl p-6 sm:p-8">
-        <p className="island-kicker mb-2">About</p>
-        <h1 className="display-title mb-3 text-4xl font-bold text-[var(--sea-ink)] sm:text-5xl">
-          A small starter with room to grow.
-        </h1>
-        <p className="m-0 max-w-3xl text-base leading-8 text-[var(--sea-ink-soft)]">
-          TanStack Start gives you type-safe routing, server functions, and
-          modern SSR defaults. Use this as a clean foundation, then layer in
-          your own routes, styling, and add-ons.
-        </p>
-      </section>
-    </main>
+    <div className="space-y-6">
+      <PageHeader title="About" description="SRG Studio centralise projets, prompts, génération, providers et connaissances dans un workspace cohérent." />
+      <Section title="Plateforme" description="Vue produit de la couche applicative SRG.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {[
+            { title: 'Projects', copy: 'Organiser les initiatives, favoris et exports.' },
+            { title: 'Prompt Studio', copy: 'Versionner, tester et publier les prompts visibles.' },
+            { title: 'Generate', copy: 'Exécuter les scénarios IA avec options avancées.' },
+            { title: 'Knowledge Center', copy: 'Diffuser guides, FAQ, exemples et références.' },
+          ].map((item) => (
+            <div key={item.title} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">{item.title}</p>
+              <p className="mt-3 text-sm text-[var(--sea-ink-soft)]">{item.copy}</p>
+            </div>
+          ))}
+        </div>
+      </Section>
+    </div>
   )
 }

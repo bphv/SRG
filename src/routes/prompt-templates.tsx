@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, createFileRoute } from '@tanstack/react-router'
+import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
+import WorkspaceSkeleton from '#/app/components/WorkspaceSkeleton'
 import TemplateActionsMenu from '#/app/components/templates/TemplateActionsMenu'
 import TemplateCategorySidebar from '#/app/components/templates/TemplateCategorySidebar'
 import TemplateCreateWizard from '#/app/components/templates/TemplateCreateWizard'
@@ -21,6 +23,7 @@ import DuplicateTemplateDialog from '#/app/components/templates/DuplicateTemplat
 import ArchiveTemplateDialog from '#/app/components/templates/ArchiveTemplateDialog'
 import DeleteTemplateDialog from '#/app/components/templates/DeleteTemplateDialog'
 import { usePrompts } from '#/app/hooks/usePrompts'
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 export const Route = createFileRoute('/prompt-templates')({
   component: PromptTemplatesPage,
@@ -53,11 +56,12 @@ type TemplateWorkspaceItem = {
 }
 
 function PromptTemplatesPage() {
-  const { prompts, createPrompt, favoritePrompt, duplicatePrompt, archivePrompt, deletePrompt } = usePrompts()
+  const { prompts, createPrompt, favoritePrompt, duplicatePrompt, archivePrompt, deletePrompt, loading } = usePrompts()
+  const preferences = WorkspacePreferencesService.getPreferences()
 
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
-  const [viewMode, setViewMode] = useState<ViewMode>('grid')
+  const [viewMode, setViewMode] = useState<ViewMode>(preferences.pageLayouts['prompt-templates'] === 'list' ? 'list' : 'grid')
   const [sortKey, setSortKey] = useState<'updatedAt' | 'createdAt' | 'name'>('updatedAt')
   const [wizardOpen, setWizardOpen] = useState(false)
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false)
@@ -71,6 +75,12 @@ function PromptTemplatesPage() {
     archivedOnly: false,
     language: '',
   })
+
+  useEffect(() => {
+    WorkspacePreferencesService.setPageLayout('prompt-templates', viewMode)
+    WorkspacePreferencesService.setSort('prompt-templates', `${sortKey}:desc`)
+    WorkspacePreferencesService.setFilters('prompt-templates', filters)
+  }, [viewMode, sortKey, filters])
 
   const templates = useMemo<TemplateWorkspaceItem[]>(() => {
     return prompts.map((prompt) => {
@@ -168,15 +178,15 @@ function PromptTemplatesPage() {
     })
   }, [templates, search, selectedCategory, filters, sortKey])
 
-  const selectedTemplate = useMemo(() => {
+  const selectedTemplate = useMemo<TemplateWorkspaceItem | null>(() => {
     if (selectedTemplateId) {
       const fromSelection = templates.find((template) => template.id === selectedTemplateId)
       if (fromSelection) return fromSelection
     }
-    return visibleTemplates[0] ?? null
+    return visibleTemplates[0] || null
   }, [templates, visibleTemplates, selectedTemplateId])
 
-  const selectedTemplateName = selectedTemplate.name
+  const selectedTemplateName = selectedTemplate ? selectedTemplate.name : 'template'
 
   const quickStats = useMemo(
     () => ({
@@ -277,28 +287,44 @@ function PromptTemplatesPage() {
   }
 
   const confirmDuplicate = () => {
+    if (!selectedTemplate) return
     duplicatePrompt(selectedTemplate.id)
     closeDialogs()
   }
 
   const confirmArchive = () => {
+    if (!selectedTemplate) return
     archivePrompt(selectedTemplate.id)
     closeDialogs()
   }
 
   const confirmDelete = () => {
+    if (!selectedTemplate) return
     deletePrompt(selectedTemplate.id)
     setSelectedTemplateId(null)
     closeDialogs()
   }
 
   const compiledPrompt = useMemo(() => {
+    if (!selectedTemplate) {
+      return ''
+    }
+
     return selectedTemplate.variables.reduce((promptText, variable) => {
       const key = variable.name
       const value = variable.defaultValue ?? `[${variable.name}]`
       return promptText.split(key).join(value)
     }, selectedTemplate.content)
   }, [selectedTemplate])
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <PageHeader title="Prompt Templates" description="Espace de travail officiel pour explorer, filtrer et publier vos templates de prompt." />
+        <WorkspaceSkeleton variant="templates" description="Chargement du catalogue, des filtres et du panneau de prévisualisation." />
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">
@@ -422,7 +448,15 @@ function PromptTemplatesPage() {
             onChange={(updated) => setFilters((current) => ({ ...current, ...updated }))}
           />
 
-          {viewMode === 'grid' ? (
+          {visibleTemplates.length === 0 ? (
+            <EmptyState
+              eyebrow="Templates"
+              illustration={<span aria-hidden>◈</span>}
+              title="Aucun template"
+              description="Aucun template ne correspond aux filtres actifs ou le catalogue est vide."
+              action={<button type="button" onClick={() => setWizardOpen(true)} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Créer un template</button>}
+            />
+          ) : viewMode === 'grid' ? (
             <TemplateGrid
               templates={gridData}
               onOpen={handleOpen}
@@ -440,45 +474,56 @@ function PromptTemplatesPage() {
         </section>
 
         <section className="space-y-6">
-          <TemplateActionsMenu
-            onEdit={() => setWizardOpen(true)}
-            onDuplicate={() => setPendingDialog('duplicate')}
-            onCreatePrompt={() => undefined}
-            onPublish={() => setPendingDialog('publish')}
-            onArchive={() => setPendingDialog('archive')}
-            onDelete={() => setPendingDialog('delete')}
-          />
+          {selectedTemplate ? (
+            <>
+              <TemplateActionsMenu
+                onEdit={() => setWizardOpen(true)}
+                onDuplicate={() => setPendingDialog('duplicate')}
+                onCreatePrompt={() => undefined}
+                onPublish={() => setPendingDialog('publish')}
+                onArchive={() => setPendingDialog('archive')}
+                onDelete={() => setPendingDialog('delete')}
+              />
 
-          <TemplatePreview
-            description={selectedTemplate.description}
-            content={selectedTemplate.content}
-            variables={selectedTemplate.variables}
-            exampleInput={selectedTemplate.exampleInput}
-            compiledPrompt={compiledPrompt}
-          />
+              <TemplatePreview
+                description={selectedTemplate.description}
+                content={selectedTemplate.content}
+                variables={selectedTemplate.variables}
+                exampleInput={selectedTemplate.exampleInput}
+                compiledPrompt={compiledPrompt}
+              />
 
-          <TemplateMetadata
-            author={selectedTemplate.author}
-            version={selectedTemplate.version}
-            createdAt={selectedTemplate.createdAt}
-            updatedAt={selectedTemplate.updatedAt}
-            language={selectedTemplate.language}
-            provider={selectedTemplate.provider}
-            recommendedModel={selectedTemplate.model}
-          />
+              <TemplateMetadata
+                author={selectedTemplate.author}
+                version={selectedTemplate.version}
+                createdAt={selectedTemplate.createdAt}
+                updatedAt={selectedTemplate.updatedAt}
+                language={selectedTemplate.language}
+                provider={selectedTemplate.provider}
+                recommendedModel={selectedTemplate.model}
+              />
 
-          <TemplateVariables variables={selectedTemplate.variables} />
+              <TemplateVariables variables={selectedTemplate.variables} />
 
-          <TemplateExamples
-            promptExample={selectedTemplate.exampleInput}
-            outputExample={selectedTemplate.outputExample}
-          />
+              <TemplateExamples
+                promptExample={selectedTemplate.exampleInput}
+                outputExample={selectedTemplate.outputExample}
+              />
 
-          <TemplateRating
-            score={Math.min(5, 3.5 + selectedTemplate.uses / 20)}
-            uses={selectedTemplate.uses}
-            popularity={Math.min(100, Math.round((selectedTemplate.uses / Math.max(1, quickStats.uses)) * 100))}
-          />
+              <TemplateRating
+                score={Math.min(5, 3.5 + selectedTemplate.uses / 20)}
+                uses={selectedTemplate.uses}
+                popularity={Math.min(100, Math.round((selectedTemplate.uses / Math.max(1, quickStats.uses)) * 100))}
+              />
+            </>
+          ) : (
+            <EmptyState
+              eyebrow="Templates"
+              illustration={<span aria-hidden>□</span>}
+              title="Sélectionnez un template"
+              description="Le panneau latéral affichera la prévisualisation, les variables et les métadonnées du template actif."
+            />
+          )}
         </section>
       </div>
 

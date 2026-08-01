@@ -295,6 +295,7 @@ function GeneratePage() {
         title: 'Generation terminee',
         message: `${workingPrompt.name} est disponible dans l'historique.`,
         level: 'success',
+        priority: 'medium',
         category: 'generation',
         read: false,
         channels: ['email', 'whatsapp'],

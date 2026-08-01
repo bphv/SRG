@@ -1,17 +1,27 @@
 import { createContext, useContext, useMemo, useState } from 'react'
 import { PromptService      } from '#/app/services/PromptService'
 import type {Prompt, PromptFilters, PromptCreatePayload, PromptUpdatePayload, PromptVersion} from '#/app/services/PromptService';
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
-const defaultFilters: PromptFilters = {
-  query: '',
-  projectId: 'all',
-  status: 'all',
-  provider: 'all',
-  category: 'all',
-  favoritesOnly: false,
-  viewMode: 'grid',
-  sortKey: 'updatedAt',
-  sortOrder: 'desc',
+function buildDefaultFilters(): PromptFilters {
+  const preferences = WorkspacePreferencesService.getPreferences()
+  const persistedFilters = (preferences.filters['prompt-studio'] as Record<string, string | boolean | number> | undefined) || {}
+  const persistedSortValue = preferences.sorts['prompt-studio']
+  const safePersistedSort = typeof persistedSortValue === 'string' && persistedSortValue.length > 0 ? persistedSortValue : 'updatedAt:desc'
+  const [sortKey, sortOrder] = safePersistedSort.split(':') as [PromptFilters['sortKey'], PromptFilters['sortOrder']]
+  const layout = preferences.pageLayouts['prompt-studio']
+
+  return {
+    query: typeof persistedFilters.query === 'string' ? persistedFilters.query : '',
+    projectId: typeof persistedFilters.projectId === 'string' ? persistedFilters.projectId : 'all',
+    status: persistedFilters.status === 'active' || persistedFilters.status === 'archived' || persistedFilters.status === 'draft' ? persistedFilters.status : 'all',
+    provider: persistedFilters.provider === 'OpenAI' || persistedFilters.provider === 'Anthropic' || persistedFilters.provider === 'Azure OpenAI' || persistedFilters.provider === 'Cohere' ? persistedFilters.provider : 'all',
+    category: persistedFilters.category === 'summary' || persistedFilters.category === 'onboarding' || persistedFilters.category === 'research' || persistedFilters.category === 'marketing' || persistedFilters.category === 'utility' ? persistedFilters.category : 'all',
+    favoritesOnly: persistedFilters.favoritesOnly === true,
+    viewMode: layout === 'list' ? 'list' : 'grid',
+    sortKey: sortKey,
+    sortOrder: sortOrder,
+  }
 }
 
 type PromptContextValue = {
@@ -37,7 +47,7 @@ const PromptContext = createContext<PromptContextValue | undefined>(undefined)
 export function PromptProvider({ children }: { children: React.ReactNode }) {
   const [prompts, setPrompts] = useState<Prompt[]>(PromptService.getPrompts())
   const [selectedPrompt, setSelectedPrompt] = useState<Prompt | null>(null)
-  const [filters, setFilters] = useState<PromptFilters>(defaultFilters)
+  const [filters, setFilters] = useState<PromptFilters>(buildDefaultFilters)
   const [history, setHistory] = useState<PromptVersion[]>([])
   const [loading, setLoading] = useState(false)
 
@@ -55,7 +65,20 @@ export function PromptProvider({ children }: { children: React.ReactNode }) {
   }
 
   const applyFilters = (updated: Partial<PromptFilters>) => {
-    setFilters((current) => ({ ...current, ...updated }))
+    setFilters((current) => {
+      const next = { ...current, ...updated }
+      WorkspacePreferencesService.setPageLayout('prompt-studio', next.viewMode)
+      WorkspacePreferencesService.setSort('prompt-studio', `${next.sortKey}:${next.sortOrder}`)
+      WorkspacePreferencesService.setFilters('prompt-studio', {
+        query: next.query,
+        projectId: next.projectId,
+        status: next.status,
+        provider: next.provider,
+        category: next.category,
+        favoritesOnly: next.favoritesOnly,
+      })
+      return next
+    })
   }
 
   const createPrompt = (payload: PromptCreatePayload) => {

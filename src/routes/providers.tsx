@@ -1,8 +1,10 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 export const Route = createFileRoute('/providers')({
   component: ProvidersPage,
@@ -10,6 +12,25 @@ export const Route = createFileRoute('/providers')({
 
 function ProvidersPage() {
   const [providers, setProviders] = useState(() => ProviderWorkspaceService.list())
+  const preferences = WorkspacePreferencesService.getPreferences()
+  const [search, setSearch] = useState('')
+  const [healthFilter, setHealthFilter] = useState<'all' | 'healthy' | 'degraded' | 'offline'>('all')
+  const [favoriteProvider, setFavoriteProvider] = useState(preferences.favoriteProvider)
+
+  useEffect(() => {
+    WorkspacePreferencesService.setFavoriteProvider(favoriteProvider)
+  }, [favoriteProvider])
+
+  const filteredProviders = useMemo(() => providers.filter((provider) => {
+    const query = search.trim().toLowerCase()
+    if (healthFilter !== 'all' && provider.health !== healthFilter) {
+      return false
+    }
+    if (!query) {
+      return true
+    }
+    return `${provider.label} ${provider.sdkVersion} ${provider.type} ${provider.modalities.join(' ')}`.toLowerCase().includes(query)
+  }), [providers, search, healthFilter])
 
   const enabledCount = providers.filter((item) => item.status === 'enabled').length
 
@@ -25,8 +46,28 @@ function ProvidersPage() {
       </div>
 
       <Section title="Providers" description="Activez, desactivez ou testez chaque provider visible du workspace.">
+        <div className="mb-4 grid gap-3 md:grid-cols-3">
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un provider, SDK ou modalité" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
+          <select value={healthFilter} onChange={(event) => setHealthFilter(event.target.value as 'all' | 'healthy' | 'degraded' | 'offline')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
+            <option value="all">Tous les états</option>
+            <option value="healthy">Healthy</option>
+            <option value="degraded">Degraded</option>
+            <option value="offline">Offline</option>
+          </select>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--sea-ink-soft)]">Provider favori: <span className="font-semibold text-[var(--sea-ink)]">{favoriteProvider}</span></div>
+        </div>
         <div className="grid gap-4 xl:grid-cols-2">
-          {providers.map((provider) => (
+          {filteredProviders.length === 0 ? (
+            <div className="xl:col-span-2">
+              <EmptyState
+                eyebrow="Providers"
+                illustration={<span aria-hidden>◎</span>}
+                title="Aucun provider visible"
+                description="Aucun provider ne correspond à la recherche ou au filtre de santé actuel."
+              />
+            </div>
+          ) : null}
+          {filteredProviders.map((provider) => (
             <article key={provider.id} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
@@ -41,6 +82,9 @@ function ProvidersPage() {
                 <p><strong>Latence:</strong> {provider.latencyMs} ms</p>
                 <p><strong>Cout:</strong> {provider.costHint}</p>
                 <p><strong>Disponibilite:</strong> {provider.availability}</p>
+                <p><strong>Version SDK:</strong> {provider.sdkVersion}</p>
+                <p><strong>Derniere synchro:</strong> {new Date(provider.lastSyncedAt).toLocaleString()}</p>
+                <p><strong>Modalites:</strong> {provider.modalities.join(', ')}</p>
                 <p><strong>Dernier test:</strong> {new Date(provider.lastTestedAt).toLocaleString()}</p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
@@ -49,6 +93,9 @@ function ProvidersPage() {
                 </button>
                 <button type="button" onClick={() => setProviders(ProviderWorkspaceService.test(provider.id))} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">
                   Tester
+                </button>
+                <button type="button" onClick={() => setFavoriteProvider(provider.id)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">
+                  {favoriteProvider === provider.id ? 'Favori actif' : 'Définir favori'}
                 </button>
               </div>
             </article>

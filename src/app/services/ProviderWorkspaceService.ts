@@ -10,6 +10,9 @@ export type ProviderWorkspaceItem = {
   latencyMs: number
   costHint: string
   availability: string
+  sdkVersion: string
+  lastSyncedAt: string
+  modalities: string[]
   lastTestedAt: string
 }
 
@@ -26,6 +29,9 @@ const defaultProviders = (): ProviderWorkspaceItem[] => [
     latencyMs: 320,
     costHint: '$0.002 / 1K tokens',
     availability: '99.95%',
+    sdkVersion: 'openai@5.2.0',
+    lastSyncedAt: new Date().toISOString(),
+    modalities: ['streaming', 'json', 'vision'],
     lastTestedAt: new Date().toISOString(),
   },
   {
@@ -38,6 +44,9 @@ const defaultProviders = (): ProviderWorkspaceItem[] => [
     latencyMs: 410,
     costHint: '$0.003 / 1K tokens',
     availability: '99.70%',
+    sdkVersion: 'anthropic@1.18.0',
+    lastSyncedAt: new Date().toISOString(),
+    modalities: ['streaming', 'json'],
     lastTestedAt: new Date().toISOString(),
   },
   {
@@ -50,6 +59,9 @@ const defaultProviders = (): ProviderWorkspaceItem[] => [
     latencyMs: 620,
     costHint: '$0.004 / 1K tokens',
     availability: '98.90%',
+    sdkVersion: 'azure-openai@3.7.1',
+    lastSyncedAt: new Date().toISOString(),
+    modalities: ['vision', 'image', 'json'],
     lastTestedAt: new Date().toISOString(),
   },
   {
@@ -62,6 +74,9 @@ const defaultProviders = (): ProviderWorkspaceItem[] => [
     latencyMs: 0,
     costHint: '$0.001 / 1K tokens',
     availability: '0%',
+    sdkVersion: 'cohere@2.3.0',
+    lastSyncedAt: new Date().toISOString(),
+    modalities: ['embedding'],
     lastTestedAt: new Date().toISOString(),
   },
   {
@@ -74,6 +89,9 @@ const defaultProviders = (): ProviderWorkspaceItem[] => [
     latencyMs: 40,
     costHint: 'Local sandbox',
     availability: '100%',
+    sdkVersion: 'mock@1.0.0',
+    lastSyncedAt: new Date().toISOString(),
+    modalities: ['streaming', 'json', 'image', 'audio', 'vision'],
     lastTestedAt: new Date().toISOString(),
   },
 ]
@@ -109,6 +127,7 @@ export class ProviderWorkspaceService {
             status: item.status === 'enabled' ? 'disabled' : 'enabled',
             health: item.status === 'enabled' ? 'offline' : 'healthy',
             latencyMs: item.status === 'enabled' ? 0 : Math.max(60, item.latencyMs || 260),
+            lastSyncedAt: new Date().toISOString(),
             lastTestedAt: new Date().toISOString(),
           }
         : item,
@@ -128,6 +147,7 @@ export class ProviderWorkspaceService {
         ...item,
         health: enabled ? (item.id === 'azure-openai' ? 'degraded' : 'healthy') : 'offline',
         latencyMs: enabled ? Math.max(55, Math.round((item.latencyMs || 200) * 0.92)) : 0,
+        lastSyncedAt: new Date().toISOString(),
         lastTestedAt: new Date().toISOString(),
       }
     })

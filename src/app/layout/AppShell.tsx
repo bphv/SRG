@@ -1,5 +1,5 @@
 import { Link, useLocation } from '@tanstack/react-router'
-import { Suspense, lazy, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { navItems } from '#/app/navigation/navConfig'
 import SearchBar from '#/app/components/SearchBar'
 import ProviderBadge from '#/app/components/ProviderBadge'
@@ -7,6 +7,7 @@ import StatusBadge from '#/app/components/StatusBadge'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { useTheme } from '#/app/hooks/useTheme'
 import { useBreadcrumb } from '#/app/hooks/useBreadcrumb'
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 const NotificationCenter = lazy(() => import('#/app/components/NotificationCenter'))
 
@@ -15,12 +16,27 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const breadcrumbs = useBreadcrumb()
   const notifications = useNotifications()
   const theme = useTheme()
+  const [shellSearch, setShellSearch] = useState('')
+  const [isSidebarOpen, setIsSidebarOpen] = useState(() => WorkspacePreferencesService.getPreferences().sidebarOpen)
+  const [selectedProvider, setSelectedProvider] = useState(() => WorkspacePreferencesService.getPreferences().favoriteProvider)
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
 
   const activePage = useMemo(
     () => navItems.find((item) => item.path === location.pathname) ?? navItems[0],
     [location.pathname],
   )
+
+  useEffect(() => {
+    WorkspacePreferencesService.setRecentPage(location.pathname)
+  }, [location.pathname])
+
+  useEffect(() => {
+    WorkspacePreferencesService.setSidebarOpen(isSidebarOpen)
+  }, [isSidebarOpen])
+
+  useEffect(() => {
+    WorkspacePreferencesService.setFavoriteProvider(selectedProvider)
+  }, [selectedProvider])
 
   return (
     <div className="min-h-screen bg-[var(--bg-base)] text-[var(--sea-ink)]">
@@ -32,13 +48,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <div className="ml-auto flex flex-wrap items-center gap-3">
-            <SearchBar placeholder="Search SRG…" onSearch={(value) => console.log('search', value)} />
+            <SearchBar placeholder="Search SRG…" value={shellSearch} onSearch={setShellSearch} onValueChange={setShellSearch} />
             <select
-              value="openai"
+              value={selectedProvider}
+              onChange={(event) => setSelectedProvider(event.target.value)}
               className="hidden rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm text-[var(--sea-ink)] shadow-[0_8px_22px_rgba(30,90,72,0.08)] sm:block"
               aria-label="Select provider"
             >
               <option value="openai">OpenAI</option>
+              <option value="anthropic">Anthropic</option>
+              <option value="azure-openai">Azure OpenAI</option>
+              <option value="cohere">Cohere</option>
               <option value="custom">Custom Provider</option>
             </select>
             <button
@@ -68,9 +88,18 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <div className="page-wrap grid gap-6 py-6 lg:grid-cols-[280px_minmax(0,1fr)] xl:grid-cols-[300px_minmax(0,1fr)]">
-        <aside className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+        <aside className={`${isSidebarOpen ? 'block' : 'hidden'} rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)] lg:block`}>
           <div className="mb-6 space-y-3">
-            <p className="text-xs uppercase tracking-[0.24em] text-[var(--lagoon-deep)]">Navigation</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-xs uppercase tracking-[0.24em] text-[var(--lagoon-deep)]">Navigation</p>
+              <button
+                type="button"
+                onClick={() => setIsSidebarOpen(false)}
+                className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)] lg:hidden"
+              >
+                Masquer
+              </button>
+            </div>
             <p className="text-sm text-[var(--sea-ink-soft)]">
               Explore the SRG workspace and settings.
             </p>
@@ -99,9 +128,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <h2 className="mt-2 text-2xl font-semibold tracking-tight text-[var(--sea-ink)]">
                 {activePage.description}
               </h2>
+              {shellSearch ? <p className="mt-2 text-sm text-[var(--sea-ink-soft)]">Recherche active: {shellSearch}</p> : null}
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <ProviderBadge provider="OpenAI" />
+              {!isSidebarOpen ? (
+                <button
+                  type="button"
+                  onClick={() => setIsSidebarOpen(true)}
+                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)] lg:hidden"
+                >
+                  Navigation
+                </button>
+              ) : null}
+              <ProviderBadge provider={selectedProvider === 'custom' ? 'OpenAI' : selectedProvider === 'anthropic' ? 'Anthropic' : selectedProvider === 'azure-openai' ? 'Azure OpenAI' : selectedProvider === 'cohere' ? 'Cohere' : 'OpenAI'} />
               <StatusBadge status="online" />
             </div>
           </div>

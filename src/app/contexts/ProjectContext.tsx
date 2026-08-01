@@ -1,6 +1,7 @@
 import { createContext, useContext, useMemo, useState } from 'react'
 import { ProjectService     } from '#/app/services/ProjectService'
 import type {Project, ProjectFilters, ProjectCreatePayload, ProjectUpdatePayload} from '#/app/services/ProjectService';
+import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 type ProjectContextValue = {
   projects: Project[]
@@ -18,14 +19,23 @@ type ProjectContextValue = {
   favoriteProject: (id: string) => Project | undefined
 }
 
-const defaultFilters: ProjectFilters = {
-  query: '',
-  status: 'all',
-  provider: 'all',
-  type: 'all',
-  viewMode: 'grid',
-  sortKey: 'updatedAt',
-  sortOrder: 'desc',
+function buildDefaultFilters(): ProjectFilters {
+  const preferences = WorkspacePreferencesService.getPreferences()
+  const persistedFilters = (preferences.filters.projects as Record<string, string | boolean | number> | undefined) || {}
+  const persistedSortValue = preferences.sorts.projects
+  const safePersistedSort = typeof persistedSortValue === 'string' && persistedSortValue.length > 0 ? persistedSortValue : 'updatedAt:desc'
+  const [sortKey, sortOrder] = safePersistedSort.split(':') as [ProjectFilters['sortKey'], ProjectFilters['sortOrder']]
+  const layout = preferences.pageLayouts.projects
+
+  return {
+    query: typeof persistedFilters.query === 'string' ? persistedFilters.query : '',
+    status: persistedFilters.status === 'active' || persistedFilters.status === 'archived' || persistedFilters.status === 'draft' ? persistedFilters.status : 'all',
+    provider: persistedFilters.provider === 'OpenAI' || persistedFilters.provider === 'Anthropic' || persistedFilters.provider === 'Azure OpenAI' || persistedFilters.provider === 'Cohere' ? persistedFilters.provider : 'all',
+    type: persistedFilters.type === 'content' || persistedFilters.type === 'research' || persistedFilters.type === 'product' ? persistedFilters.type : 'all',
+    viewMode: layout === 'list' ? 'list' : 'grid',
+    sortKey: sortKey,
+    sortOrder: sortOrder,
+  }
 }
 
 const ProjectContext = createContext<ProjectContextValue | undefined>(undefined)
@@ -33,7 +43,7 @@ const ProjectContext = createContext<ProjectContextValue | undefined>(undefined)
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>(ProjectService.getProjects())
   const [selectedProject, setSelectedProject] = useState<Project | null>(null)
-  const [filters, setFilters] = useState<ProjectFilters>(defaultFilters)
+  const [filters, setFilters] = useState<ProjectFilters>(buildDefaultFilters)
   const [loading, setLoading] = useState(false)
 
   const refresh = async () => {
@@ -48,7 +58,18 @@ export function ProjectProvider({ children }: { children: React.ReactNode }) {
   }
 
   const applyFilters = (updated: Partial<ProjectFilters>) => {
-    setFilters((current) => ({ ...current, ...updated }))
+    setFilters((current) => {
+      const next = { ...current, ...updated }
+      WorkspacePreferencesService.setPageLayout('projects', next.viewMode)
+      WorkspacePreferencesService.setSort('projects', `${next.sortKey}:${next.sortOrder}`)
+      WorkspacePreferencesService.setFilters('projects', {
+        query: next.query,
+        status: next.status,
+        provider: next.provider,
+        type: next.type,
+      })
+      return next
+    })
   }
 
   const createProject = (payload: ProjectCreatePayload) => {

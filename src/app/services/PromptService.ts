@@ -80,6 +80,9 @@ export type PromptPublicationRecord = {
   visibility: 'internal' | 'public'
 }
 
+const STORAGE_KEY = 'srg.workspace.prompts.v1'
+const PUBLICATIONS_KEY = 'srg.workspace.prompt-publications.v1'
+
 const initialPrompts: Prompt[] = [
   {
     id: 'prompt-1',
@@ -201,6 +204,7 @@ export class PromptService {
   private static publications: PromptPublicationRecord[] = []
 
   static getPrompts(): Prompt[] {
+    this.prompts = this.readPrompts()
     return [...this.prompts].sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1))
   }
 
@@ -245,7 +249,7 @@ export class PromptService {
       ],
     }
 
-    this.prompts = [prompt, ...this.prompts]
+    this.persistPrompts([prompt, ...this.getPrompts()])
     return prompt
   }
 
@@ -270,12 +274,12 @@ export class PromptService {
       return updatedPrompt
     })
 
-    this.prompts = next
+    this.persistPrompts(next)
     return this.getPrompt(id)
   }
 
   static deletePrompt(id: string): void {
-    this.prompts = this.prompts.filter((prompt) => prompt.id !== id)
+    this.persistPrompts(this.getPrompts().filter((prompt) => prompt.id !== id))
   }
 
   static duplicatePrompt(id: string): Prompt | undefined {
@@ -296,7 +300,7 @@ export class PromptService {
       })),
     }
 
-    this.prompts = [duplicated, ...this.prompts]
+    this.persistPrompts([duplicated, ...this.getPrompts()])
     return duplicated
   }
 
@@ -326,23 +330,75 @@ export class PromptService {
       return undefined
     }
 
-    this.publications = [
+    this.persistPublications([
       {
         promptId: id,
         publishedAt: new Date().toISOString(),
         visibility,
       },
       ...this.publications.filter((item) => item.promptId !== id),
-    ]
+    ])
 
     return nextPrompt
   }
 
   static getPublication(promptId: string): PromptPublicationRecord | undefined {
+    this.publications = this.readPublications()
     return this.publications.find((item) => item.promptId === promptId)
   }
 
   static getProjectName(projectId: string) {
     return ProjectService.getProject(projectId)?.name ?? 'Unknown project'
+  }
+
+  private static readPrompts(): Prompt[] {
+    if (typeof window === 'undefined') {
+      return this.prompts
+    }
+
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY)
+      if (!raw) {
+        window.localStorage.setItem(STORAGE_KEY, JSON.stringify(initialPrompts))
+        return [...initialPrompts]
+      }
+
+      const parsed = JSON.parse(raw) as Prompt[]
+      return Array.isArray(parsed) ? parsed : [...initialPrompts]
+    } catch {
+      return [...initialPrompts]
+    }
+  }
+
+  private static readPublications(): PromptPublicationRecord[] {
+    if (typeof window === 'undefined') {
+      return this.publications
+    }
+
+    try {
+      const raw = window.localStorage.getItem(PUBLICATIONS_KEY)
+      if (!raw) {
+        return []
+      }
+
+      const parsed = JSON.parse(raw) as PromptPublicationRecord[]
+      return Array.isArray(parsed) ? parsed : []
+    } catch {
+      return []
+    }
+  }
+
+  private static persistPrompts(prompts: Prompt[]): void {
+    this.prompts = prompts
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(prompts))
+    }
+  }
+
+  private static persistPublications(publications: PromptPublicationRecord[]): void {
+    this.publications = publications
+    if (typeof window !== 'undefined') {
+      window.localStorage.setItem(PUBLICATIONS_KEY, JSON.stringify(publications))
+    }
   }
 }

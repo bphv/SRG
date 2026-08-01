@@ -52,10 +52,13 @@ export type DashboardState = {
   health: HealthItem[]
   systemResources: SystemResource[]
   accountSummary: Array<{ label: string; value: string }>
+  walletSummary: Array<{ label: string; value: string; helper: string }>
   latestRuns: Array<{ id: string; title: string; meta: string }>
   latestProjects: Array<{ id: string; title: string; meta: string }>
+  latestPrompts: Array<{ id: string; title: string; meta: string }>
   notifications: Array<{ id: string; title: string; meta: string }>
   aiConsumption: Array<{ label: string; value: number; helper: string }>
+  activityChart: Array<{ label: string; value: number; helper: string }>
 }
 
 export class DashboardService {
@@ -179,6 +182,18 @@ export class DashboardService {
         { label: 'Runs reussis', value: `${history.filter((item) => item.status === 'completed').length}` },
         { label: 'Notifications non lues', value: `${notifications.filter((item) => !item.read).length}` },
       ],
+      walletSummary: [
+        {
+          label: 'Wallet',
+          value: `$${history.reduce((sum, item) => sum + item.costEstimate, 0).toFixed(4)}`,
+          helper: 'Consommation cumulée visible dans History',
+        },
+        {
+          label: 'Credits',
+          value: `${Math.max(0, 10000 - history.reduce((sum, item) => sum + item.tokensInput + item.tokensOutput, 0))}`,
+          helper: 'Budget local restant estimé en tokens',
+        },
+      ],
       latestRuns: history.slice(0, 4).map((item) => ({
         id: item.id,
         title: item.promptName,
@@ -188,6 +203,11 @@ export class DashboardService {
         id: item.id,
         title: item.name,
         meta: `${item.provider} • ${item.promptCount} prompts • ${item.generationCount} generations`,
+      })),
+      latestPrompts: prompts.slice(0, 4).map((item) => ({
+        id: item.id,
+        title: item.name,
+        meta: `${item.provider} • ${item.model} • ${item.runCount} runs`,
       })),
       notifications: notifications.map((item) => ({
         id: item.id,
@@ -211,6 +231,11 @@ export class DashboardService {
           helper: 'Projection cout local',
         },
       ],
+      activityChart: history.slice(0, 7).reverse().map((item, index) => ({
+        label: `Run ${index + 1}`,
+        value: item.tokensInput + item.tokensOutput,
+        helper: `${item.provider} • ${item.durationMs} ms`,
+      })),
     }
   }
 }
