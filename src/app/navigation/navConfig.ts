@@ -8,6 +8,13 @@ export type AppNavItem = {
 
 export const navItems: AppNavItem[] = [
   {
+    id: 'chat',
+    title: 'AI Workspace',
+    description: 'Daily conversation workspace with multi-provider chat and sessions.',
+    path: '/chat',
+    icon: '💬',
+  },
+  {
     id: 'profile',
     title: 'Profile',
     description: 'Manage account profile, password, and connected devices.',

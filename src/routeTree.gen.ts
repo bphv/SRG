@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdministrationRouteImport } from './routes/administration'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as HistoryRouteImport } from './routes/history'
@@ -44,6 +45,11 @@ const AdministrationRoute = AdministrationRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChatRoute = ChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
   '/auth': typeof AuthRoute
+  '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
   '/auth': typeof AuthRoute
+  '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/administration': typeof AdministrationRoute
   '/auth': typeof AuthRoute
+  '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/administration'
     | '/auth'
+    | '/chat'
     | '/dashboard'
     | '/generate'
     | '/history'
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/administration'
     | '/auth'
+    | '/chat'
     | '/dashboard'
     | '/generate'
     | '/history'
@@ -205,6 +216,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/administration'
     | '/auth'
+    | '/chat'
     | '/dashboard'
     | '/generate'
     | '/history'
@@ -224,6 +236,7 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdministrationRoute: typeof AdministrationRoute
   AuthRoute: typeof AuthRoute
+  ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRoute
   GenerateRoute: typeof GenerateRoute
   HistoryRoute: typeof HistoryRoute
@@ -266,6 +279,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/chat': {
+      id: '/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof ChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -360,6 +380,7 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdministrationRoute: AdministrationRoute,
   AuthRoute: AuthRoute,
+  ChatRoute: ChatRoute,
   DashboardRoute: DashboardRoute,
   GenerateRoute: GenerateRoute,
   HistoryRoute: HistoryRoute,
@@ -376,3 +397,12 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { createStart } from '@tanstack/react-start'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+  }
+}

@@ -5,6 +5,7 @@ import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import CollaborationActivityFeed from '#/app/components/collaboration/CollaborationActivityFeed'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
+import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
@@ -122,6 +123,7 @@ function HistoryPage() {
   const paginatedRecords = sortedRecords.slice((page - 1) * pageSize, page * pageSize)
 
   const comparedRecords = sortedRecords.filter((item) => selectedCompareIds.includes(item.id)).slice(0, 2)
+  const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -222,6 +224,25 @@ function HistoryPage() {
       </Section>
 
       <CollaborationActivityFeed />
+
+      <Section title="Conversations" description="Historique conversationnel enrichi: provider, model, latence, tokens, coût et résultats.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-sm"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Conversations actives</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{conversationSummary.active}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-sm"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Conversations archivées</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{conversationSummary.archived}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-sm"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Tokens</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{conversationSummary.totalTokens}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-sm"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Coût</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">${conversationSummary.totalCost.toFixed(6)}</p></div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadJson('srg-conversations-history.json', ConversationWorkspaceService.listConversations())} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter conversations JSON</button>
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadText('srg-conversations-history.txt', ConversationWorkspaceService.listConversations().map((item) => `${item.title} | ${item.provider}/${item.model} | ${item.messages.length} messages`).join('\n'))} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter conversations TXT</button>
+          <button type="button" onClick={() => { void navigate({ to: '/chat' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Workspace</button>
+        </div>
+        <div className="mt-3 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-xs text-[var(--sea-ink-soft)]">
+          <p>Lifecycle: running {conversationSummary.lifecycle.running} • completed {conversationSummary.lifecycle.completed} • cancelled {conversationSummary.lifecycle.cancelled} • failed {conversationSummary.lifecycle.failed}</p>
+          <p>Progression streaming moyenne: {conversationSummary.lifecycle.avgStreamProgress}%</p>
+          <p>Tokens chart: {conversationSummary.charts.tokens.join(' / ') || 'n/a'}</p>
+        </div>
+      </Section>
 
       <Section title="Executions" description="Historique complet des runs visibles.">
         <div className="space-y-3 text-sm">

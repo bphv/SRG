@@ -1,4 +1,15 @@
-export type GenerateProviderChoice = 'auto' | 'openai' | 'claude' | 'gemini' | 'openrouter' | 'mock'
+export type GenerateProviderChoice =
+  | 'auto'
+  | 'openai'
+  | 'gemini'
+  | 'claude'
+  | 'anthropic'
+  | 'openrouter'
+  | 'deepseek'
+  | 'mistral'
+  | 'grok'
+  | 'qwen'
+  | 'mock'
 
 export type GenerateOutputFormat = 'text' | 'markdown' | 'json' | 'code' | 'image' | 'audio'
 

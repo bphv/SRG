@@ -38,6 +38,7 @@ function ProvidersPage() {
   }), [providers, search, healthFilter])
 
   const enabledCount = providers.filter((item) => item.status === 'enabled').length
+  const averageLatency = Math.round(providers.reduce((sum, item) => sum + item.latencyMs, 0) / Math.max(1, providers.length))
 
   return (
     <div className="space-y-6">
@@ -46,7 +47,7 @@ function ProvidersPage() {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Providers actifs</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{enabledCount}</p></div>
         <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Sains</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{providers.filter((item) => item.health === 'healthy').length}</p></div>
-        <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Latence moyenne</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{Math.round(providers.reduce((sum, item) => sum + item.latencyMs, 0) / Math.max(1, providers.length))} ms</p></div>
+        <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Latence moyenne</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{averageLatency} ms</p></div>
         <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Disponibilite max</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">100%</p></div>
       </div>
 
@@ -83,14 +84,27 @@ function ProvidersPage() {
               </div>
               <div className="mt-4 grid gap-2 text-sm text-[var(--sea-ink-soft)] sm:grid-cols-2">
                 <p><strong>Statut:</strong> {provider.status}</p>
+                <p><strong>Health:</strong> {provider.health}</p>
                 <p><strong>Quota:</strong> {provider.quota}</p>
                 <p><strong>Latence:</strong> {provider.latencyMs} ms</p>
                 <p><strong>Cout:</strong> {provider.costHint}</p>
                 <p><strong>Disponibilite:</strong> {provider.availability}</p>
                 <p><strong>Version SDK:</strong> {provider.sdkVersion}</p>
+                <p><strong>Wallet:</strong> {provider.wallet}</p>
+                <p><strong>Credits:</strong> {provider.credits}</p>
+                <p><strong>Abonnement:</strong> {provider.subscription}</p>
                 <p><strong>Derniere synchro:</strong> {new Date(provider.lastSyncedAt).toLocaleString()}</p>
                 <p><strong>Modalites:</strong> {provider.modalities.join(', ')}</p>
                 <p><strong>Dernier test:</strong> {new Date(provider.lastTestedAt).toLocaleString()}</p>
+              </div>
+              <div className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs">
+                <p className="font-semibold text-[var(--sea-ink)]">Matrice de capacités</p>
+                <div className="mt-2 space-y-2 text-[var(--sea-ink-soft)]">
+                  {ProviderWorkspaceService.getCapabilityTaxonomy(provider).map((group) => (
+                    <p key={group.category}><strong>{group.category}:</strong> {group.capabilities.length > 0 ? group.capabilities.join(', ') : 'none'}</p>
+                  ))}
+                </div>
+                <p className="mt-2 text-[var(--sea-ink-soft)]"><strong>Limitations:</strong> {provider.limitations.join(', ')}</p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <button

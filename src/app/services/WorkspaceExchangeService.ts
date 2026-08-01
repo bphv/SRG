@@ -29,7 +29,7 @@ export class WorkspaceExchangeService {
     return JSON.parse(text) as T
   }
 
-  static createShareLink(resourceType: 'project' | 'prompt', resourceId: string, label: string): string {
+  static createShareLink(resourceType: 'project' | 'prompt' | 'conversation', resourceId: string, label: string): string {
     const slug = label
       .trim()
       .toLowerCase()

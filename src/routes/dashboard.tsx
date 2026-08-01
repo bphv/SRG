@@ -17,6 +17,7 @@ import { useDashboard } from '#/app/hooks/useDashboard'
 import { ProjectService } from '#/app/services/ProjectService'
 import { PromptService } from '#/app/services/PromptService'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
+import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { PromptCollectionService } from '#/app/services/PromptCollectionService'
 import { PromptMarketplaceService } from '#/app/services/PromptMarketplaceService'
 import { PromptReviewService } from '#/app/services/PromptReviewService'
@@ -109,6 +110,7 @@ function DashboardPage() {
   const shareCount = shareRecords.length
   const reviewCount = reviewRecords.length
   const topCollections = [...collections].sort((left, right) => right.promptIds.length - left.promptIds.length).slice(0, 4)
+  const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
 
   if (loading) {
     return (
@@ -244,6 +246,41 @@ function DashboardPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link to="/reviews" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir la file de modération</Link>
+        </div>
+      </Section>
+
+      <Section title="Conversations" description="Conversations actives, coût, tokens, latence et tendances provider/modèle.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Conversations actives</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{conversationSummary.active}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Conversations archivées</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{conversationSummary.archived}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Tokens consommés</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{conversationSummary.totalTokens}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Coût</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">${conversationSummary.totalCost.toFixed(6)}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Temps moyen</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{conversationSummary.averageLatencyMs} ms</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top providers</p>
+            <div className="mt-3 space-y-2 text-sm">{conversationSummary.topProviders.map((item) => <div key={item.provider} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.provider} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top modèles</p>
+            <div className="mt-3 space-y-2 text-sm">{conversationSummary.topModels.map((item) => <div key={item.model} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.model} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top conversations</p>
+            <div className="mt-3 space-y-2 text-sm">{conversationSummary.topConversations.map((item) => <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.title} • {item.tokens} tokens</div>)}</div>
+          </div>
+        </div>
+        <div className="mt-4 rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)] text-sm">
+          <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Lifecycle streaming</p>
+          <p className="mt-2 text-[var(--sea-ink-soft)]">running {conversationSummary.lifecycle.running} • completed {conversationSummary.lifecycle.completed} • cancelled {conversationSummary.lifecycle.cancelled} • failed {conversationSummary.lifecycle.failed}</p>
+          <p className="text-[var(--sea-ink-soft)]">avg progress {conversationSummary.lifecycle.avgStreamProgress}%</p>
+          <p className="mt-2 text-xs text-[var(--sea-ink-soft)]">Tokens: {conversationSummary.charts.tokens.join(' / ') || 'n/a'}</p>
+          <p className="text-xs text-[var(--sea-ink-soft)]">Costs: {conversationSummary.charts.costs.map((item) => item.toFixed(6)).join(' / ') || 'n/a'}</p>
+          <p className="text-xs text-[var(--sea-ink-soft)]">Latency: {conversationSummary.charts.latencies.join(' / ') || 'n/a'}</p>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/chat" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Workspace</Link>
         </div>
       </Section>
 
