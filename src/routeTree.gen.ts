@@ -50,6 +50,7 @@ import { Route as RecruitmentRouteImport } from './routes/recruitment'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as StrategicAdvisorRouteImport } from './routes/strategic-advisor'
 import { Route as TrainingsRouteImport } from './routes/trainings'
 import { Route as TreasuryRouteImport } from './routes/treasury'
 import { Route as WorkflowAutomationRouteImport } from './routes/workflow-automation'
@@ -259,6 +260,11 @@ const SkillsRoute = SkillsRouteImport.update({
   path: '/skills',
   getParentRoute: () => rootRouteImport,
 } as any)
+const StrategicAdvisorRoute = StrategicAdvisorRouteImport.update({
+  id: '/strategic-advisor',
+  path: '/strategic-advisor',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TrainingsRoute = TrainingsRouteImport.update({
   id: '/trainings',
   path: '/trainings',
@@ -317,6 +323,7 @@ export interface FileRoutesByFullPath {
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/skills': typeof SkillsRoute
+  '/strategic-advisor': typeof StrategicAdvisorRoute
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
   '/workflow-automation': typeof WorkflowAutomationRoute
@@ -363,6 +370,7 @@ export interface FileRoutesByTo {
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/skills': typeof SkillsRoute
+  '/strategic-advisor': typeof StrategicAdvisorRoute
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
   '/workflow-automation': typeof WorkflowAutomationRoute
@@ -410,6 +418,7 @@ export interface FileRoutesById {
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
   '/skills': typeof SkillsRoute
+  '/strategic-advisor': typeof StrategicAdvisorRoute
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
   '/workflow-automation': typeof WorkflowAutomationRoute
@@ -458,6 +467,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/skills'
+    | '/strategic-advisor'
     | '/trainings'
     | '/treasury'
     | '/workflow-automation'
@@ -504,6 +514,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/skills'
+    | '/strategic-advisor'
     | '/trainings'
     | '/treasury'
     | '/workflow-automation'
@@ -550,6 +561,7 @@ export interface FileRouteTypes {
     | '/reviews'
     | '/settings'
     | '/skills'
+    | '/strategic-advisor'
     | '/trainings'
     | '/treasury'
     | '/workflow-automation'
@@ -597,6 +609,7 @@ export interface RootRouteChildren {
   ReviewsRoute: typeof ReviewsRoute
   SettingsRoute: typeof SettingsRoute
   SkillsRoute: typeof SkillsRoute
+  StrategicAdvisorRoute: typeof StrategicAdvisorRoute
   TrainingsRoute: typeof TrainingsRoute
   TreasuryRoute: typeof TreasuryRoute
   WorkflowAutomationRoute: typeof WorkflowAutomationRoute
@@ -891,6 +904,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SkillsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/strategic-advisor': {
+      id: '/strategic-advisor'
+      path: '/strategic-advisor'
+      fullPath: '/strategic-advisor'
+      preLoaderRoute: typeof StrategicAdvisorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/trainings': {
       id: '/trainings'
       path: '/trainings'
@@ -957,6 +977,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewsRoute: ReviewsRoute,
   SettingsRoute: SettingsRoute,
   SkillsRoute: SkillsRoute,
+  StrategicAdvisorRoute: StrategicAdvisorRoute,
   TrainingsRoute: TrainingsRoute,
   TreasuryRoute: TreasuryRoute,
   WorkflowAutomationRoute: WorkflowAutomationRoute,

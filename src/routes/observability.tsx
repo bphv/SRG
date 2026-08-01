@@ -12,6 +12,7 @@ import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceServic
 import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
 import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
 import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
+import { StrategicAdvisorWorkspaceService } from '#/app/services/StrategicAdvisorWorkspaceService'
 
 export const Route = createFileRoute('/observability')({
   component: ObservabilityPage,
@@ -34,6 +35,7 @@ function ObservabilityPage() {
   const workflowObservability = WorkflowWorkspaceService.getObservability()
   const enterpriseObservability = EnterpriseInsightsWorkspaceService.getObservability()
   const knowledgeIntelligenceObservability = KnowledgeIntelligenceWorkspaceService.getObservability()
+  const strategicAdvisorObservability = StrategicAdvisorWorkspaceService.getObservability()
 
   return (
     <div className="space-y-6">
@@ -318,6 +320,37 @@ function ObservabilityPage() {
             <p className="font-semibold text-[var(--srg-text-title)]">Knowledge timeline</p>
             <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
               {knowledgeIntelligenceObservability.knowledgeTimeline.slice(0, 12).map((item) => <p key={item.id}>{item.type} | {item.title} | {new Date(item.createdAt).toLocaleString()}</p>)}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Strategic Advisor Observability" description="Strategic Events, Simulation Metrics, Decision Metrics and Advisor Timeline.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Strategic events</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorObservability.strategicEvents.length}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Simulations</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorObservability.simulationMetrics.total}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Decisions</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorObservability.decisionMetrics.decisions}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Timeline items</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorObservability.advisorTimeline.length}</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 xl:grid-cols-3 text-sm">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Strategic events</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {strategicAdvisorObservability.strategicEvents.slice(0, 12).map((item) => <p key={item.id}>{item.type} | {item.severity} | {item.title} | {item.detail}</p>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Simulation metrics</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              <p>Total simulations: {strategicAdvisorObservability.simulationMetrics.total}</p>
+              <p>Average confidence: {strategicAdvisorObservability.simulationMetrics.avgConfidence}%</p>
+              <p>Latest financial impact: {strategicAdvisorObservability.simulationMetrics.latestFinancialImpact.toFixed(2)}</p>
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Advisor timeline</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {strategicAdvisorObservability.advisorTimeline.slice(0, 12).map((item) => <p key={item.date}>{item.date} | rec {item.recommendations} | plans {item.plans} | sims {item.simulations} | risks {item.highRisks}</p>)}
             </div>
           </div>
         </div>

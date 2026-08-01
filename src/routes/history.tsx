@@ -23,6 +23,7 @@ import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
 import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
 import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
+import { StrategicAdvisorWorkspaceService } from '#/app/services/StrategicAdvisorWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
@@ -150,6 +151,7 @@ function HistoryPage() {
   const comparisonHistory = EnterpriseInsightsWorkspaceService.getComparisonsHistory()
   const knowledgeIntelligenceStore = KnowledgeIntelligenceWorkspaceService.getStore()
   const knowledgeTimeline = KnowledgeIntelligenceWorkspaceService.getDocumentTimeline()
+  const strategicAdvisorStore = StrategicAdvisorWorkspaceService.getStore()
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -936,6 +938,107 @@ function HistoryPage() {
               <button type="button" onClick={() => KnowledgeIntelligenceWorkspaceService.exportQuestionHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Questions</button>
               <button type="button" onClick={() => KnowledgeIntelligenceWorkspaceService.exportComparisons()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Comparaisons</button>
               <button type="button" onClick={() => KnowledgeIntelligenceWorkspaceService.exportTimeline()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Timeline</button>
+            </div>
+          </div>
+        )}
+      </Section>
+
+      <Section title="Strategic Advisor History" description="Strategic Decisions, Action Plans, Simulation History and Recommendations History.">
+        {strategicAdvisorStore.decisions.length === 0 && strategicAdvisorStore.actionPlans.length === 0 && strategicAdvisorStore.simulationHistory.length === 0 && strategicAdvisorStore.recommendationHistory.length === 0 ? (
+          <EmptyState
+            eyebrow="Strategic Advisor"
+            illustration={<span aria-hidden>◌</span>}
+            title="Aucun historique strategic advisor"
+            description="Lancez un refresh ou une simulation depuis Strategic Advisor pour initialiser l'historique."
+          />
+        ) : (
+          <div className="space-y-4">
+            <DataTable
+              tableId="history-strategic-advisor-decisions"
+              title="Strategic Decisions"
+              rows={strategicAdvisorStore.decisions}
+              columns={[
+                { key: 'title', label: 'Title', sortable: true },
+                { key: 'detail', label: 'Detail' },
+                { key: 'source', label: 'Source' },
+                { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
+              ]}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-strategic-advisor-decisions.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-strategic-advisor-decisions-selected.json', rows) },
+              ]}
+            />
+            <DataTable
+              tableId="history-strategic-advisor-plans"
+              title="Action Plans"
+              rows={strategicAdvisorStore.actionPlans}
+              columns={[
+                { key: 'objective', label: 'Objectif', sortable: true },
+                { key: 'type', label: 'Type', sortable: true },
+                { key: 'view', label: 'View', sortable: true },
+                { key: 'priority', label: 'Priorite', sortable: true },
+                { key: 'impactExpected', label: 'Impact', sortable: true, render: (row) => `${row.impactExpected}%` },
+                { key: 'urgency', label: 'Urgence', sortable: true, render: (row) => `${row.urgency}%` },
+                { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
+              ]}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-strategic-advisor-action-plans.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-strategic-advisor-action-plans-selected.json', rows) },
+              ]}
+            />
+            <DataTable
+              tableId="history-strategic-advisor-simulations"
+              title="Simulation History"
+              rows={strategicAdvisorStore.simulationHistory}
+              columns={[
+                { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
+                { key: 'financialImpact', label: 'Financial', sortable: true },
+                { key: 'riskImpact', label: 'Risk', sortable: true },
+                { key: 'deliveryImpact', label: 'Delivery', sortable: true },
+                { key: 'workforceImpact', label: 'Workforce', sortable: true },
+                { key: 'maintenanceImpact', label: 'Maintenance', sortable: true },
+                { key: 'confidence', label: 'Confidence', sortable: true, render: (row) => `${row.confidence}%` },
+              ]}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-strategic-advisor-simulation-history.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-strategic-advisor-simulation-history-selected.json', rows) },
+              ]}
+            />
+            <DataTable
+              tableId="history-strategic-advisor-recommendations"
+              title="Recommendations History"
+              rows={strategicAdvisorStore.recommendationHistory}
+              columns={[
+                { key: 'title', label: 'Title', sortable: true },
+                { key: 'view', label: 'View', sortable: true },
+                { key: 'priority', label: 'Priority', sortable: true },
+                { key: 'impact', label: 'Impact', sortable: true, render: (row) => `${row.impact}%` },
+                { key: 'urgency', label: 'Urgency', sortable: true, render: (row) => `${row.urgency}%` },
+                { key: 'confidence', label: 'Confidence', sortable: true, render: (row) => `${row.confidence}%` },
+                { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
+              ]}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-strategic-advisor-recommendations-history.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-strategic-advisor-recommendations-history-selected.json', rows) },
+              ]}
+            />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => StrategicAdvisorWorkspaceService.exportStrategicDecisions()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Strategic Decisions</button>
+              <button type="button" onClick={() => StrategicAdvisorWorkspaceService.exportActionPlans()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Action Plans</button>
+              <button type="button" onClick={() => StrategicAdvisorWorkspaceService.exportSimulationHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Simulation History</button>
+              <button type="button" onClick={() => StrategicAdvisorWorkspaceService.exportRecommendationsHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Recommendations History</button>
             </div>
           </div>
         )}

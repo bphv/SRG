@@ -33,6 +33,7 @@ import { PromptSharingService } from '#/app/services/PromptSharingService'
 import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
 import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
 import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
+import { StrategicAdvisorWorkspaceService } from '#/app/services/StrategicAdvisorWorkspaceService'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardPage,
@@ -133,6 +134,7 @@ function DashboardPage() {
   const workflowSummary = WorkflowWorkspaceService.getDashboardSummary()
   const enterpriseInsightsSummary = EnterpriseInsightsWorkspaceService.getExecutiveDashboard()
   const knowledgeIntelligenceSummary = KnowledgeIntelligenceWorkspaceService.getDashboardSummary()
+  const strategicAdvisorSummary = StrategicAdvisorWorkspaceService.getExecutiveDashboard()
 
   if (loading) {
     return (
@@ -207,6 +209,23 @@ function DashboardPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link to="/enterprise-insights" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Enterprise Insights</Link>
+        </div>
+      </Section>
+
+      <Section title="Strategic Advisor" description="Priorisation, recommandations, plans, simulations et actions strategiques.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Priorites</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorSummary.topPriorities.length}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Decisions</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorSummary.topDecisions.length}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Risques</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorSummary.strategicRisks.length}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Opportunites</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorSummary.strategicOpportunities.length}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Actions</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorSummary.strategicActions.length}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Confiance</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{strategicAdvisorSummary.confidence}%</p></div>
+        </div>
+        <div className="mt-4 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-xs text-[var(--srg-text-muted)]">
+          <p>Timeline: {strategicAdvisorSummary.strategicTimeline.slice(0, 6).join(' | ') || 'n/a'}</p>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/strategic-advisor" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Strategic Advisor</Link>
         </div>
       </Section>
 

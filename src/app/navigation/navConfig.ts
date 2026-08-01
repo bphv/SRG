@@ -260,6 +260,13 @@ export const navItems: AppNavItem[] = [
     icon: '🧠',
   },
   {
+    id: 'strategic-advisor',
+    title: 'Strategic Advisor',
+    description: 'Enterprise strategic advisor for prioritization, recommendations, planning, simulations and actions.',
+    path: '/strategic-advisor',
+    icon: '🗺️',
+  },
+  {
     id: 'providers',
     title: 'Providers',
     description: 'Configure AI providers and endpoints.',
