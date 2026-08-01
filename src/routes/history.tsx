@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
+import CollaborationActivityFeed from '#/app/components/collaboration/CollaborationActivityFeed'
+import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
@@ -23,7 +25,11 @@ function HistoryPage() {
   const [projectFilter, setProjectFilter] = useState(typeof persistedFilters.projectFilter === 'string' ? persistedFilters.projectFilter : 'all')
   const [providerFilter, setProviderFilter] = useState(typeof persistedFilters.providerFilter === 'string' ? persistedFilters.providerFilter : 'all')
   const [modelFilter, setModelFilter] = useState(typeof persistedFilters.modelFilter === 'string' ? persistedFilters.modelFilter : 'all')
-  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'failed'>(persistedFilters.statusFilter === 'pending' || persistedFilters.statusFilter === 'completed' || persistedFilters.statusFilter === 'failed' ? persistedFilters.statusFilter : 'all')
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'failed' | 'cancelled'>(persistedFilters.statusFilter === 'pending' || persistedFilters.statusFilter === 'completed' || persistedFilters.statusFilter === 'failed' || persistedFilters.statusFilter === 'cancelled' ? persistedFilters.statusFilter : 'all')
+  const [authorFilter, setAuthorFilter] = useState(typeof persistedFilters.authorFilter === 'string' ? persistedFilters.authorFilter : '')
+  const [collaboratorFilter, setCollaboratorFilter] = useState(typeof persistedFilters.collaboratorFilter === 'string' ? persistedFilters.collaboratorFilter : '')
+  const [versionFilter, setVersionFilter] = useState(typeof persistedFilters.versionFilter === 'string' ? persistedFilters.versionFilter : '')
+  const [typeFilter, setTypeFilter] = useState(typeof persistedFilters.typeFilter === 'string' ? persistedFilters.typeFilter : '')
   const [activeSortKey, setActiveSortKey] = useState<'createdAt' | 'durationMs' | 'costEstimate'>(sortKey)
   const [activeSortOrder, setActiveSortOrder] = useState<'asc' | 'desc'>(sortOrder)
   const [pageSize, setPageSize] = useState(historyPreferences.tableSizes.history || 8)
@@ -38,10 +44,14 @@ function HistoryPage() {
       providerFilter,
       modelFilter,
       statusFilter,
+      authorFilter,
+      collaboratorFilter,
+      versionFilter,
+      typeFilter,
     })
     WorkspacePreferencesService.setSort('history', `${activeSortKey}:${activeSortOrder}`)
     WorkspacePreferencesService.setTableSize('history', pageSize)
-  }, [search, dateFilter, projectFilter, providerFilter, modelFilter, statusFilter, activeSortKey, activeSortOrder, pageSize])
+  }, [search, dateFilter, projectFilter, providerFilter, modelFilter, statusFilter, authorFilter, collaboratorFilter, versionFilter, typeFilter, activeSortKey, activeSortOrder, pageSize])
 
   const projects = useMemo(
     () => ['all', ...Array.from(new Set(records.map((item) => item.projectName).filter((item): item is string => Boolean(item))))],
@@ -78,9 +88,21 @@ function HistoryPage() {
         if (statusFilter !== 'all' && item.status !== statusFilter) {
           return false
         }
+        if (authorFilter && !(item.actorName ?? '').toLowerCase().includes(authorFilter.toLowerCase())) {
+          return false
+        }
+        if (collaboratorFilter && !`${item.promptText} ${item.output}`.toLowerCase().includes(collaboratorFilter.toLowerCase())) {
+          return false
+        }
+        if (versionFilter && !`${item.promptName} ${item.promptText} ${item.output}`.toLowerCase().includes(versionFilter.toLowerCase())) {
+          return false
+        }
+        if (typeFilter && !`${item.requestKind} ${item.eventType ?? ''} ${item.entityType ?? ''}`.toLowerCase().includes(typeFilter.toLowerCase())) {
+          return false
+        }
         return true
       }),
-    [records, search, dateFilter, modelFilter, projectFilter, providerFilter, statusFilter],
+    [records, search, dateFilter, modelFilter, projectFilter, providerFilter, statusFilter, authorFilter, collaboratorFilter, versionFilter, typeFilter],
   )
 
   const sortedRecords = useMemo(() => {
@@ -132,6 +154,10 @@ function HistoryPage() {
     WorkspaceExchangeService.downloadJson('srg-history-export.json', sortedRecords)
   }
 
+  const exportHistoryBundle = () => {
+    CollaborationWorkspaceService.exportHistory('json')
+  }
+
   const toggleCompare = (id: string, checked: boolean) => {
     setSelectedCompareIds((current) => {
       if (checked) {
@@ -158,12 +184,19 @@ function HistoryPage() {
           <select value={modelFilter} onChange={(event) => setModelFilter(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
             {models.map((model) => <option key={model} value={model}>{model}</option>)}
           </select>
-          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'all' | 'pending' | 'completed' | 'failed')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
+          <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value as 'all' | 'pending' | 'completed' | 'failed' | 'cancelled')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
             <option value="all">all</option>
             <option value="pending">pending</option>
             <option value="completed">completed</option>
             <option value="failed">failed</option>
+            <option value="cancelled">cancelled</option>
           </select>
+        </div>
+        <div className="mt-3 grid gap-3 md:grid-cols-4">
+          <input type="search" value={authorFilter} onChange={(event) => setAuthorFilter(event.target.value)} placeholder="Auteur" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
+          <input type="search" value={collaboratorFilter} onChange={(event) => setCollaboratorFilter(event.target.value)} placeholder="Collaborateur" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
+          <input type="search" value={versionFilter} onChange={(event) => setVersionFilter(event.target.value)} placeholder="Version" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
+          <input type="search" value={typeFilter} onChange={(event) => setTypeFilter(event.target.value)} placeholder="Type" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
         </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <select value={activeSortKey} onChange={(event) => setActiveSortKey(event.target.value as 'createdAt' | 'durationMs' | 'costEstimate')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">
@@ -181,9 +214,14 @@ function HistoryPage() {
             <option value={12}>12 lignes</option>
           </select>
           <button type="button" onClick={exportFiltered} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter JSON</button>
+          <button type="button" onClick={() => CollaborationWorkspaceService.exportHistory('csv')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter CSV</button>
+          <button type="button" onClick={() => CollaborationWorkspaceService.exportHistory('markdown')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter Markdown</button>
+          <button type="button" onClick={exportHistoryBundle} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Export Bundle</button>
           <button type="button" onClick={() => { HistoryWorkspaceService.clear(); refresh() }} className="rounded-3xl border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] px-4 py-2 text-sm font-semibold text-[#9b2f2f]">Vider</button>
         </div>
       </Section>
+
+      <CollaborationActivityFeed />
 
       <Section title="Executions" description="Historique complet des runs visibles.">
         <div className="space-y-3 text-sm">

@@ -14,8 +14,11 @@ import PromptMetadataPanel from '#/app/components/PromptMetadataPanel'
 import PromptTestPanel from '#/app/components/PromptTestPanel'
 import PromptVersionPanel from '#/app/components/PromptVersionPanel'
 import WorkspaceSkeleton from '#/app/components/WorkspaceSkeleton'
+import CollaborationWorkspacePanel from '#/app/components/collaboration/CollaborationWorkspacePanel'
+import { useBusiness } from '#/app/hooks/useBusiness'
 import { useProjects } from '#/app/hooks/useProjects'
 import { usePrompts } from '#/app/hooks/usePrompts'
+import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { runPromptTest } from '#/app/services/PromptTestService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
@@ -25,6 +28,7 @@ export const Route = createFileRoute('/prompt-studio')({
 })
 
 function PromptStudioPage() {
+  const business = useBusiness()
   const { projects, selectedProject, selectProject } = useProjects()
   const {
     prompts,
@@ -49,6 +53,9 @@ function PromptStudioPage() {
   const [testStatus, setTestStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle')
   const [versionCompareIds, setVersionCompareIds] = useState<string[]>([])
   const [publishVisibility, setPublishVisibility] = useState<'internal' | 'public'>('internal')
+  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
+  const availableUsers = business.snapshot.users.map((item) => ({ id: item.id, username: item.username }))
 
   const visiblePrompts = useMemo(
     () =>
@@ -107,6 +114,16 @@ function PromptStudioPage() {
 
   const handleCreatePrompt = (payload: Parameters<typeof createPrompt>[0]) => {
     const prompt = createPrompt(payload)
+    CollaborationWorkspaceService.createVersion({
+      entityType: 'prompt',
+      entityId: prompt.id,
+      authorId: actorId,
+      authorName: actorName,
+      comment: 'Prompt created',
+      changeSummary: 'Initial prompt version',
+      snapshot: prompt.content,
+      projectId: prompt.projectId,
+    })
     selectPrompt(prompt.id)
     setWizardOpen(false)
   }
@@ -205,7 +222,17 @@ function PromptStudioPage() {
             {selectedPrompt ? (
               <PromptActionsMenu
                 onDuplicate={() => duplicatePrompt(selectedPrompt.id)}
-                onArchive={() => archivePrompt(selectedPrompt.id)}
+                onArchive={() => {
+                  archivePrompt(selectedPrompt.id)
+                  CollaborationWorkspaceService.transitionWorkflow({
+                    entityType: 'prompt',
+                    entityId: selectedPrompt.id,
+                    action: 'archive',
+                    actorId,
+                    actorName,
+                    projectId: selectedPrompt.projectId,
+                  })
+                }}
                 onDelete={() => deletePrompt(selectedPrompt.id)}
               />
             ) : null}
@@ -219,6 +246,23 @@ function PromptStudioPage() {
           <PromptPreview prompt={selectedPrompt} variables={testValues} />
           <PromptHistory history={selectedPrompt?.versions ?? []} />
           <PromptVersionPanel versions={selectedPrompt?.versions ?? []} />
+          {selectedPrompt ? (
+            <CollaborationWorkspacePanel
+              entityType="prompt"
+              entityId={selectedPrompt.id}
+              projectId={selectedPrompt.projectId}
+              actorId={actorId}
+              actorName={actorName}
+              users={availableUsers}
+              snapshot={selectedPrompt.content}
+              onRestoreSnapshot={(snapshot) => {
+                updatePrompt(selectedPrompt.id, {
+                  content: snapshot,
+                  versionComment: 'Restored from collaboration version',
+                })
+              }}
+            />
+          ) : null}
         </div>
       </div>
 
@@ -256,6 +300,23 @@ function PromptStudioPage() {
                   <option value="public">Public</option>
                 </select>
                 <button type="button" onClick={() => publishPrompt(selectedPrompt.id, publishVisibility)} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Publier</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    publishPrompt(selectedPrompt.id, publishVisibility)
+                    CollaborationWorkspaceService.transitionWorkflow({
+                      entityType: 'prompt',
+                      entityId: selectedPrompt.id,
+                      action: 'publish',
+                      actorId,
+                      actorName,
+                      projectId: selectedPrompt.projectId,
+                    })
+                  }}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
+                >
+                  Publier + Workflow
+                </button>
               </div>
             </div>
 

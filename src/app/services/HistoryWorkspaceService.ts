@@ -1,4 +1,4 @@
-export type WorkspaceHistoryStatus = 'pending' | 'completed' | 'failed'
+export type WorkspaceHistoryStatus = 'pending' | 'completed' | 'failed' | 'cancelled'
 
 export type WorkspaceHistoryRecord = {
   id: string
@@ -13,9 +13,27 @@ export type WorkspaceHistoryRecord = {
   tokensOutput: number
   costEstimate: number
   createdAt: string
-  requestKind: 'generation' | 'prompt-test'
+  requestKind: 'generation' | 'prompt-test' | 'collaboration'
   projectId?: string
   projectName?: string
+  templateId?: string
+  variables?: Record<string, string>
+  estimatedCredits?: number
+  creditsUsed?: number
+  latencyMs?: number
+  providerSdkVersion?: string
+  actorName?: string
+  entityType?: 'project' | 'prompt' | 'template'
+  entityId?: string
+  eventType?:
+    | 'creation'
+    | 'modification'
+    | 'validation'
+    | 'publication'
+    | 'archiving'
+    | 'comment'
+    | 'version'
+    | 'collaborator'
 }
 
 const STORAGE_KEY = 'srg.workspace.history.v1'

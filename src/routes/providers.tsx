@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
+import { useBusiness } from '#/app/hooks/useBusiness'
+import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
@@ -11,11 +13,14 @@ export const Route = createFileRoute('/providers')({
 })
 
 function ProvidersPage() {
+  const business = useBusiness()
   const [providers, setProviders] = useState(() => ProviderWorkspaceService.list())
   const preferences = WorkspacePreferencesService.getPreferences()
   const [search, setSearch] = useState('')
   const [healthFilter, setHealthFilter] = useState<'all' | 'healthy' | 'degraded' | 'offline'>('all')
   const [favoriteProvider, setFavoriteProvider] = useState(preferences.favoriteProvider)
+  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
 
   useEffect(() => {
     WorkspacePreferencesService.setFavoriteProvider(favoriteProvider)
@@ -88,10 +93,34 @@ function ProvidersPage() {
                 <p><strong>Dernier test:</strong> {new Date(provider.lastTestedAt).toLocaleString()}</p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
-                <button type="button" onClick={() => setProviders(ProviderWorkspaceService.toggle(provider.id))} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-xs font-semibold text-white">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProviders(ProviderWorkspaceService.toggle(provider.id))
+                    CollaborationWorkspaceService.logProviderUpdated({
+                      actorId,
+                      actorName,
+                      providerId: provider.id,
+                      action: provider.status === 'enabled' ? 'disabled' : 'enabled',
+                    })
+                  }}
+                  className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-xs font-semibold text-white"
+                >
                   {provider.status === 'enabled' ? 'Desactiver' : 'Activer'}
                 </button>
-                <button type="button" onClick={() => setProviders(ProviderWorkspaceService.test(provider.id))} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProviders(ProviderWorkspaceService.test(provider.id))
+                    CollaborationWorkspaceService.logProviderUpdated({
+                      actorId,
+                      actorName,
+                      providerId: provider.id,
+                      action: 'tested',
+                    })
+                  }}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+                >
                   Tester
                 </button>
                 <button type="button" onClick={() => setFavoriteProvider(provider.id)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">

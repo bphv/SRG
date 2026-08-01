@@ -11,10 +11,16 @@ import { AuthAccountService } from '#/app/services/business/AuthAccountService'
 import type { RegistrationWizardInput, Step1Validation, Step3Validation } from '#/app/services/business/AuthAccountService'
 import type { DeviceSession, SecurityEvent } from '#/app/services/business/session/types'
 import { BusinessOrchestrator } from '#/business/orchestrator'
-import type { LoginSessionOptions, SessionHistoryEntry } from '#/business/orchestrator'
+import type {
+  GenerationWorkflowInput,
+  GenerationWorkflowResult,
+  LoginSessionOptions,
+  SessionHistoryEntry,
+} from '#/business/orchestrator'
 import type { OtpProviderName } from '#/business/identity'
 import type { GenerationResponse } from '#/generator/response/GenerationResponse'
 import type { ExecutionResponse } from '#/execution/response/ExecutionResponse'
+import type { CreditEstimate } from '#/business/credits'
 
 const businessOrchestrator = new BusinessOrchestrator()
 const authAccountService = new AuthAccountService(businessOrchestrator)
@@ -144,6 +150,27 @@ type BusinessContextValue = {
     model: string
   }) => void
   runBusinessDemoScenario: () => void
+  estimateGenerationCredits: (input: {
+    userId: string
+    model: GenerationWorkflowInput['model']
+    inputTokens: number
+    outputTokens: number
+    streaming?: boolean
+  }) => CreditEstimate
+  validateGenerationReadiness: (input: {
+    userId: string
+    model: GenerationWorkflowInput['model']
+    inputTokens: number
+    outputTokens: number
+    streaming?: boolean
+  }) => {
+    ok: boolean
+    reasons: string[]
+    estimate: CreditEstimate
+    context: ReturnType<BusinessOrchestrator['getContext']>
+  }
+  runGenerationWorkflow: (input: GenerationWorkflowInput) => Promise<GenerationWorkflowResult>
+  getGenerationObservability: (userId?: string) => ReturnType<BusinessOrchestrator['getContext']>
 }
 
 const BusinessContext = createContext<BusinessContextValue | undefined>(undefined)
@@ -333,6 +360,44 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
         businessOrchestrator.runDemoScenario()
         refresh()
       },
+      estimateGenerationCredits: (input) =>
+        businessOrchestrator.estimateCredits({
+          userId: input.userId,
+          model: input.model,
+          inputTokens: input.inputTokens,
+          outputTokens: input.outputTokens,
+          streaming: input.streaming,
+        }),
+      validateGenerationReadiness: (input) => {
+        const context = businessOrchestrator.getContext(input.userId)
+        const estimate = businessOrchestrator.estimateCredits({
+          userId: input.userId,
+          model: input.model,
+          inputTokens: input.inputTokens,
+          outputTokens: input.outputTokens,
+          streaming: input.streaming,
+        })
+
+        const reasons: string[] = []
+        if (!context.subscription || context.subscription.status !== 'active') {
+          reasons.push('Subscription inactive or missing.')
+        }
+        if (!context.wallet || context.wallet.total <= 0) {
+          reasons.push('Wallet balance is insufficient.')
+        }
+        if (!context.credits || context.credits.available < estimate.estimatedCredits) {
+          reasons.push('Insufficient credits for this generation.')
+        }
+
+        return {
+          ok: reasons.length === 0,
+          reasons,
+          estimate,
+          context,
+        }
+      },
+      runGenerationWorkflow: (input) => businessOrchestrator.runGeneration(input),
+      getGenerationObservability: (userId) => businessOrchestrator.getContext(userId),
     }),
     [currentSession, snapshot],
   )

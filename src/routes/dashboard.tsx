@@ -10,13 +10,20 @@ import QuickActions from '#/app/components/QuickActions'
 import SystemResources from '#/app/components/SystemResources'
 import EmptyState from '#/app/components/EmptyState'
 import WorkspaceSkeleton from '#/app/components/WorkspaceSkeleton'
+import CollaborationActivityFeed from '#/app/components/collaboration/CollaborationActivityFeed'
+import CollaborationGlobalSearch from '#/app/components/collaboration/CollaborationGlobalSearch'
+import { useBusiness } from '#/app/hooks/useBusiness'
 import { useDashboard } from '#/app/hooks/useDashboard'
+import { ProjectService } from '#/app/services/ProjectService'
+import { PromptService } from '#/app/services/PromptService'
+import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardPage,
 })
 
 function DashboardPage() {
+  const business = useBusiness()
   const { dashboardState, loading } = useDashboard()
   const {
     overview,
@@ -34,6 +41,33 @@ function DashboardPage() {
     activityChart,
   } = dashboardState
 
+  const allProjects = ProjectService.getProjects().map((item) => ({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+  }))
+  const allPrompts = PromptService.getPrompts().map((item) => ({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+  }))
+  const allTemplates = allPrompts.map((item) => ({
+    id: item.id,
+    name: item.name,
+    description: item.description,
+  }))
+  const allUsers = business.snapshot.users.map((item) => ({ id: item.id, username: item.username }))
+  const recentCollabActivity = CollaborationWorkspaceService.getActivity('week').slice(0, 8)
+  const latestValidations = recentCollabActivity.filter((item) => item.type.startsWith('validation')).slice(0, 4)
+  const latestComments = recentCollabActivity.filter((item) => item.type === 'comment.added').slice(0, 4)
+  const activeCollaborators = Array.from(
+    new Set(
+      CollaborationWorkspaceService.getStore().collaborators
+        .filter((item) => item.status === 'active')
+        .map((item) => item.username),
+    ),
+  ).slice(0, 8)
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -48,6 +82,8 @@ function DashboardPage() {
       <PageHeader title="Dashboard" description="Your SRG command center." />
 
       <OverviewCard overview={overview} />
+
+      <CollaborationGlobalSearch projects={allProjects} prompts={allPrompts} templates={allTemplates} users={allUsers} />
 
       <Section title="Bonjour utilisateur" description={overview.workspaceGreeting}>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -100,6 +136,39 @@ function DashboardPage() {
             </Section>
           )}
           <HealthPanel items={health} />
+          <Section title="Dernieres validations" description="Demandes et validations récentes du workflow collaboratif.">
+            <div className="space-y-2 text-sm">
+              {latestValidations.length === 0 ? <p className="text-[var(--sea-ink-soft)]">Aucune validation récente.</p> : latestValidations.map((item) => (
+                <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+                  <p className="font-semibold text-[var(--sea-ink)]">{item.actorName}</p>
+                  <p className="mt-1 text-[var(--sea-ink-soft)]">{item.message}</p>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Derniers commentaires" description="Commentaires récents liés aux projets, prompts et templates.">
+            <div className="space-y-2 text-sm">
+              {latestComments.length === 0 ? <p className="text-[var(--sea-ink-soft)]">Aucun commentaire récent.</p> : latestComments.map((item) => (
+                <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+                  <p className="font-semibold text-[var(--sea-ink)]">{item.actorName}</p>
+                  <p className="mt-1 text-[var(--sea-ink-soft)]">{item.message}</p>
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <Section title="Collaborateurs actifs" description="Utilisateurs actifs sur les espaces collaboratifs.">
+            <div className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3">
+              {activeCollaborators.length === 0 ? <p className="text-sm text-[var(--sea-ink-soft)]">Aucun collaborateur actif.</p> : activeCollaborators.map((name) => (
+                <div key={name} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]">
+                  {name}
+                </div>
+              ))}
+            </div>
+          </Section>
+
+          <CollaborationActivityFeed />
           <Section title="Activite recente du workspace" description="Dernieres generations et derniers projets.">
             <div className="grid gap-4 lg:grid-cols-3">
               <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">

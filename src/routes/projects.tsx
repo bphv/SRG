@@ -14,7 +14,10 @@ import DeleteProjectDialog from '#/app/components/DeleteProjectDialog'
 import ArchiveProjectDialog from '#/app/components/ArchiveProjectDialog'
 import DuplicateProjectDialog from '#/app/components/DuplicateProjectDialog'
 import WorkspaceSkeleton from '#/app/components/WorkspaceSkeleton'
+import CollaborationWorkspacePanel from '#/app/components/collaboration/CollaborationWorkspacePanel'
+import { useBusiness } from '#/app/hooks/useBusiness'
 import { useProjects } from '#/app/hooks/useProjects'
+import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
 export const Route = createFileRoute('/projects')({
@@ -24,6 +27,7 @@ export const Route = createFileRoute('/projects')({
 type PendingActionType = 'delete' | 'archive' | 'duplicate' | null
 
 function ProjectsPage() {
+  const business = useBusiness()
   const {
     projects,
     selectedProject,
@@ -45,6 +49,9 @@ function ProjectsPage() {
   const [pendingProjectId, setPendingProjectId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const [shareLink, setShareLink] = useState('')
+  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
+  const availableUsers = business.snapshot.users.map((item) => ({ id: item.id, username: item.username }))
 
   const filteredProjects = useMemo(() => {
     return projects
@@ -94,7 +101,19 @@ function ProjectsPage() {
       return
     }
 
-    updateProject(selectedProject.id, { name: renameValue.trim() })
+    const updated = updateProject(selectedProject.id, { name: renameValue.trim() })
+    if (updated) {
+      CollaborationWorkspaceService.createVersion({
+        entityType: 'project',
+        entityId: updated.id,
+        authorId: actorId,
+        authorName: actorName,
+        comment: 'Project renamed',
+        changeSummary: `Name changed to ${updated.name}`,
+        snapshot: JSON.stringify(updated, null, 2),
+        projectId: updated.id,
+      })
+    }
     setRenameValue('')
   }
 
@@ -126,7 +145,17 @@ function ProjectsPage() {
   }
 
   const handleCreateProject = (payload: Parameters<typeof createProject>[0]) => {
-    createProject(payload)
+    const created = createProject(payload)
+    CollaborationWorkspaceService.createVersion({
+      entityType: 'project',
+      entityId: created.id,
+      authorId: actorId,
+      authorName: actorName,
+      comment: 'Project created',
+      changeSummary: 'Initial project version',
+      snapshot: JSON.stringify(created, null, 2),
+      projectId: created.id,
+    })
   }
 
   const handleActionConfirm = () => {
@@ -136,6 +165,14 @@ function ProjectsPage() {
     }
     if (pendingAction === 'archive') {
       archiveProject(pendingProjectId)
+      CollaborationWorkspaceService.transitionWorkflow({
+        entityType: 'project',
+        entityId: pendingProjectId,
+        action: 'archive',
+        actorId,
+        actorName,
+        projectId: pendingProjectId,
+      })
     }
     if (pendingAction === 'duplicate') {
       duplicateProject(pendingProjectId)
@@ -245,6 +282,17 @@ function ProjectsPage() {
 
         <div className="space-y-6">
           <ProjectDetailsPanel project={selectedProject} />
+          {selectedProject ? (
+            <CollaborationWorkspacePanel
+              entityType="project"
+              entityId={selectedProject.id}
+              projectId={selectedProject.id}
+              actorId={actorId}
+              actorName={actorName}
+              users={availableUsers}
+              snapshot={JSON.stringify(selectedProject, null, 2)}
+            />
+          ) : null}
           {selectedProject ? (
             <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--lagoon-deep)]">Actions projet</p>

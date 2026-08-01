@@ -17,12 +17,15 @@ import TemplateSearch from '#/app/components/templates/TemplateSearch'
 import TemplateStatistics from '#/app/components/templates/TemplateStatistics'
 import TemplateToolbar from '#/app/components/templates/TemplateToolbar'
 import TemplateVariables from '#/app/components/templates/TemplateVariables'
+import CollaborationWorkspacePanel from '#/app/components/collaboration/CollaborationWorkspacePanel'
 import type {TemplateVariable} from '#/app/components/templates/TemplateVariables';
 import PublishTemplateDialog from '#/app/components/templates/PublishTemplateDialog'
 import DuplicateTemplateDialog from '#/app/components/templates/DuplicateTemplateDialog'
 import ArchiveTemplateDialog from '#/app/components/templates/ArchiveTemplateDialog'
 import DeleteTemplateDialog from '#/app/components/templates/DeleteTemplateDialog'
+import { useBusiness } from '#/app/hooks/useBusiness'
 import { usePrompts } from '#/app/hooks/usePrompts'
+import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 export const Route = createFileRoute('/prompt-templates')({
@@ -35,6 +38,7 @@ type PendingDialog = 'publish' | 'duplicate' | 'archive' | 'delete' | null
 
 type TemplateWorkspaceItem = {
   id: string
+  projectId: string
   name: string
   description: string
   category: string
@@ -56,8 +60,12 @@ type TemplateWorkspaceItem = {
 }
 
 function PromptTemplatesPage() {
-  const { prompts, createPrompt, favoritePrompt, duplicatePrompt, archivePrompt, deletePrompt, loading } = usePrompts()
+  const business = useBusiness()
+  const { prompts, createPrompt, updatePrompt, favoritePrompt, duplicatePrompt, archivePrompt, deletePrompt, loading } = usePrompts()
   const preferences = WorkspacePreferencesService.getPreferences()
+  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
+  const availableUsers = business.snapshot.users.map((item) => ({ id: item.id, username: item.username }))
 
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -98,6 +106,7 @@ function PromptTemplatesPage() {
 
       return {
         id: prompt.id,
+        projectId: prompt.projectId,
         name: prompt.name,
         description: prompt.description,
         category: prompt.category,
@@ -256,6 +265,17 @@ function PromptTemplatesPage() {
       })),
     })
 
+    CollaborationWorkspaceService.createVersion({
+      entityType: 'template',
+      entityId: created.id,
+      authorId: actorId,
+      authorName: actorName,
+      comment: 'Template created',
+      changeSummary: 'Initial template version',
+      snapshot: created.content,
+      projectId: created.projectId,
+    })
+
     setSelectedTemplateId(created.id)
     setWizardOpen(false)
   }
@@ -283,6 +303,16 @@ function PromptTemplatesPage() {
   }
 
   const confirmPublish = () => {
+    if (selectedTemplate) {
+      CollaborationWorkspaceService.transitionWorkflow({
+        entityType: 'template',
+        entityId: selectedTemplate.id,
+        action: 'publish',
+        actorId,
+        actorName,
+        projectId: selectedTemplate.projectId,
+      })
+    }
     closeDialogs()
   }
 
@@ -295,6 +325,14 @@ function PromptTemplatesPage() {
   const confirmArchive = () => {
     if (!selectedTemplate) return
     archivePrompt(selectedTemplate.id)
+    CollaborationWorkspaceService.transitionWorkflow({
+      entityType: 'template',
+      entityId: selectedTemplate.id,
+      action: 'archive',
+      actorId,
+      actorName,
+      projectId: selectedTemplate.projectId,
+    })
     closeDialogs()
   }
 
@@ -514,6 +552,22 @@ function PromptTemplatesPage() {
                 score={Math.min(5, 3.5 + selectedTemplate.uses / 20)}
                 uses={selectedTemplate.uses}
                 popularity={Math.min(100, Math.round((selectedTemplate.uses / Math.max(1, quickStats.uses)) * 100))}
+              />
+
+              <CollaborationWorkspacePanel
+                entityType="template"
+                entityId={selectedTemplate.id}
+                projectId={selectedTemplate.projectId}
+                actorId={actorId}
+                actorName={actorName}
+                users={availableUsers}
+                snapshot={selectedTemplate.content}
+                onRestoreSnapshot={(snapshot) => {
+                  updatePrompt(selectedTemplate.id, {
+                    content: snapshot,
+                    versionComment: 'Template restored from collaboration version',
+                  })
+                }}
               />
             </>
           ) : (
