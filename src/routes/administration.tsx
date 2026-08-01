@@ -431,9 +431,9 @@ function AdministrationPage() {
           { label: 'Subscriptions', value: adminCounts.subscriptions },
           { label: 'Payments', value: adminCounts.payments },
         ].map((card) => (
-          <div key={card.label} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
-            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">{card.label}</p>
-            <p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{card.value}</p>
+          <div key={card.label} className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{card.label}</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{card.value}</p>
           </div>
         ))}
       </div>
@@ -447,8 +447,8 @@ function AdministrationPage() {
               onClick={() => setActiveSpace(space)}
               className={`rounded-3xl px-4 py-2 text-sm font-semibold transition ${
                 activeSpace === space
-                  ? 'bg-[var(--lagoon-deep)] text-white'
-                  : 'border border-[var(--line)] bg-[var(--surface-strong)] text-[var(--sea-ink)] hover:border-[var(--lagoon)]'
+                  ? 'bg-[var(--srg-color-primary-500)] text-white'
+                  : 'border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] text-[var(--srg-text-title)] hover:border-[var(--srg-color-primary-400)]'
               }`}
             >
               {space}
@@ -462,63 +462,63 @@ function AdministrationPage() {
           <Section title="Identity System" description="UUID interne, matricule SRG, username, téléphone obligatoire, email facultatif.">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Username</span>
-                <input value={username} onChange={(event) => setUsername(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Username</span>
+                <input value={username} onChange={(event) => setUsername(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Téléphone (obligatoire)</span>
-                <input value={phone} onChange={(event) => setPhone(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Téléphone (obligatoire)</span>
+                <input value={phone} onChange={(event) => setPhone(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Email (facultatif)</span>
-                <input value={email} onChange={(event) => setEmail(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Email (facultatif)</span>
+                <input value={email} onChange={(event) => setEmail(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Mot de passe</span>
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Mot de passe</span>
+                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Nom</span>
-                <input value={lastName} onChange={(event) => setLastName(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Nom</span>
+                <input value={lastName} onChange={(event) => setLastName(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Prénom</span>
-                <input value={firstName} onChange={(event) => setFirstName(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Prénom</span>
+                <input value={firstName} onChange={(event) => setFirstName(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Rôle</span>
-                <select value={role} onChange={(event) => setRole(event.target.value as UserRole)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3">
+                <span className="font-semibold text-[var(--srg-text-title)]">Rôle</span>
+                <select value={role} onChange={(event) => setRole(event.target.value as UserRole)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3">
                   {roleOptions.map((item) => (
                     <option key={item} value={item}>{item}</option>
                   ))}
                 </select>
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Langue</span>
-                <input value={language} onChange={(event) => setLanguage(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Langue</span>
+                <input value={language} onChange={(event) => setLanguage(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Pays</span>
-                <input value={country} onChange={(event) => setCountry(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Pays</span>
+                <input value={country} onChange={(event) => setCountry(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Ville</span>
-                <input value={city} onChange={(event) => setCity(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Ville</span>
+                <input value={city} onChange={(event) => setCity(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Fuseau horaire</span>
-                <input value={timezone} onChange={(event) => setTimezone(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Fuseau horaire</span>
+                <input value={timezone} onChange={(event) => setTimezone(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
             </div>
 
-            <button type="button" onClick={handleCreateUser} className="mt-4 rounded-3xl bg-[var(--lagoon-deep)] px-5 py-3 text-sm font-semibold text-white">
+            <button type="button" onClick={handleCreateUser} className="mt-4 rounded-3xl bg-[var(--srg-color-primary-500)] px-5 py-3 text-sm font-semibold text-white">
               Créer utilisateur
             </button>
 
             <div className="mt-5 space-y-3">
               {snapshot.users.slice(0, 6).map((user) => (
-                <div key={user.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink-soft)]">
-                  <p className="font-semibold text-[var(--sea-ink)]">{user.username} · {user.role}</p>
+                <div key={user.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-muted)]">
+                  <p className="font-semibold text-[var(--srg-text-title)]">{user.username} · {user.role}</p>
                   <p className="mt-1">Matricule: {user.matricule}</p>
                   <p>Téléphone: {user.phone}</p>
                   <p>Email: {user.email ?? 'N/A'}</p>
@@ -530,37 +530,37 @@ function AdministrationPage() {
           <Section title="Authentication" description="Connexion Username/Matricule + Password, Forgot Password, Reset Password, OTP futur prêt.">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Identifier (username ou matricule)</span>
-                <input value={authIdentifier} onChange={(event) => setAuthIdentifier(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Identifier (username ou matricule)</span>
+                <input value={authIdentifier} onChange={(event) => setAuthIdentifier(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Password</span>
-                <input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Password</span>
+                <input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
             </div>
-            <button type="button" onClick={handleAuthenticate} className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[var(--sea-ink)]">
+            <button type="button" onClick={handleAuthenticate} className="mt-4 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-5 py-3 text-sm font-semibold text-[var(--srg-text-title)]">
               Tester connexion
             </button>
-            {authResult ? <p className="mt-3 text-sm text-[var(--sea-ink-soft)]">{authResult}</p> : null}
+            {authResult ? <p className="mt-3 text-sm text-[var(--srg-text-muted)]">{authResult}</p> : null}
 
             <div className="mt-5 grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Forgot Password (identifier)</span>
-                <input value={forgotIdentifier} onChange={(event) => setForgotIdentifier(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Forgot Password (identifier)</span>
+                <input value={forgotIdentifier} onChange={(event) => setForgotIdentifier(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
-              <button type="button" onClick={handleForgotPassword} className="self-end rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[var(--sea-ink)]">
+              <button type="button" onClick={handleForgotPassword} className="self-end rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-5 py-3 text-sm font-semibold text-[var(--srg-text-title)]">
                 Générer ticket reset
               </button>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Reset Ticket ID</span>
-                <input value={resetTicketId} onChange={(event) => setResetTicketId(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Reset Ticket ID</span>
+                <input value={resetTicketId} onChange={(event) => setResetTicketId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Nouveau password</span>
-                <input type="password" value={resetPassword} onChange={(event) => setResetPasswordValue(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Nouveau password</span>
+                <input type="password" value={resetPassword} onChange={(event) => setResetPasswordValue(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
             </div>
-            <button type="button" onClick={handleResetPassword} className="mt-4 rounded-3xl bg-[var(--lagoon-deep)] px-5 py-3 text-sm font-semibold text-white">
+            <button type="button" onClick={handleResetPassword} className="mt-4 rounded-3xl bg-[var(--srg-color-primary-500)] px-5 py-3 text-sm font-semibold text-white">
               Reset password
             </button>
           </Section>
@@ -568,32 +568,32 @@ function AdministrationPage() {
           <Section title="Organizations" description="Entreprise, département, équipe et affectation utilisateur.">
             <div className="grid gap-4 md:grid-cols-2">
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Nom organisation</span>
-                <input value={orgName} onChange={(event) => setOrgName(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Nom organisation</span>
+                <input value={orgName} onChange={(event) => setOrgName(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Raison sociale</span>
-                <input value={orgLegalName} onChange={(event) => setOrgLegalName(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Raison sociale</span>
+                <input value={orgLegalName} onChange={(event) => setOrgLegalName(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Pays</span>
-                <input value={orgCountry} onChange={(event) => setOrgCountry(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Pays</span>
+                <input value={orgCountry} onChange={(event) => setOrgCountry(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
               <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--sea-ink)]">Ville</span>
-                <input value={orgCity} onChange={(event) => setOrgCity(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3" />
+                <span className="font-semibold text-[var(--srg-text-title)]">Ville</span>
+                <input value={orgCity} onChange={(event) => setOrgCity(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
             </div>
-            <button type="button" onClick={handleCreateOrganization} className="mt-4 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-5 py-3 text-sm font-semibold text-[var(--sea-ink)]">
+            <button type="button" onClick={handleCreateOrganization} className="mt-4 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-5 py-3 text-sm font-semibold text-[var(--srg-text-title)]">
               Créer organisation
             </button>
 
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
               {snapshot.organizations.map((organization) => (
-                <article key={organization.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm">
-                  <p className="font-semibold text-[var(--sea-ink)]">{organization.name}</p>
-                  <p className="text-[var(--sea-ink-soft)]">{organization.legalName}</p>
-                  <p className="mt-1 text-[var(--sea-ink-soft)]">{organization.city}, {organization.country}</p>
+                <article key={organization.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm">
+                  <p className="font-semibold text-[var(--srg-text-title)]">{organization.name}</p>
+                  <p className="text-[var(--srg-text-muted)]">{organization.legalName}</p>
+                  <p className="mt-1 text-[var(--srg-text-muted)]">{organization.city}, {organization.country}</p>
                 </article>
               ))}
             </div>
@@ -604,16 +604,16 @@ function AdministrationPage() {
           <Section title="Roles & Permissions" description="Rôles standards SRG et permissions préparées.">
             <div className="space-y-3">
               {snapshot.roles.map((roleItem) => (
-                <div key={roleItem.role} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm">
-                  <p className="font-semibold text-[var(--sea-ink)]">{roleItem.role}</p>
-                  <p className="mt-2 text-[var(--sea-ink-soft)]">{roleItem.permissions.join(', ') || 'Aucune permission'}</p>
+                <div key={roleItem.role} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm">
+                  <p className="font-semibold text-[var(--srg-text-title)]">{roleItem.role}</p>
+                  <p className="mt-2 text-[var(--srg-text-muted)]">{roleItem.permissions.join(', ') || 'Aucune permission'}</p>
                   <button
                     type="button"
                     onClick={() => {
                       business.setUserRole(selectedUser.id, roleItem.role)
                       setOperationStatus(`Rôle ${roleItem.role} assigné à ${selectedUser.username}.`)
                     }}
-                    className="mt-3 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+                    className="mt-3 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
                   >
                     Assigner à {selectedUser.username}
                   </button>
@@ -624,13 +624,13 @@ function AdministrationPage() {
 
           <Section title="Wallet & Credits" description="Recharge, bonus, réservation, consommation et remboursement de crédits.">
             <div className="grid gap-2 sm:grid-cols-2">
-              <button type="button" onClick={handleWalletRecharge} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Recharge +100</button>
-              <button type="button" onClick={handleWalletBonus} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Bonus +25</button>
-              <button type="button" onClick={handleReserveCredit} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Réserver 10 crédits</button>
-              <button type="button" onClick={handleRefundCredit} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Rembourser 5 crédits</button>
+              <button type="button" onClick={handleWalletRecharge} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Recharge +100</button>
+              <button type="button" onClick={handleWalletBonus} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Bonus +25</button>
+              <button type="button" onClick={handleReserveCredit} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Réserver 10 crédits</button>
+              <button type="button" onClick={handleRefundCredit} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Rembourser 5 crédits</button>
             </div>
 
-            <div className="mt-4 space-y-2 text-sm text-[var(--sea-ink-soft)]">
+            <div className="mt-4 space-y-2 text-sm text-[var(--srg-text-muted)]">
               {snapshot.creditAccounts.slice(0, 3).map((account) => (
                 <p key={account.id}>User {account.userId}: disponible {account.available} · réservé {account.reserved} · consommé {account.consumed}</p>
               ))}
@@ -639,12 +639,12 @@ function AdministrationPage() {
 
           <Section title="Subscriptions, Billing, Licenses" description="Modèles d’abonnement, facturation, paiements simulés et licences.">
             <div className="grid gap-2 sm:grid-cols-2">
-              <button type="button" onClick={handleCreateSubscription} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Activer Professional</button>
-              <button type="button" onClick={handleCreateInvoiceAndPayment} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Créer facture + paiement</button>
-              <button type="button" onClick={handleIssueLicense} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Émettre licence</button>
+              <button type="button" onClick={handleCreateSubscription} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Activer Professional</button>
+              <button type="button" onClick={handleCreateInvoiceAndPayment} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Créer facture + paiement</button>
+              <button type="button" onClick={handleIssueLicense} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Émettre licence</button>
             </div>
 
-            <div className="mt-4 space-y-2 text-sm text-[var(--sea-ink-soft)]">
+            <div className="mt-4 space-y-2 text-sm text-[var(--srg-text-muted)]">
               <p>Plans: {snapshot.subscriptionPlans.map((plan) => plan.name).join(', ')}</p>
               <p>Providers de paiement (abstraction): Stripe, Flutterwave, PayPal, CinetPay, Orange Money, MTN Mobile Money</p>
               <p>Invoices: {snapshot.invoices.length} · Payments: {snapshot.payments.length} · Licenses: {snapshot.licenses.length}</p>
@@ -656,7 +656,7 @@ function AdministrationPage() {
               {flagKeys.map((flag) => {
                 const enabled = snapshot.featureFlagsByUser[selectedUser.id][flag]
                 return (
-                  <label key={flag} className="inline-flex items-center gap-2 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--sea-ink)]">
+                  <label key={flag} className="inline-flex items-center gap-2 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm text-[var(--srg-text-title)]">
                     <input
                       type="checkbox"
                       checked={enabled}
@@ -672,33 +672,33 @@ function AdministrationPage() {
 
           <Section title="Observability" description="Logs, metrics, events, traces pour toutes les opérations métier.">
             <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-                <p className="font-semibold text-[var(--sea-ink)]">Logs</p>
-                <ul className="mt-2 space-y-1 text-xs text-[var(--sea-ink-soft)]">
+              <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+                <p className="font-semibold text-[var(--srg-text-title)]">Logs</p>
+                <ul className="mt-2 space-y-1 text-xs text-[var(--srg-text-muted)]">
                   {latestLogs.map((item) => (
                     <li key={item.id}>{item.operation} · {item.message}</li>
                   ))}
                 </ul>
               </div>
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-                <p className="font-semibold text-[var(--sea-ink)]">Metrics</p>
-                <ul className="mt-2 space-y-1 text-xs text-[var(--sea-ink-soft)]">
+              <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+                <p className="font-semibold text-[var(--srg-text-title)]">Metrics</p>
+                <ul className="mt-2 space-y-1 text-xs text-[var(--srg-text-muted)]">
                   {latestMetrics.map((item) => (
                     <li key={item.id}>{item.name} = {item.value}</li>
                   ))}
                 </ul>
               </div>
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-                <p className="font-semibold text-[var(--sea-ink)]">Events</p>
-                <ul className="mt-2 space-y-1 text-xs text-[var(--sea-ink-soft)]">
+              <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+                <p className="font-semibold text-[var(--srg-text-title)]">Events</p>
+                <ul className="mt-2 space-y-1 text-xs text-[var(--srg-text-muted)]">
                   {latestEvents.map((item) => (
                     <li key={item.id}>{item.type}</li>
                   ))}
                 </ul>
               </div>
-              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-                <p className="font-semibold text-[var(--sea-ink)]">Traces</p>
-                <ul className="mt-2 space-y-1 text-xs text-[var(--sea-ink-soft)]">
+              <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+                <p className="font-semibold text-[var(--srg-text-title)]">Traces</p>
+                <ul className="mt-2 space-y-1 text-xs text-[var(--srg-text-muted)]">
                   {latestTraces.map((item) => (
                     <li key={item.id}>{item.operation} · {item.status}</li>
                   ))}
@@ -716,7 +716,7 @@ function AdministrationPage() {
                   setSessionPage(1)
                 }}
                 placeholder="Recherche session, appareil, user agent, IP"
-                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
               />
               <select
                 value={sessionStateFilter}
@@ -724,7 +724,7 @@ function AdministrationPage() {
                   setSessionStateFilter(event.target.value as 'all' | 'active' | 'closed')
                   setSessionPage(1)
                 }}
-                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
               >
                 <option value="all">Tous les statuts</option>
                 <option value="active">Actives</option>
@@ -733,7 +733,7 @@ function AdministrationPage() {
               <select
                 value={sessionSort}
                 onChange={(event) => setSessionSort(event.target.value as 'lastActivityDesc' | 'createdDesc' | 'deviceAsc')}
-                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
               >
                 <option value="lastActivityDesc">Tri: activité récente</option>
                 <option value="createdDesc">Tri: création récente</option>
@@ -742,10 +742,10 @@ function AdministrationPage() {
             </div>
 
             <div className="mt-3 flex flex-wrap gap-2">
-              <button type="button" onClick={exportSessionsCsv} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">
+              <button type="button" onClick={exportSessionsCsv} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]">
                 Export CSV
               </button>
-              <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs text-[var(--sea-ink)]">
+              <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs text-[var(--srg-text-title)]">
                 <input
                   type="checkbox"
                   checked={
@@ -758,26 +758,26 @@ function AdministrationPage() {
                 />
                 <span>Sélectionner la page</span>
               </label>
-              <button type="button" onClick={revokeSelectedSessions} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-xs font-semibold text-white">
+              <button type="button" onClick={revokeSelectedSessions} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-xs font-semibold text-white">
                 Révoquer sélection ({selectedSessionIds.length})
               </button>
             </div>
 
             <div className="mt-3 space-y-3 text-sm">
               {paginatedSessions.length === 0 ? (
-                <p className="text-[var(--sea-ink-soft)]">Aucune session trouvée.</p>
+                <p className="text-[var(--srg-text-muted)]">Aucune session trouvée.</p>
               ) : null}
               {paginatedSessions.map((session) => {
                 const [browser, os] = (session.userAgent ?? 'Unknown Browser / Unknown OS').split(' / ')
                 const isCurrent = session.sessionId === business.currentSession?.sessionId
 
                 return (
-                  <article key={session.sessionId} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+                  <article key={session.sessionId} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <p className="font-semibold text-[var(--sea-ink)]">
+                      <p className="font-semibold text-[var(--srg-text-title)]">
                         {session.deviceName} {isCurrent ? '(device courant)' : ''}
                       </p>
-                      <label className="inline-flex items-center gap-2 text-xs text-[var(--sea-ink-soft)]">
+                      <label className="inline-flex items-center gap-2 text-xs text-[var(--srg-text-muted)]">
                         <input
                           type="checkbox"
                           disabled={isCurrent}
@@ -787,15 +787,15 @@ function AdministrationPage() {
                         <span>{isCurrent ? 'Protégée' : 'Sélection'}</span>
                       </label>
                     </div>
-                    <p className="text-[var(--sea-ink-soft)]">Session: {session.sessionId}</p>
-                    <p className="text-[var(--sea-ink-soft)]">Navigateur: {browser} · OS: {os || 'Unknown OS'}</p>
-                    <p className="text-[var(--sea-ink-soft)]">IP: {session.ipAddress ?? '0.0.0.0'} · Trusted: {session.rememberMe ? 'yes' : 'no'}</p>
-                    <p className="text-[var(--sea-ink-soft)]">Créée: {new Date(session.createdAt).toLocaleString()} · Dernière activité: {new Date(session.lastActivityAt).toLocaleString()}</p>
-                    <p className="text-[var(--sea-ink-soft)]">Statut: {session.active ? 'active' : 'closed'} · Expire: {new Date(session.expiresAt).toLocaleString()}</p>
+                    <p className="text-[var(--srg-text-muted)]">Session: {session.sessionId}</p>
+                    <p className="text-[var(--srg-text-muted)]">Navigateur: {browser} · OS: {os || 'Unknown OS'}</p>
+                    <p className="text-[var(--srg-text-muted)]">IP: {session.ipAddress ?? '0.0.0.0'} · Trusted: {session.rememberMe ? 'yes' : 'no'}</p>
+                    <p className="text-[var(--srg-text-muted)]">Créée: {new Date(session.createdAt).toLocaleString()} · Dernière activité: {new Date(session.lastActivityAt).toLocaleString()}</p>
+                    <p className="text-[var(--srg-text-muted)]">Statut: {session.active ? 'active' : 'closed'} · Expire: {new Date(session.expiresAt).toLocaleString()}</p>
                     <button
                       type="button"
                       onClick={() => handleDisconnectSession(session.sessionId)}
-                      className="mt-3 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+                      className="mt-3 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
                     >
                       Déconnecter
                     </button>
@@ -804,14 +804,14 @@ function AdministrationPage() {
               })}
             </div>
 
-            <div className="mt-3 flex items-center justify-between text-xs text-[var(--sea-ink-soft)]">
+            <div className="mt-3 flex items-center justify-between text-xs text-[var(--srg-text-muted)]">
               <span>Page {sessionCurrentPage} / {sessionTotalPages}</span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   disabled={sessionCurrentPage <= 1}
                   onClick={() => setSessionPage((current) => Math.max(1, current - 1))}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-1 disabled:opacity-50"
+                  className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 disabled:opacity-50"
                 >
                   Précédente
                 </button>
@@ -819,7 +819,7 @@ function AdministrationPage() {
                   type="button"
                   disabled={sessionCurrentPage >= sessionTotalPages}
                   onClick={() => setSessionPage((current) => Math.min(sessionTotalPages, current + 1))}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-1 disabled:opacity-50"
+                  className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 disabled:opacity-50"
                 >
                   Suivante
                 </button>
@@ -836,7 +836,7 @@ function AdministrationPage() {
                   setSecurityPage(1)
                 }}
                 placeholder="Recherche type, message, user, appareil, IP"
-                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
               />
               <select
                 value={securityTypeFilter}
@@ -844,7 +844,7 @@ function AdministrationPage() {
                   setSecurityTypeFilter(event.target.value)
                   setSecurityPage(1)
                 }}
-                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
               >
                 {securityTypes.map((type) => (
                   <option key={type} value={type}>{type}</option>
@@ -856,13 +856,13 @@ function AdministrationPage() {
                   setSecurityStatusFilter(event.target.value as 'all' | 'success' | 'failed')
                   setSecurityPage(1)
                 }}
-                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
               >
                 <option value="all">Tous statuts</option>
                 <option value="success">success</option>
                 <option value="failed">failed</option>
               </select>
-              <label className="grid gap-1 text-xs text-[var(--sea-ink-soft)]">
+              <label className="grid gap-1 text-xs text-[var(--srg-text-muted)]">
                 <span>Du</span>
                 <input
                   type="date"
@@ -871,10 +871,10 @@ function AdministrationPage() {
                     setSecurityDateFrom(event.target.value)
                     setSecurityPage(1)
                   }}
-                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
                 />
               </label>
-              <label className="grid gap-1 text-xs text-[var(--sea-ink-soft)]">
+              <label className="grid gap-1 text-xs text-[var(--srg-text-muted)]">
                 <span>Au</span>
                 <input
                   type="date"
@@ -883,13 +883,13 @@ function AdministrationPage() {
                     setSecurityDateTo(event.target.value)
                     setSecurityPage(1)
                   }}
-                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
                 />
               </label>
               <select
                 value={securitySort}
                 onChange={(event) => setSecuritySort(event.target.value as 'dateDesc' | 'dateAsc' | 'typeAsc')}
-                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
               >
                 <option value="dateDesc">Tri: date desc</option>
                 <option value="dateAsc">Tri: date asc</option>
@@ -898,33 +898,33 @@ function AdministrationPage() {
             </div>
 
             <div className="mt-3">
-              <button type="button" onClick={exportSecurityJson} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">
+              <button type="button" onClick={exportSecurityJson} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]">
                 Export JSON
               </button>
             </div>
 
             <div className="mt-3 space-y-2 text-sm">
               {paginatedSecurityEvents.length === 0 ? (
-                <p className="text-[var(--sea-ink-soft)]">Aucun événement de sécurité trouvé.</p>
+                <p className="text-[var(--srg-text-muted)]">Aucun événement de sécurité trouvé.</p>
               ) : null}
               {paginatedSecurityEvents.map((event) => (
-                <div key={event.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
-                  <p className="font-semibold text-[var(--sea-ink)]">{event.type} ({event.status})</p>
-                  <p className="text-[var(--sea-ink-soft)]">{event.message}</p>
-                  <p className="text-[var(--sea-ink-soft)]">User: {event.userId ?? 'N/A'} · Device: {String(event.metadata?.deviceName ?? 'N/A')}</p>
-                  <p className="text-[var(--sea-ink-soft)]">IP: {String(event.metadata?.ipAddress ?? 'N/A')} · {new Date(event.at).toLocaleString()}</p>
+                <div key={event.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
+                  <p className="font-semibold text-[var(--srg-text-title)]">{event.type} ({event.status})</p>
+                  <p className="text-[var(--srg-text-muted)]">{event.message}</p>
+                  <p className="text-[var(--srg-text-muted)]">User: {event.userId ?? 'N/A'} · Device: {String(event.metadata?.deviceName ?? 'N/A')}</p>
+                  <p className="text-[var(--srg-text-muted)]">IP: {String(event.metadata?.ipAddress ?? 'N/A')} · {new Date(event.at).toLocaleString()}</p>
                 </div>
               ))}
             </div>
 
-            <div className="mt-3 flex items-center justify-between text-xs text-[var(--sea-ink-soft)]">
+            <div className="mt-3 flex items-center justify-between text-xs text-[var(--srg-text-muted)]">
               <span>Page {securityCurrentPage} / {securityTotalPages}</span>
               <div className="flex gap-2">
                 <button
                   type="button"
                   disabled={securityCurrentPage <= 1}
                   onClick={() => setSecurityPage((current) => Math.max(1, current - 1))}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-1 disabled:opacity-50"
+                  className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 disabled:opacity-50"
                 >
                   Précédente
                 </button>
@@ -932,7 +932,7 @@ function AdministrationPage() {
                   type="button"
                   disabled={securityCurrentPage >= securityTotalPages}
                   onClick={() => setSecurityPage((current) => Math.min(securityTotalPages, current + 1))}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-1 disabled:opacity-50"
+                  className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 disabled:opacity-50"
                 >
                   Suivante
                 </button>
@@ -943,8 +943,8 @@ function AdministrationPage() {
       </div>
 
       <Section title="Active Space" description="Espace d’administration actuellement sélectionné.">
-        <p className="text-sm text-[var(--sea-ink-soft)]">Espace actif: <span className="font-semibold text-[var(--sea-ink)]">{activeSpace}</span></p>
-        {operationStatus ? <p className="mt-2 text-sm text-[var(--sea-ink-soft)]" role="status">{operationStatus}</p> : null}
+        <p className="text-sm text-[var(--srg-text-muted)]">Espace actif: <span className="font-semibold text-[var(--srg-text-title)]">{activeSpace}</span></p>
+        {operationStatus ? <p className="mt-2 text-sm text-[var(--srg-text-muted)]" role="status">{operationStatus}</p> : null}
       </Section>
     </div>
   )

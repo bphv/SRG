@@ -567,252 +567,252 @@ export default function ProjectExecutionWorkspace() {
     <div className="space-y-6">
       <Section title="Project Execution Dashboard" description="KPI global for projects, budget, progress, delays, incidents, risks and top actors.">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Projects</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.projects}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Total budget</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.totalBudget.toFixed(2)}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Consumed</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.consumedBudget.toFixed(2)}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Progress</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.progress.toFixed(1)}%</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Delays</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.delays}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Open risks</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.risks}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Projects</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.projects}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Total budget</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.totalBudget.toFixed(2)}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Consumed</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.consumedBudget.toFixed(2)}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Progress</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.progress.toFixed(1)}%</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Delays</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.delays}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Open risks</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.risks}</p></div>
         </div>
       </Section>
 
       <Section title="Project Workspace" description="Project signature-to-closure records with contract, ownership, schedule, budget and status.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
           <label className="grid gap-1">Project selector
-            <select aria-label="Select project" value={selectedProjectId} onChange={(event) => { setSelectedProjectId(event.target.value); setSelectedTimelineProjectId(event.target.value) }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">
+            <select aria-label="Select project" value={selectedProjectId} onChange={(event) => { setSelectedProjectId(event.target.value); setSelectedTimelineProjectId(event.target.value) }} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">
               {store.projects.map((item) => <option key={item.id} value={item.id}>{item.identifier} - {item.name}</option>)}
             </select>
           </label>
-          <input aria-label="Project identifier" value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="Identifier" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Project name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Name" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Project description" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Description" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Client" value={client} onChange={(event) => setClient(event.target.value)} placeholder="Client" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Supplier" value={supplier} onChange={(event) => setSupplier(event.target.value)} placeholder="Supplier" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Contract" value={contract} onChange={(event) => setContract(event.target.value)} placeholder="Contract" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Project manager" value={projectManager} onChange={(event) => setProjectManager(event.target.value)} placeholder="Project manager" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Site manager" value={siteManager} onChange={(event) => setSiteManager(event.target.value)} placeholder="Site manager" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Owner" value={owner} onChange={(event) => setOwner(event.target.value)} placeholder="Owner" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Start date" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="End date" type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Budget" type="number" value={budget} onChange={(event) => setBudget(Number(event.target.value) || 0)} placeholder="Budget" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input aria-label="Currency" value={currency} onChange={(event) => setCurrency(event.target.value)} placeholder="Currency" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <select aria-label="Status" value={status} onChange={(event) => setStatus(event.target.value as typeof statuses[number])} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{statuses.map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <select aria-label="Priority" value={priority} onChange={(event) => setPriority(event.target.value as typeof priorities[number])} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{priorities.map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <button type="button" onClick={createProject} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Create project</button>
-          <button type="button" onClick={closeProject} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Close project</button>
+          <input aria-label="Project identifier" value={identifier} onChange={(event) => setIdentifier(event.target.value)} placeholder="Identifier" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Project name" value={name} onChange={(event) => setName(event.target.value)} placeholder="Name" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Project description" value={description} onChange={(event) => setDescription(event.target.value)} placeholder="Description" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Client" value={client} onChange={(event) => setClient(event.target.value)} placeholder="Client" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Supplier" value={supplier} onChange={(event) => setSupplier(event.target.value)} placeholder="Supplier" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Contract" value={contract} onChange={(event) => setContract(event.target.value)} placeholder="Contract" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Project manager" value={projectManager} onChange={(event) => setProjectManager(event.target.value)} placeholder="Project manager" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Site manager" value={siteManager} onChange={(event) => setSiteManager(event.target.value)} placeholder="Site manager" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Owner" value={owner} onChange={(event) => setOwner(event.target.value)} placeholder="Owner" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Start date" type="date" value={startDate} onChange={(event) => setStartDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="End date" type="date" value={endDate} onChange={(event) => setEndDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Budget" type="number" value={budget} onChange={(event) => setBudget(Number(event.target.value) || 0)} placeholder="Budget" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input aria-label="Currency" value={currency} onChange={(event) => setCurrency(event.target.value)} placeholder="Currency" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <select aria-label="Status" value={status} onChange={(event) => setStatus(event.target.value as typeof statuses[number])} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{statuses.map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <select aria-label="Priority" value={priority} onChange={(event) => setPriority(event.target.value as typeof priorities[number])} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{priorities.map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <button type="button" onClick={createProject} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Create project</button>
+          <button type="button" onClick={closeProject} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Close project</button>
         </div>
-        <p className="mt-3 text-xs text-[var(--sea-ink-soft)]">Current project: {currentProject.identifier} | {currentProject.status} | {currentProject.priority}</p>
+        <p className="mt-3 text-xs text-[var(--srg-text-muted)]">Current project: {currentProject.identifier} | {currentProject.status} | {currentProject.priority}</p>
       </Section>
 
       <Section title="Lots and Planning" description="Lots, sub-lots, phases, milestones, deliverables, calendar, Gantt, weekly/daily planning, delays and dependencies.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5 text-sm">
-          <select value={workType} onChange={(event) => setWorkType(event.target.value as typeof workItemTypes[number])} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{workItemTypes.map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <select value={workParentId} onChange={(event) => setWorkParentId(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2"><option value="">No parent</option>{workItemsForProject.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
-          <input value={workTitle} onChange={(event) => setWorkTitle(event.target.value)} placeholder="Title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={workBudget} onChange={(event) => setWorkBudget(Number(event.target.value) || 0)} placeholder="Budget" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={workProgress} onChange={(event) => setWorkProgress(Number(event.target.value) || 0)} placeholder="Progress" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={workOwner} onChange={(event) => setWorkOwner(event.target.value)} placeholder="Owner" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="date" value={workDate} onChange={(event) => setWorkDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={workComments} onChange={(event) => setWorkComments(event.target.value)} placeholder="Comments" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addWorkItem} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add work item</button>
+          <select value={workType} onChange={(event) => setWorkType(event.target.value as typeof workItemTypes[number])} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{workItemTypes.map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <select value={workParentId} onChange={(event) => setWorkParentId(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2"><option value="">No parent</option>{workItemsForProject.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
+          <input value={workTitle} onChange={(event) => setWorkTitle(event.target.value)} placeholder="Title" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={workBudget} onChange={(event) => setWorkBudget(Number(event.target.value) || 0)} placeholder="Budget" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={workProgress} onChange={(event) => setWorkProgress(Number(event.target.value) || 0)} placeholder="Progress" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={workOwner} onChange={(event) => setWorkOwner(event.target.value)} placeholder="Owner" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="date" value={workDate} onChange={(event) => setWorkDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={workComments} onChange={(event) => setWorkComments(event.target.value)} placeholder="Comments" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addWorkItem} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add work item</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <select value={planningKind} onChange={(event) => setPlanningKind(event.target.value as typeof planningKinds[number])} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{planningKinds.map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <input value={planningLabel} onChange={(event) => setPlanningLabel(event.target.value)} placeholder="Planning label" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="date" value={planningStartDate} onChange={(event) => setPlanningStartDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="date" value={planningEndDate} onChange={(event) => setPlanningEndDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={planningProgress} onChange={(event) => setPlanningProgress(Number(event.target.value) || 0)} placeholder="Progress" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={planningDelayedDays} onChange={(event) => setPlanningDelayedDays(Number(event.target.value) || 0)} placeholder="Delay days" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={planningDependencies} onChange={(event) => setPlanningDependencies(event.target.value)} placeholder="Dependencies (comma ids)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 sm:col-span-2 xl:col-span-3" />
-          <button type="button" onClick={addPlanning} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add planning</button>
+          <select value={planningKind} onChange={(event) => setPlanningKind(event.target.value as typeof planningKinds[number])} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{planningKinds.map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <input value={planningLabel} onChange={(event) => setPlanningLabel(event.target.value)} placeholder="Planning label" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="date" value={planningStartDate} onChange={(event) => setPlanningStartDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="date" value={planningEndDate} onChange={(event) => setPlanningEndDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={planningProgress} onChange={(event) => setPlanningProgress(Number(event.target.value) || 0)} placeholder="Progress" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={planningDelayedDays} onChange={(event) => setPlanningDelayedDays(Number(event.target.value) || 0)} placeholder="Delay days" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={planningDependencies} onChange={(event) => setPlanningDependencies(event.target.value)} placeholder="Dependencies (comma ids)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 sm:col-span-2 xl:col-span-3" />
+          <button type="button" onClick={addPlanning} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add planning</button>
         </div>
 
-        <div className="mt-4 grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Work breakdown</p>{workItemsForProject.slice(0, 12).map((item) => <p key={item.id}>{item.type} | {item.title} | {item.progress}% | {item.owner}</p>)}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Gantt/Planning</p>{planningForProject.slice(0, 12).map((item) => <p key={item.id}>{item.kind} | {item.label} | {item.startDate} {'->'} {item.endDate} | delay {item.delayedDays}d | critical path placeholder {item.criticalPathPlaceholder ? 'yes' : 'no'}</p>)}</div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 text-xs text-[var(--srg-text-muted)]">
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Work breakdown</p>{workItemsForProject.slice(0, 12).map((item) => <p key={item.id}>{item.type} | {item.title} | {item.progress}% | {item.owner}</p>)}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Gantt/Planning</p>{planningForProject.slice(0, 12).map((item) => <p key={item.id}>{item.kind} | {item.label} | {item.startDate} {'->'} {item.endDate} | delay {item.delayedDays}d | critical path placeholder {item.criticalPathPlaceholder ? 'yes' : 'no'}</p>)}</div>
         </div>
       </Section>
 
       <Section title="Sites, Teams and Time Tracking" description="Sites, chantiers, zones, teams, assignments, attendance and pointage details.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5 text-sm">
-          <input value={siteName} onChange={(event) => setSiteName(event.target.value)} placeholder="Site" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={chantier} onChange={(event) => setChantier(event.target.value)} placeholder="Chantier" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={zone} onChange={(event) => setZone(event.target.value)} placeholder="Zone" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={station} onChange={(event) => setStation(event.target.value)} placeholder="Station/Poste" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={sector} onChange={(event) => setSector(event.target.value)} placeholder="Sector" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={building} onChange={(event) => setBuilding(event.target.value)} placeholder="Building" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={level} onChange={(event) => setLevel(event.target.value)} placeholder="Level" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Address" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={gps} onChange={(event) => setGps(event.target.value)} placeholder="GPS" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={siteObservations} onChange={(event) => setSiteObservations(event.target.value)} placeholder="Observations" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addSite} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add site</button>
+          <input value={siteName} onChange={(event) => setSiteName(event.target.value)} placeholder="Site" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={chantier} onChange={(event) => setChantier(event.target.value)} placeholder="Chantier" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={zone} onChange={(event) => setZone(event.target.value)} placeholder="Zone" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={station} onChange={(event) => setStation(event.target.value)} placeholder="Station/Poste" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={sector} onChange={(event) => setSector(event.target.value)} placeholder="Sector" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={building} onChange={(event) => setBuilding(event.target.value)} placeholder="Building" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={level} onChange={(event) => setLevel(event.target.value)} placeholder="Level" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={address} onChange={(event) => setAddress(event.target.value)} placeholder="Address" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={gps} onChange={(event) => setGps(event.target.value)} placeholder="GPS" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={siteObservations} onChange={(event) => setSiteObservations(event.target.value)} placeholder="Observations" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addSite} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add site</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5 text-sm">
-          <input value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={teamLead} onChange={(event) => setTeamLead(event.target.value)} placeholder="Team lead" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={teamTechnicians} onChange={(event) => setTeamTechnicians(event.target.value)} placeholder="Technicians (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={teamSkills} onChange={(event) => setTeamSkills(event.target.value)} placeholder="Skills (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={teamAvailability} onChange={(event) => setTeamAvailability(event.target.value)} placeholder="Availability" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addTeam} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add team</button>
+          <input value={teamName} onChange={(event) => setTeamName(event.target.value)} placeholder="Team name" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={teamLead} onChange={(event) => setTeamLead(event.target.value)} placeholder="Team lead" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={teamTechnicians} onChange={(event) => setTeamTechnicians(event.target.value)} placeholder="Technicians (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={teamSkills} onChange={(event) => setTeamSkills(event.target.value)} placeholder="Skills (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={teamAvailability} onChange={(event) => setTeamAvailability(event.target.value)} placeholder="Availability" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addTeam} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add team</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <input value={assignmentTechnician} onChange={(event) => setAssignmentTechnician(event.target.value)} placeholder="Technician" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <select value={assignmentTeamId} onChange={(event) => setAssignmentTeamId(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2"><option value="">Team</option>{teamsForProject.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
-          <select value={assignmentSiteId} onChange={(event) => setAssignmentSiteId(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2"><option value="">Site</option>{sitesForProject.map((item) => <option key={item.id} value={item.id}>{item.site}</option>)}</select>
-          <select value={assignmentWorkItemId} onChange={(event) => setAssignmentWorkItemId(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2"><option value="">Work item</option>{workItemsForProject.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
-          <input type="date" value={assignmentFromDate} onChange={(event) => setAssignmentFromDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="date" value={assignmentToDate} onChange={(event) => setAssignmentToDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addAssignment} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Assign technician</button>
+          <input value={assignmentTechnician} onChange={(event) => setAssignmentTechnician(event.target.value)} placeholder="Technician" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <select value={assignmentTeamId} onChange={(event) => setAssignmentTeamId(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2"><option value="">Team</option>{teamsForProject.map((item) => <option key={item.id} value={item.id}>{item.name}</option>)}</select>
+          <select value={assignmentSiteId} onChange={(event) => setAssignmentSiteId(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2"><option value="">Site</option>{sitesForProject.map((item) => <option key={item.id} value={item.id}>{item.site}</option>)}</select>
+          <select value={assignmentWorkItemId} onChange={(event) => setAssignmentWorkItemId(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2"><option value="">Work item</option>{workItemsForProject.map((item) => <option key={item.id} value={item.id}>{item.title}</option>)}</select>
+          <input type="date" value={assignmentFromDate} onChange={(event) => setAssignmentFromDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="date" value={assignmentToDate} onChange={(event) => setAssignmentToDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addAssignment} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Assign technician</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5 text-sm">
-          <input value={attendanceTechnician} onChange={(event) => setAttendanceTechnician(event.target.value)} placeholder="Technician" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="date" value={attendanceDate} onChange={(event) => setAttendanceDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={normalHours} onChange={(event) => setNormalHours(Number(event.target.value) || 0)} placeholder="Normal" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={overtimeHours} onChange={(event) => setOvertimeHours(Number(event.target.value) || 0)} placeholder="Overtime" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={nightHours} onChange={(event) => setNightHours(Number(event.target.value) || 0)} placeholder="Night" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={weekendHours} onChange={(event) => setWeekendHours(Number(event.target.value) || 0)} placeholder="Weekend" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={holidayHours} onChange={(event) => setHolidayHours(Number(event.target.value) || 0)} placeholder="Holiday" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={travelHours} onChange={(event) => setTravelHours(Number(event.target.value) || 0)} placeholder="Travel" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={absenceHours} onChange={(event) => setAbsenceHours(Number(event.target.value) || 0)} placeholder="Absence" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={leaveHours} onChange={(event) => setLeaveHours(Number(event.target.value) || 0)} placeholder="Leave" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addAttendance} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add pointage</button>
+          <input value={attendanceTechnician} onChange={(event) => setAttendanceTechnician(event.target.value)} placeholder="Technician" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="date" value={attendanceDate} onChange={(event) => setAttendanceDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={normalHours} onChange={(event) => setNormalHours(Number(event.target.value) || 0)} placeholder="Normal" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={overtimeHours} onChange={(event) => setOvertimeHours(Number(event.target.value) || 0)} placeholder="Overtime" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={nightHours} onChange={(event) => setNightHours(Number(event.target.value) || 0)} placeholder="Night" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={weekendHours} onChange={(event) => setWeekendHours(Number(event.target.value) || 0)} placeholder="Weekend" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={holidayHours} onChange={(event) => setHolidayHours(Number(event.target.value) || 0)} placeholder="Holiday" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={travelHours} onChange={(event) => setTravelHours(Number(event.target.value) || 0)} placeholder="Travel" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={absenceHours} onChange={(event) => setAbsenceHours(Number(event.target.value) || 0)} placeholder="Absence" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={leaveHours} onChange={(event) => setLeaveHours(Number(event.target.value) || 0)} placeholder="Leave" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addAttendance} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add pointage</button>
         </div>
 
-        <div className="mt-4 grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Sites and teams</p>{sitesForProject.slice(0, 8).map((item) => <p key={item.id}>{item.site} | {item.chantier} | {item.address}</p>)}{teamsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.name} | lead {item.lead} | skills {item.skills.join(' / ')}</p>)}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Assignments and attendance</p>{assignmentsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.technician} | {item.fromDate} {'->'} {item.toDate}</p>)}{attendanceForProject.slice(0, 10).map((item) => <p key={item.id}>{item.technician} | N {item.normalHours} | OT {item.overtimeHours} | night {item.nightHours} | wk {item.weekendHours}</p>)}</div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 text-xs text-[var(--srg-text-muted)]">
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Sites and teams</p>{sitesForProject.slice(0, 8).map((item) => <p key={item.id}>{item.site} | {item.chantier} | {item.address}</p>)}{teamsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.name} | lead {item.lead} | skills {item.skills.join(' / ')}</p>)}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Assignments and attendance</p>{assignmentsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.technician} | {item.fromDate} {'->'} {item.toDate}</p>)}{attendanceForProject.slice(0, 10).map((item) => <p key={item.id}>{item.technician} | N {item.normalHours} | OT {item.overtimeHours} | night {item.nightHours} | wk {item.weekendHours}</p>)}</div>
         </div>
       </Section>
 
       <Section title="Materials, Purchases, Suppliers and Contracts" description="Industrial equipment library, procurement flow, supplier performance and contract management.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <select value={materialCategory} onChange={(event) => setMaterialCategory(event.target.value as typeof materialCategories[number])} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{materialCategories.map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <input value={materialReference} onChange={(event) => setMaterialReference(event.target.value)} placeholder="Reference" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={materialSerialNumber} onChange={(event) => setMaterialSerialNumber(event.target.value)} placeholder="Serial" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={materialManufacturer} onChange={(event) => setMaterialManufacturer(event.target.value)} placeholder="Manufacturer" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={materialPowerKw} onChange={(event) => setMaterialPowerKw(Number(event.target.value) || 0)} placeholder="kW" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={materialRpm} onChange={(event) => setMaterialRpm(Number(event.target.value) || 0)} placeholder="RPM" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={materialVoltage} onChange={(event) => setMaterialVoltage(Number(event.target.value) || 0)} placeholder="Voltage" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={materialCurrent} onChange={(event) => setMaterialCurrent(Number(event.target.value) || 0)} placeholder="Current" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="date" value={materialInstallationDate} onChange={(event) => setMaterialInstallationDate(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={materialStock} onChange={(event) => setMaterialStock(Number(event.target.value) || 0)} placeholder="Stock" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addMaterial} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add material</button>
+          <select value={materialCategory} onChange={(event) => setMaterialCategory(event.target.value as typeof materialCategories[number])} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{materialCategories.map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <input value={materialReference} onChange={(event) => setMaterialReference(event.target.value)} placeholder="Reference" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={materialSerialNumber} onChange={(event) => setMaterialSerialNumber(event.target.value)} placeholder="Serial" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={materialManufacturer} onChange={(event) => setMaterialManufacturer(event.target.value)} placeholder="Manufacturer" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={materialPowerKw} onChange={(event) => setMaterialPowerKw(Number(event.target.value) || 0)} placeholder="kW" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={materialRpm} onChange={(event) => setMaterialRpm(Number(event.target.value) || 0)} placeholder="RPM" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={materialVoltage} onChange={(event) => setMaterialVoltage(Number(event.target.value) || 0)} placeholder="Voltage" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={materialCurrent} onChange={(event) => setMaterialCurrent(Number(event.target.value) || 0)} placeholder="Current" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="date" value={materialInstallationDate} onChange={(event) => setMaterialInstallationDate(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={materialStock} onChange={(event) => setMaterialStock(Number(event.target.value) || 0)} placeholder="Stock" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addMaterial} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add material</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <input value={purchaseCode} onChange={(event) => setPurchaseCode(event.target.value)} placeholder="Purchase request code" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={purchaseItem} onChange={(event) => setPurchaseItem(event.target.value)} placeholder="Item" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={purchaseQuantity} onChange={(event) => setPurchaseQuantity(Number(event.target.value) || 0)} placeholder="Qty" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <select value={purchaseStatus} onChange={(event) => setPurchaseStatus(event.target.value as 'requested' | 'validated' | 'ordered' | 'received' | 'returned')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">
+          <input value={purchaseCode} onChange={(event) => setPurchaseCode(event.target.value)} placeholder="Purchase request code" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={purchaseItem} onChange={(event) => setPurchaseItem(event.target.value)} placeholder="Item" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={purchaseQuantity} onChange={(event) => setPurchaseQuantity(Number(event.target.value) || 0)} placeholder="Qty" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <select value={purchaseStatus} onChange={(event) => setPurchaseStatus(event.target.value as 'requested' | 'validated' | 'ordered' | 'received' | 'returned')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">
             {['requested', 'validated', 'ordered', 'received', 'returned'].map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
-          <input value={purchaseSupplier} onChange={(event) => setPurchaseSupplier(event.target.value)} placeholder="Supplier" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addPurchase} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add purchase</button>
+          <input value={purchaseSupplier} onChange={(event) => setPurchaseSupplier(event.target.value)} placeholder="Supplier" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addPurchase} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add purchase</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <input value={supplierName} onChange={(event) => setSupplierName(event.target.value)} placeholder="Supplier name" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplierContacts} onChange={(event) => setSupplierContacts(event.target.value)} placeholder="Contacts (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplierLeadTimeDays} onChange={(event) => setSupplierLeadTimeDays(Number(event.target.value) || 0)} placeholder="Lead time days" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplierOrderCount} onChange={(event) => setSupplierOrderCount(Number(event.target.value) || 0)} placeholder="Orders" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplierOnTimeRate} onChange={(event) => setSupplierOnTimeRate(Number(event.target.value) || 0)} placeholder="On-time %" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplierPerformanceScore} onChange={(event) => setSupplierPerformanceScore(Number(event.target.value) || 0)} placeholder="Performance" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplierHistory} onChange={(event) => setSupplierHistory(event.target.value)} placeholder="History (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 sm:col-span-2 xl:col-span-4" />
-          <button type="button" onClick={addSupplier} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add supplier</button>
+          <input value={supplierName} onChange={(event) => setSupplierName(event.target.value)} placeholder="Supplier name" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplierContacts} onChange={(event) => setSupplierContacts(event.target.value)} placeholder="Contacts (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplierLeadTimeDays} onChange={(event) => setSupplierLeadTimeDays(Number(event.target.value) || 0)} placeholder="Lead time days" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplierOrderCount} onChange={(event) => setSupplierOrderCount(Number(event.target.value) || 0)} placeholder="Orders" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplierOnTimeRate} onChange={(event) => setSupplierOnTimeRate(Number(event.target.value) || 0)} placeholder="On-time %" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplierPerformanceScore} onChange={(event) => setSupplierPerformanceScore(Number(event.target.value) || 0)} placeholder="Performance" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplierHistory} onChange={(event) => setSupplierHistory(event.target.value)} placeholder="History (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 sm:col-span-2 xl:col-span-4" />
+          <button type="button" onClick={addSupplier} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add supplier</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <input value={contractCode} onChange={(event) => setContractCode(event.target.value)} placeholder="Contract code" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractTitle} onChange={(event) => setContractTitle(event.target.value)} placeholder="Contract title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractSubcontracting} onChange={(event) => setContractSubcontracting(event.target.value)} placeholder="Subcontracting (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractAmendments} onChange={(event) => setContractAmendments(event.target.value)} placeholder="Amendments (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractWarranties} onChange={(event) => setContractWarranties(event.target.value)} placeholder="Warranties (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractPenalties} onChange={(event) => setContractPenalties(event.target.value)} placeholder="Penalties (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractClauses} onChange={(event) => setContractClauses(event.target.value)} placeholder="Clauses (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractDocuments} onChange={(event) => setContractDocuments(event.target.value)} placeholder="Documents (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractRenewals} onChange={(event) => setContractRenewals(event.target.value)} placeholder="Renewals (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={contractDeadlines} onChange={(event) => setContractDeadlines(event.target.value)} placeholder="Deadlines (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addContract} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add contract</button>
+          <input value={contractCode} onChange={(event) => setContractCode(event.target.value)} placeholder="Contract code" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractTitle} onChange={(event) => setContractTitle(event.target.value)} placeholder="Contract title" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractSubcontracting} onChange={(event) => setContractSubcontracting(event.target.value)} placeholder="Subcontracting (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractAmendments} onChange={(event) => setContractAmendments(event.target.value)} placeholder="Amendments (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractWarranties} onChange={(event) => setContractWarranties(event.target.value)} placeholder="Warranties (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractPenalties} onChange={(event) => setContractPenalties(event.target.value)} placeholder="Penalties (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractClauses} onChange={(event) => setContractClauses(event.target.value)} placeholder="Clauses (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractDocuments} onChange={(event) => setContractDocuments(event.target.value)} placeholder="Documents (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractRenewals} onChange={(event) => setContractRenewals(event.target.value)} placeholder="Renewals (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={contractDeadlines} onChange={(event) => setContractDeadlines(event.target.value)} placeholder="Deadlines (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addContract} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add contract</button>
         </div>
 
-        <div className="mt-4 grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Materials and purchases</p>{materialsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.category} | {item.reference} | stock {item.stock} | {item.powerKw}kW | {item.rpm}rpm</p>)}{purchasesForProject.slice(0, 8).map((item) => <p key={item.id}>{item.requestCode} | {item.item} | {item.status} | {item.supplier}</p>)}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Suppliers and contracts</p>{store.suppliers.slice(0, 8).map((item) => <p key={item.id}>{item.name} | score {item.performanceScore} | on-time {item.onTimeRate}%</p>)}{contractsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.code} | {item.title} | clauses {item.clauses.length}</p>)}</div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 text-xs text-[var(--srg-text-muted)]">
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Materials and purchases</p>{materialsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.category} | {item.reference} | stock {item.stock} | {item.powerKw}kW | {item.rpm}rpm</p>)}{purchasesForProject.slice(0, 8).map((item) => <p key={item.id}>{item.requestCode} | {item.item} | {item.status} | {item.supplier}</p>)}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Suppliers and contracts</p>{store.suppliers.slice(0, 8).map((item) => <p key={item.id}>{item.name} | score {item.performanceScore} | on-time {item.onTimeRate}%</p>)}{contractsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.code} | {item.title} | clauses {item.clauses.length}</p>)}</div>
         </div>
       </Section>
 
       <Section title="Financial Tracking, Risks and Reports" description="Budget plan/consumption, forecast/margin, incidents and reports.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5 text-sm">
-          <input type="number" value={plannedBudget} onChange={(event) => setPlannedBudget(Number(event.target.value) || 0)} placeholder="Planned budget" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={consumedBudget} onChange={(event) => setConsumedBudget(Number(event.target.value) || 0)} placeholder="Consumed budget" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={actualCost} onChange={(event) => setActualCost(Number(event.target.value) || 0)} placeholder="Actual cost" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={forecastCost} onChange={(event) => setForecastCost(Number(event.target.value) || 0)} placeholder="Forecast cost" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={margin} onChange={(event) => setMargin(Number(event.target.value) || 0)} placeholder="Margin %" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={remainingCommitment} onChange={(event) => setRemainingCommitment(Number(event.target.value) || 0)} placeholder="Remaining commitment" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={invoiced} onChange={(event) => setInvoiced(Number(event.target.value) || 0)} placeholder="Invoiced" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={paid} onChange={(event) => setPaid(Number(event.target.value) || 0)} placeholder="Paid" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={collected} onChange={(event) => setCollected(Number(event.target.value) || 0)} placeholder="Collected" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={saveFinancial} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Save financial</button>
+          <input type="number" value={plannedBudget} onChange={(event) => setPlannedBudget(Number(event.target.value) || 0)} placeholder="Planned budget" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={consumedBudget} onChange={(event) => setConsumedBudget(Number(event.target.value) || 0)} placeholder="Consumed budget" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={actualCost} onChange={(event) => setActualCost(Number(event.target.value) || 0)} placeholder="Actual cost" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={forecastCost} onChange={(event) => setForecastCost(Number(event.target.value) || 0)} placeholder="Forecast cost" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={margin} onChange={(event) => setMargin(Number(event.target.value) || 0)} placeholder="Margin %" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={remainingCommitment} onChange={(event) => setRemainingCommitment(Number(event.target.value) || 0)} placeholder="Remaining commitment" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={invoiced} onChange={(event) => setInvoiced(Number(event.target.value) || 0)} placeholder="Invoiced" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={paid} onChange={(event) => setPaid(Number(event.target.value) || 0)} placeholder="Paid" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={collected} onChange={(event) => setCollected(Number(event.target.value) || 0)} placeholder="Collected" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={saveFinancial} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Save financial</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <select value={riskType} onChange={(event) => setRiskType(event.target.value as 'risk' | 'incident' | 'non-conformity' | 'delay')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{['risk', 'incident', 'non-conformity', 'delay'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <input value={riskTitle} onChange={(event) => setRiskTitle(event.target.value)} placeholder="Risk title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <select value={riskSeverity} onChange={(event) => setRiskSeverity(event.target.value as 'low' | 'medium' | 'high' | 'critical')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{['low', 'medium', 'high', 'critical'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <input value={riskCorrectiveAction} onChange={(event) => setRiskCorrectiveAction(event.target.value)} placeholder="Corrective action" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <select value={riskStatus} onChange={(event) => setRiskStatus(event.target.value as 'open' | 'in-progress' | 'closed')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{['open', 'in-progress', 'closed'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <button type="button" onClick={addRisk} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add risk/incident</button>
+          <select value={riskType} onChange={(event) => setRiskType(event.target.value as 'risk' | 'incident' | 'non-conformity' | 'delay')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{['risk', 'incident', 'non-conformity', 'delay'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <input value={riskTitle} onChange={(event) => setRiskTitle(event.target.value)} placeholder="Risk title" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <select value={riskSeverity} onChange={(event) => setRiskSeverity(event.target.value as 'low' | 'medium' | 'high' | 'critical')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{['low', 'medium', 'high', 'critical'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <input value={riskCorrectiveAction} onChange={(event) => setRiskCorrectiveAction(event.target.value)} placeholder="Corrective action" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <select value={riskStatus} onChange={(event) => setRiskStatus(event.target.value as 'open' | 'in-progress' | 'closed')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{['open', 'in-progress', 'closed'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <button type="button" onClick={addRisk} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add risk/incident</button>
         </div>
 
         <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-6 text-sm">
-          <select value={reportType} onChange={(event) => setReportType(event.target.value as 'daily' | 'weekly' | 'monthly' | 'minutes' | 'meeting-pv')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{['daily', 'weekly', 'monthly', 'minutes', 'meeting-pv'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
-          <input value={reportTitle} onChange={(event) => setReportTitle(event.target.value)} placeholder="Report title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={reportSummary} onChange={(event) => setReportSummary(event.target.value)} placeholder="Summary" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={reportPhotos} onChange={(event) => setReportPhotos(event.target.value)} placeholder="Photos (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={reportDocuments} onChange={(event) => setReportDocuments(event.target.value)} placeholder="Documents (comma)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={addReport} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add report</button>
+          <select value={reportType} onChange={(event) => setReportType(event.target.value as 'daily' | 'weekly' | 'monthly' | 'minutes' | 'meeting-pv')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{['daily', 'weekly', 'monthly', 'minutes', 'meeting-pv'].map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          <input value={reportTitle} onChange={(event) => setReportTitle(event.target.value)} placeholder="Report title" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={reportSummary} onChange={(event) => setReportSummary(event.target.value)} placeholder="Summary" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={reportPhotos} onChange={(event) => setReportPhotos(event.target.value)} placeholder="Photos (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={reportDocuments} onChange={(event) => setReportDocuments(event.target.value)} placeholder="Documents (comma)" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={addReport} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add report</button>
         </div>
 
-        <div className="mt-4 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Financial</p>{financialForProject ? <><p>Planned: {financialForProject.plannedBudget.toFixed(2)}</p><p>Consumed: {financialForProject.consumedBudget.toFixed(2)}</p><p>Actual: {financialForProject.actualCost.toFixed(2)}</p><p>Forecast: {financialForProject.forecastCost.toFixed(2)}</p><p>Margin: {financialForProject.margin.toFixed(2)}%</p></> : <p>No financial snapshot yet.</p>}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Risks</p>{risksForProject.slice(0, 8).map((item) => <p key={item.id}>{item.type} | {item.severity} | {item.status} | {item.title}</p>)}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Reports</p>{reportsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.type} | {item.title}</p>)}</div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-3 text-xs text-[var(--srg-text-muted)]">
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Financial</p>{financialForProject ? <><p>Planned: {financialForProject.plannedBudget.toFixed(2)}</p><p>Consumed: {financialForProject.consumedBudget.toFixed(2)}</p><p>Actual: {financialForProject.actualCost.toFixed(2)}</p><p>Forecast: {financialForProject.forecastCost.toFixed(2)}</p><p>Margin: {financialForProject.margin.toFixed(2)}%</p></> : <p>No financial snapshot yet.</p>}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Risks</p>{risksForProject.slice(0, 8).map((item) => <p key={item.id}>{item.type} | {item.severity} | {item.status} | {item.title}</p>)}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Reports</p>{reportsForProject.slice(0, 8).map((item) => <p key={item.id}>{item.type} | {item.title}</p>)}</div>
         </div>
       </Section>
 
       <Section title="Project AI, Documents and Business Policy Integration" description="Answers project questions, links Prompt 030 documents and reuses Prompt 031 business policy coefficients.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
-          <input value={aiQuestion} onChange={(event) => setAiQuestion(event.target.value)} placeholder="Ask project AI" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 sm:col-span-2 xl:col-span-3" />
-          <button type="button" onClick={runAi} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Run AI project analysis</button>
-          <button type="button" onClick={syncDocuments} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Sync Prompt 030 documents</button>
-          <button type="button" onClick={() => ProjectExecutionWorkspaceService.exportPlanningCsv(selectedProjectId)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Export planning CSV</button>
-          <button type="button" onClick={() => ProjectExecutionWorkspaceService.exportStore()} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Export workspace JSON</button>
-          <Link to="/knowledge-center" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Open Prompt 030 workspace</Link>
-          <Link to="/business-policy" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Open Prompt 031 workspace</Link>
-          <Link to="/devis" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Open Devis workspace</Link>
+          <input value={aiQuestion} onChange={(event) => setAiQuestion(event.target.value)} placeholder="Ask project AI" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 sm:col-span-2 xl:col-span-3" />
+          <button type="button" onClick={runAi} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Run AI project analysis</button>
+          <button type="button" onClick={syncDocuments} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Sync Prompt 030 documents</button>
+          <button type="button" onClick={() => ProjectExecutionWorkspaceService.exportPlanningCsv(selectedProjectId)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Export planning CSV</button>
+          <button type="button" onClick={() => ProjectExecutionWorkspaceService.exportStore()} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Export workspace JSON</button>
+          <Link to="/knowledge-center" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Open Prompt 030 workspace</Link>
+          <Link to="/business-policy" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Open Prompt 031 workspace</Link>
+          <Link to="/devis" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Open Devis workspace</Link>
         </div>
-        <pre className="mt-3 whitespace-pre-wrap rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-xs text-[var(--sea-ink-soft)]">{aiAnswer || 'No AI answer yet.'}</pre>
-        <div className="mt-3 grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Linked project documents</p><p>Linked IDs: {docView.linkedIds.length}</p>{docView.linkedDocuments.slice(0, 8).map((item) => <p key={item.id}>{item.title} | {item.documentType} | {item.source}</p>)}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Prompt 031 policy context</p><p>Policies: {policyContext.summary.policies}</p><p>Coefficients: {policyContext.summary.coefficients}</p><p>Labor roles: {policyContext.summary.laborRoles}</p><p>Quotes: {policyContext.summary.quotes}</p><p>Billing docs: {policyContext.summary.billingDocuments}</p></div>
+        <pre className="mt-3 whitespace-pre-wrap rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3 text-xs text-[var(--srg-text-muted)]">{aiAnswer || 'No AI answer yet.'}</pre>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2 text-xs text-[var(--srg-text-muted)]">
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Linked project documents</p><p>Linked IDs: {docView.linkedIds.length}</p>{docView.linkedDocuments.slice(0, 8).map((item) => <p key={item.id}>{item.title} | {item.documentType} | {item.source}</p>)}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Prompt 031 policy context</p><p>Policies: {policyContext.summary.policies}</p><p>Coefficients: {policyContext.summary.coefficients}</p><p>Labor roles: {policyContext.summary.laborRoles}</p><p>Quotes: {policyContext.summary.quotes}</p><p>Billing docs: {policyContext.summary.billingDocuments}</p></div>
         </div>
       </Section>
 
       <Section title="Observability" description="Timeline, events, diagnostics, metrics, history and simple charts for project execution.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
-          <select value={selectedTimelineProjectId} onChange={(event) => setSelectedTimelineProjectId(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">{store.projects.map((item) => <option key={item.id} value={item.id}>{item.identifier}</option>)}</select>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">Timeline events: {timelineForProject.length}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">Diagnostics: {diagnosticsForProject.length}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">Metrics: {metricsForProject.length}</div>
+          <select value={selectedTimelineProjectId} onChange={(event) => setSelectedTimelineProjectId(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">{store.projects.map((item) => <option key={item.id} value={item.id}>{item.identifier}</option>)}</select>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3">Timeline events: {timelineForProject.length}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3">Diagnostics: {diagnosticsForProject.length}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3">Metrics: {metricsForProject.length}</div>
         </div>
-        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Timeline</p>{timelineForProject.map((item) => <p key={item.id}>{item.eventType} | {item.title} | {new Date(item.createdAt).toLocaleString()}</p>)}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Diagnostics</p>{diagnosticsForProject.map((item) => <p key={item.id}>{item.level} | {item.category} | {item.message}</p>)}</div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3"><p className="font-semibold text-[var(--sea-ink)]">Metrics</p>{metricsForProject.map((item) => <p key={item.id}>{item.label} | {item.value}</p>)}</div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--srg-text-muted)]">
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Timeline</p>{timelineForProject.map((item) => <p key={item.id}>{item.eventType} | {item.title} | {new Date(item.createdAt).toLocaleString()}</p>)}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Diagnostics</p>{diagnosticsForProject.map((item) => <p key={item.id}>{item.level} | {item.category} | {item.message}</p>)}</div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3"><p className="font-semibold text-[var(--srg-text-title)]">Metrics</p>{metricsForProject.map((item) => <p key={item.id}>{item.label} | {item.value}</p>)}</div>
         </div>
       </Section>
     </div>

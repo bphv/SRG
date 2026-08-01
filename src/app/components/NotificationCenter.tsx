@@ -56,23 +56,23 @@ export default function NotificationCenter({
 
   return (
     <div
-      className="w-full max-w-md rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_24px_50px_rgba(13,30,14,0.26)]"
+      className="w-full max-w-md rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-lg)]"
       role="dialog"
       aria-modal="true"
       aria-labelledby="notification-center-title"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Notifications</p>
-          <h2 id="notification-center-title" className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">
+          <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Notifications</p>
+          <h2 id="notification-center-title" className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">
             Centre de notifications
           </h2>
-          <p className="mt-1 text-sm text-[var(--sea-ink-soft)]">{unreadCount} non lue(s) • Email, SMS et WhatsApp prepares.</p>
+          <p className="mt-1 text-sm text-[var(--srg-text-muted)]">{unreadCount} non lue(s) • Email, SMS et WhatsApp prepares.</p>
         </div>
         <button
           type="button"
           onClick={onClose}
-          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-sm text-[var(--sea-ink)]"
+          className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 text-sm text-[var(--srg-text-title)]"
           aria-label="Fermer le centre de notifications"
         >
           Fermer
@@ -83,7 +83,7 @@ export default function NotificationCenter({
         <select
           value={statusFilter}
           onChange={(event) => setStatusFilter(event.target.value as 'all' | 'read' | 'unread')}
-          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+          className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
           aria-label="Filtrer par statut de lecture"
         >
           <option value="all">Tous</option>
@@ -93,7 +93,7 @@ export default function NotificationCenter({
         <select
           value={categoryFilter}
           onChange={(event) => setCategoryFilter(event.target.value as 'all' | NotificationItem['category'])}
-          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+          className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
           aria-label="Filtrer par catégorie"
         >
           <option value="all">Toutes catégories</option>
@@ -104,7 +104,7 @@ export default function NotificationCenter({
         <select
           value={priorityFilter}
           onChange={(event) => setPriorityFilter(event.target.value as 'all' | NotificationItem['priority'])}
-          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+          className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
           aria-label="Filtrer par priorité"
         >
           <option value="all">Toutes priorités</option>
@@ -115,7 +115,7 @@ export default function NotificationCenter({
         <button
           type="button"
           onClick={onMarkAllRead}
-          className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+          className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
         >
           Tout marquer comme lu
         </button>
@@ -139,7 +139,7 @@ export default function NotificationCenter({
               <button
                 type="button"
                 onClick={onClose}
-                className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white"
               >
                 Revenir au workspace
               </button>
@@ -159,7 +159,7 @@ export default function NotificationCenter({
                   setCategoryFilter('all')
                   setPriorityFilter('all')
                 }}
-                className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white"
+                className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white"
               >
                 Réinitialiser les filtres
               </button>
@@ -170,23 +170,23 @@ export default function NotificationCenter({
         {filteredNotifications.map((item) => (
           <article
             key={item.id}
-            className={`rounded-3xl border p-4 text-sm ${item.read ? 'border-[var(--line)] bg-[var(--surface-strong)]' : 'border-[var(--lagoon)] bg-[var(--surface)]'}`}
+            className={`rounded-3xl border p-4 text-sm ${item.read ? 'border-[var(--srg-border)] bg-[var(--srg-surface-strong)]' : 'border-[var(--srg-color-primary-400)] bg-[var(--srg-surface)]'}`}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-semibold text-[var(--sea-ink)]">{item.title}</p>
-                <p className="mt-1 text-[var(--sea-ink-soft)]">{item.message}</p>
+                <p className="font-semibold text-[var(--srg-text-title)]">{item.title}</p>
+                <p className="mt-1 text-[var(--srg-text-muted)]">{item.message}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className="rounded-full bg-[var(--surface-strong)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">
+                <span className="rounded-full bg-[var(--srg-surface-strong)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">
                   {item.category}
                 </span>
-                <span className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em] ${item.priority === 'high' ? 'bg-[rgba(223,78,78,0.12)] text-[#9b2f2f]' : item.priority === 'medium' ? 'bg-[rgba(197,145,31,0.12)] text-[#8a5d14]' : 'bg-[rgba(30,90,72,0.12)] text-[var(--lagoon-deep)]'}`}>
+                <span className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em] ${item.priority === 'high' ? 'bg-[rgba(223,78,78,0.12)] text-[#9b2f2f]' : item.priority === 'medium' ? 'bg-[rgba(197,145,31,0.12)] text-[#8a5d14]' : 'bg-[rgba(30,90,72,0.12)] text-[var(--srg-color-primary-500)]'}`}>
                   {item.priority}
                 </span>
               </div>
             </div>
-            <p className="mt-3 text-xs text-[var(--sea-ink-soft)]">
+            <p className="mt-3 text-xs text-[var(--srg-text-muted)]">
               {new Date(item.createdAt).toLocaleString()} • Channels: {formatChannelList(item.channels)}
             </p>
             <div className="mt-3 flex flex-wrap gap-2">
@@ -194,7 +194,7 @@ export default function NotificationCenter({
                 <button
                   type="button"
                   onClick={() => onMarkRead(item.id)}
-                  className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+                  className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
                 >
                   Marquer lu
                 </button>
@@ -202,7 +202,7 @@ export default function NotificationCenter({
               <button
                 type="button"
                 onClick={() => onDismiss(item.id)}
-                className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+                className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
               >
                 Supprimer
               </button>

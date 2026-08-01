@@ -22,9 +22,9 @@ export default function TemplateList({
   onToggleFavorite: (id: string) => void
 }) {
   return (
-    <div className="overflow-hidden rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] shadow-[0_18px_34px_rgba(30,90,72,0.06)]">
-      <table className="w-full border-collapse text-sm text-[var(--sea-ink-soft)]">
-        <thead className="bg-[var(--surface-strong)] text-left text-xs uppercase tracking-[0.22em] text-[var(--sea-ink-soft)]">
+    <div className="overflow-hidden rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] shadow-[var(--srg-shadow-sm)]">
+      <table className="w-full border-collapse text-sm text-[var(--srg-text-muted)]">
+        <thead className="bg-[var(--srg-surface-strong)] text-left text-xs uppercase tracking-[0.22em] text-[var(--srg-text-muted)]">
           <tr>
             <th className="px-4 py-4">Nom</th>
             <th className="px-4 py-4">Catégorie</th>
@@ -37,8 +37,8 @@ export default function TemplateList({
         </thead>
         <tbody>
           {templates.map((template) => (
-            <tr key={template.id} className="border-t border-[var(--line)] hover:bg-[var(--surface-strong)]">
-              <td className="px-4 py-4 text-[var(--sea-ink)]">{template.name}</td>
+            <tr key={template.id} className="border-t border-[var(--srg-border)] hover:bg-[var(--srg-surface-strong)]">
+              <td className="px-4 py-4 text-[var(--srg-text-title)]">{template.name}</td>
               <td className="px-4 py-4">{template.category}</td>
               <td className="px-4 py-4">{template.version}</td>
               <td className="px-4 py-4">{template.provider}</td>
@@ -51,7 +51,7 @@ export default function TemplateList({
                 <button
                   type="button"
                   onClick={() => onOpen(template.id)}
-                  className="rounded-3xl bg-[var(--lagoon-deep)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--palm)]"
+                  className="rounded-3xl bg-[var(--srg-color-primary-500)] px-3 py-2 text-xs font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
                 >
                   Ouvrir
                 </button>

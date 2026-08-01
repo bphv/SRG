@@ -242,23 +242,23 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
               key={item[0]}
               type="button"
               onClick={() => setActiveView(item[0] as FinanceView)}
-              className={`rounded-3xl border px-4 py-3 ${activeView === item[0] ? 'border-[var(--lagoon)] bg-[var(--surface)] font-semibold text-[var(--sea-ink)]' : 'border-[var(--line)] bg-[var(--surface-strong)] text-[var(--sea-ink-soft)]'}`}
+              className={`rounded-3xl border px-4 py-3 ${activeView === item[0] ? 'border-[var(--srg-color-primary-400)] bg-[var(--srg-surface)] font-semibold text-[var(--srg-text-title)]' : 'border-[var(--srg-border)] bg-[var(--srg-surface-strong)] text-[var(--srg-text-muted)]'}`}
             >
               {item[1]}
             </button>
           ))}
         </div>
         <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
-          <select value={workspace.selectedProjectId} onChange={(event) => workspace.setSelectedProjectId(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+          <select value={workspace.selectedProjectId} onChange={(event) => workspace.setSelectedProjectId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
             <option value="all">all projects</option>
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
           </select>
-          <input value={workspace.search} onChange={(event) => workspace.setSearch(event.target.value)} placeholder="Recherche facture/ecriture" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-          <select value={workspace.customerStatusFilter} onChange={(event) => workspace.setCustomerStatusFilter(event.target.value as typeof workspace.customerStatusFilter)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+          <input value={workspace.search} onChange={(event) => workspace.setSearch(event.target.value)} placeholder="Recherche facture/ecriture" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+          <select value={workspace.customerStatusFilter} onChange={(event) => workspace.setCustomerStatusFilter(event.target.value as typeof workspace.customerStatusFilter)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
             <option value="all">all customer status</option>
             {workspace.customerStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
           </select>
-          <select value={workspace.supplierStatusFilter} onChange={(event) => workspace.setSupplierStatusFilter(event.target.value as typeof workspace.supplierStatusFilter)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+          <select value={workspace.supplierStatusFilter} onChange={(event) => workspace.setSupplierStatusFilter(event.target.value as typeof workspace.supplierStatusFilter)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
             <option value="all">all supplier status</option>
             {workspace.supplierStatuses.map((status) => <option key={status} value={status}>{status}</option>)}
           </select>
@@ -268,20 +268,20 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
       {activeView === 'overview' || activeView === 'accounting' ? (
         <Section title="Comptabilite generale" description="Plan comptable, journaux, grand livre, balance, periodes, clotures/reouvertures, ecritures et pieces comptables.">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5 text-sm">
-            <input value={entryDescription} onChange={(event) => setEntryDescription(event.target.value)} placeholder="Description ecriture" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={entryDebitAccount} onChange={(event) => setEntryDebitAccount(event.target.value)} placeholder="Compte debit" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={entryCreditAccount} onChange={(event) => setEntryCreditAccount(event.target.value)} placeholder="Compte credit" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="number" value={entryAmount} onChange={(event) => setEntryAmount(Number(event.target.value) || 0)} placeholder="Montant" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={postEntry} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 font-semibold text-white">Poster ecriture</button>
+            <input value={entryDescription} onChange={(event) => setEntryDescription(event.target.value)} placeholder="Description ecriture" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={entryDebitAccount} onChange={(event) => setEntryDebitAccount(event.target.value)} placeholder="Compte debit" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={entryCreditAccount} onChange={(event) => setEntryCreditAccount(event.target.value)} placeholder="Compte credit" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="number" value={entryAmount} onChange={(event) => setEntryAmount(Number(event.target.value) || 0)} placeholder="Montant" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={postEntry} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 font-semibold text-white">Poster ecriture</button>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => FinanceWorkspaceService.closePeriod(workspace.store.fiscalPeriods[0]?.id ?? '', 'Monthly close', 'Finance Manager')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Cloturer periode</button>
-            <button type="button" onClick={() => FinanceWorkspaceService.reopenPeriod(workspace.store.fiscalPeriods[0]?.id ?? '', 'Adjustment needed', 'Finance Manager')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Reouvrir periode</button>
-            <button type="button" onClick={() => FinanceWorkspaceService.exportGeneralLedgerCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Export Grand Livre CSV</button>
+            <button type="button" onClick={() => FinanceWorkspaceService.closePeriod(workspace.store.fiscalPeriods[0]?.id ?? '', 'Monthly close', 'Finance Manager')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Cloturer periode</button>
+            <button type="button" onClick={() => FinanceWorkspaceService.reopenPeriod(workspace.store.fiscalPeriods[0]?.id ?? '', 'Adjustment needed', 'Finance Manager')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Reouvrir periode</button>
+            <button type="button" onClick={() => FinanceWorkspaceService.exportGeneralLedgerCsv()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Export Grand Livre CSV</button>
           </div>
-          <div className="mt-3 grid gap-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="mt-3 grid gap-3 text-xs text-[var(--srg-text-muted)]">
             {workspace.store.entries.slice(0, 10).map((entry) => (
-              <div key={entry.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
+              <div key={entry.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
                 {entry.entryNumber} | {entry.journalCode} | {entry.status} | D {entry.debitTotal} | C {entry.creditTotal}
               </div>
             ))}
@@ -292,33 +292,33 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
       {activeView === 'overview' || activeView === 'customers' ? (
         <Section title="Comptabilite clients" description="Clients, factures, avoirs, encaissements, echeances, relances, soldes, historique et retards.">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5 text-sm">
-            <input value={customerCode} onChange={(event) => setCustomerCode(event.target.value)} placeholder="Code client" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} placeholder="Nom client" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={customerContact} onChange={(event) => setCustomerContact(event.target.value)} placeholder="Contact" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={createCustomer} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 font-semibold text-white">Creer client</button>
+            <input value={customerCode} onChange={(event) => setCustomerCode(event.target.value)} placeholder="Code client" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={customerName} onChange={(event) => setCustomerName(event.target.value)} placeholder="Nom client" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={customerContact} onChange={(event) => setCustomerContact(event.target.value)} placeholder="Contact" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={createCustomer} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 font-semibold text-white">Creer client</button>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-6 text-sm">
-            <select value={customerInvoiceCustomerId} onChange={(event) => setCustomerInvoiceCustomerId(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <select value={customerInvoiceCustomerId} onChange={(event) => setCustomerInvoiceCustomerId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               {workspace.store.customers.map((customer) => <option key={customer.id} value={customer.id}>{customer.code}</option>)}
             </select>
-            <input type="number" value={customerInvoiceAmount} onChange={(event) => setCustomerInvoiceAmount(Number(event.target.value) || 0)} placeholder="Montant HT" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="date" value={customerInvoiceIssueDate} onChange={(event) => setCustomerInvoiceIssueDate(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="date" value={customerInvoiceDueDate} onChange={(event) => setCustomerInvoiceDueDate(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={customerInvoiceDesc} onChange={(event) => setCustomerInvoiceDesc(event.target.value)} placeholder="Description" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={createCustomerInvoice} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Creer facture</button>
+            <input type="number" value={customerInvoiceAmount} onChange={(event) => setCustomerInvoiceAmount(Number(event.target.value) || 0)} placeholder="Montant HT" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="date" value={customerInvoiceIssueDate} onChange={(event) => setCustomerInvoiceIssueDate(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="date" value={customerInvoiceDueDate} onChange={(event) => setCustomerInvoiceDueDate(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={customerInvoiceDesc} onChange={(event) => setCustomerInvoiceDesc(event.target.value)} placeholder="Description" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={createCustomerInvoice} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Creer facture</button>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5 text-sm">
-            <select value={customerReceiptInvoiceId} onChange={(event) => setCustomerReceiptInvoiceId(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <select value={customerReceiptInvoiceId} onChange={(event) => setCustomerReceiptInvoiceId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               {workspace.store.customerInvoices.map((invoice) => <option key={invoice.id} value={invoice.id}>{invoice.invoiceNumber}</option>)}
             </select>
-            <input type="number" value={customerReceiptAmount} onChange={(event) => setCustomerReceiptAmount(Number(event.target.value) || 0)} placeholder="Encaissement" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={receiveCustomerPayment} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Enregistrer paiement</button>
-            <button type="button" onClick={() => FinanceWorkspaceService.createReminder(customerReceiptInvoiceId, 1, 'Reminder L1')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Relance L1</button>
-            <button type="button" onClick={() => FinanceWorkspaceService.exportCustomerAgingCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Export balance agee</button>
+            <input type="number" value={customerReceiptAmount} onChange={(event) => setCustomerReceiptAmount(Number(event.target.value) || 0)} placeholder="Encaissement" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={receiveCustomerPayment} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Enregistrer paiement</button>
+            <button type="button" onClick={() => FinanceWorkspaceService.createReminder(customerReceiptInvoiceId, 1, 'Reminder L1')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Relance L1</button>
+            <button type="button" onClick={() => FinanceWorkspaceService.exportCustomerAgingCsv()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Export balance agee</button>
           </div>
-          <div className="mt-3 space-y-2 text-xs text-[var(--sea-ink-soft)]">
+          <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
             {workspace.filteredCustomerInvoices.slice(0, 12).map((invoice) => (
-              <div key={invoice.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
+              <div key={invoice.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
                 {invoice.invoiceNumber} | {invoice.customerName} | {invoice.status} | balance {invoice.balanceDue.toFixed(2)}
               </div>
             ))}
@@ -329,24 +329,24 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
       {activeView === 'overview' || activeView === 'suppliers' ? (
         <Section title="Comptabilite fournisseurs" description="Factures fournisseurs, paiements, echeances, avoirs, retenues et historique.">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6 text-sm">
-            <input value={supplierName} onChange={(event) => setSupplierName(event.target.value)} placeholder="Fournisseur" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={supplierOrderCode} onChange={(event) => setSupplierOrderCode(event.target.value)} placeholder="Commande achat" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="number" value={supplierInvoiceAmount} onChange={(event) => setSupplierInvoiceAmount(Number(event.target.value) || 0)} placeholder="Montant HT" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="date" value={supplierInvoiceIssueDate} onChange={(event) => setSupplierInvoiceIssueDate(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="date" value={supplierInvoiceDueDate} onChange={(event) => setSupplierInvoiceDueDate(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={createSupplierInvoice} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 font-semibold text-white">Creer facture fournisseur</button>
+            <input value={supplierName} onChange={(event) => setSupplierName(event.target.value)} placeholder="Fournisseur" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={supplierOrderCode} onChange={(event) => setSupplierOrderCode(event.target.value)} placeholder="Commande achat" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="number" value={supplierInvoiceAmount} onChange={(event) => setSupplierInvoiceAmount(Number(event.target.value) || 0)} placeholder="Montant HT" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="date" value={supplierInvoiceIssueDate} onChange={(event) => setSupplierInvoiceIssueDate(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="date" value={supplierInvoiceDueDate} onChange={(event) => setSupplierInvoiceDueDate(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={createSupplierInvoice} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 font-semibold text-white">Creer facture fournisseur</button>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5 text-sm">
-            <select value={supplierPaymentInvoiceId} onChange={(event) => setSupplierPaymentInvoiceId(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <select value={supplierPaymentInvoiceId} onChange={(event) => setSupplierPaymentInvoiceId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               {workspace.store.supplierInvoices.map((invoice) => <option key={invoice.id} value={invoice.id}>{invoice.invoiceNumber}</option>)}
             </select>
-            <input type="number" value={supplierPaymentAmount} onChange={(event) => setSupplierPaymentAmount(Number(event.target.value) || 0)} placeholder="Paiement" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={paySupplier} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Enregistrer paiement</button>
-            <button type="button" onClick={() => FinanceWorkspaceService.exportSupplierAgingCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Export echeances</button>
+            <input type="number" value={supplierPaymentAmount} onChange={(event) => setSupplierPaymentAmount(Number(event.target.value) || 0)} placeholder="Paiement" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={paySupplier} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Enregistrer paiement</button>
+            <button type="button" onClick={() => FinanceWorkspaceService.exportSupplierAgingCsv()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Export echeances</button>
           </div>
-          <div className="mt-3 space-y-2 text-xs text-[var(--sea-ink-soft)]">
+          <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
             {workspace.filteredSupplierInvoices.slice(0, 12).map((invoice) => (
-              <div key={invoice.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
+              <div key={invoice.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
                 {invoice.invoiceNumber} | {invoice.supplierName} | {invoice.status} | retention {invoice.retentionAmount.toFixed(2)} | balance {invoice.balanceDue.toFixed(2)}
               </div>
             ))}
@@ -357,33 +357,33 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
       {activeView === 'overview' || activeView === 'treasury' ? (
         <Section title="Tresorerie" description="Banques, caisses, comptes, virements, mobile money, cartes, flux, previsions, soldes et rapprochements.">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-6 text-sm">
-            <input value={treasuryCode} onChange={(event) => setTreasuryCode(event.target.value)} placeholder="Code compte" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={treasuryLabel} onChange={(event) => setTreasuryLabel(event.target.value)} placeholder="Libelle" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <select value={treasuryChannel} onChange={(event) => setTreasuryChannel(event.target.value as 'bank' | 'cash' | 'mobile-money' | 'card')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <input value={treasuryCode} onChange={(event) => setTreasuryCode(event.target.value)} placeholder="Code compte" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={treasuryLabel} onChange={(event) => setTreasuryLabel(event.target.value)} placeholder="Libelle" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <select value={treasuryChannel} onChange={(event) => setTreasuryChannel(event.target.value as 'bank' | 'cash' | 'mobile-money' | 'card')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               {workspace.treasuryChannels.map((channel) => <option key={channel} value={channel}>{channel}</option>)}
             </select>
-            <input value={treasuryCurrency} onChange={(event) => setTreasuryCurrency(event.target.value)} placeholder="Devise" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="number" value={treasuryOpening} onChange={(event) => setTreasuryOpening(Number(event.target.value) || 0)} placeholder="Ouverture" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="number" value={treasuryCurrent} onChange={(event) => setTreasuryCurrent(Number(event.target.value) || 0)} placeholder="Solde courant" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={createTreasury} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 font-semibold text-white">Creer compte</button>
+            <input value={treasuryCurrency} onChange={(event) => setTreasuryCurrency(event.target.value)} placeholder="Devise" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="number" value={treasuryOpening} onChange={(event) => setTreasuryOpening(Number(event.target.value) || 0)} placeholder="Ouverture" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="number" value={treasuryCurrent} onChange={(event) => setTreasuryCurrent(Number(event.target.value) || 0)} placeholder="Solde courant" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={createTreasury} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 font-semibold text-white">Creer compte</button>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-5 text-sm">
-            <select value={transferFrom} onChange={(event) => setTransferFrom(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <select value={transferFrom} onChange={(event) => setTransferFrom(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               {workspace.store.treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.code}</option>)}
             </select>
-            <select value={transferTo} onChange={(event) => setTransferTo(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <select value={transferTo} onChange={(event) => setTransferTo(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               {workspace.store.treasuryAccounts.map((account) => <option key={account.id} value={account.id}>{account.code}</option>)}
             </select>
-            <input type="number" value={transferAmount} onChange={(event) => setTransferAmount(Number(event.target.value) || 0)} placeholder="Montant virement" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={transferReference} onChange={(event) => setTransferReference(event.target.value)} placeholder="Reference" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={transfer} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Virement</button>
+            <input type="number" value={transferAmount} onChange={(event) => setTransferAmount(Number(event.target.value) || 0)} placeholder="Montant virement" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={transferReference} onChange={(event) => setTransferReference(event.target.value)} placeholder="Reference" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={transfer} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Virement</button>
           </div>
           <div className="mt-3 flex flex-wrap gap-2">
-            <button type="button" onClick={() => FinanceWorkspaceService.reconcileAccount({ accountId: transferFrom, statementBalance: workspace.store.treasuryAccounts.find((item) => item.id === transferFrom)?.currentBalance ?? 0, date: new Date().toISOString().slice(0, 10), note: 'Auto reconcile check' })} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Rapprochement</button>
+            <button type="button" onClick={() => FinanceWorkspaceService.reconcileAccount({ accountId: transferFrom, statementBalance: workspace.store.treasuryAccounts.find((item) => item.id === transferFrom)?.currentBalance ?? 0, date: new Date().toISOString().slice(0, 10), note: 'Auto reconcile check' })} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Rapprochement</button>
           </div>
-          <div className="mt-3 space-y-2 text-xs text-[var(--sea-ink-soft)]">
+          <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
             {workspace.store.treasuryAccounts.slice(0, 12).map((account) => (
-              <div key={account.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
+              <div key={account.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
                 {account.code} | {account.channel} | solde {account.currentBalance.toFixed(2)} {account.currency}
               </div>
             ))}
@@ -394,22 +394,22 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
       {activeView === 'overview' || activeView === 'budgets' || activeView === 'management-control' ? (
         <Section title="Budgets & controle de gestion" description="Budgets, previsions, realise, ecarts, revisions, simulations, versions et centres de cout.">
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5 text-sm">
-            <input value={budgetVersionCode} onChange={(event) => setBudgetVersionCode(event.target.value)} placeholder="Code version" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={budgetVersionLabel} onChange={(event) => setBudgetVersionLabel(event.target.value)} placeholder="Libelle version" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="number" value={budgetVersionRevision} onChange={(event) => setBudgetVersionRevision(Number(event.target.value) || 1)} placeholder="Revision" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={createBudgetVersion} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 font-semibold text-white">Creer version</button>
+            <input value={budgetVersionCode} onChange={(event) => setBudgetVersionCode(event.target.value)} placeholder="Code version" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={budgetVersionLabel} onChange={(event) => setBudgetVersionLabel(event.target.value)} placeholder="Libelle version" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="number" value={budgetVersionRevision} onChange={(event) => setBudgetVersionRevision(Number(event.target.value) || 1)} placeholder="Revision" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={createBudgetVersion} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 font-semibold text-white">Creer version</button>
           </div>
           <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-6 text-sm">
-            <input value={costCenterCode} onChange={(event) => setCostCenterCode(event.target.value)} placeholder="Code centre" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input value={costCenterLabel} onChange={(event) => setCostCenterLabel(event.target.value)} placeholder="Libelle centre" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <select value={costCenterDimension} onChange={(event) => setCostCenterDimension(event.target.value as 'direction' | 'service' | 'workshop' | 'site' | 'project' | 'client' | 'equipment')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <input value={costCenterCode} onChange={(event) => setCostCenterCode(event.target.value)} placeholder="Code centre" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input value={costCenterLabel} onChange={(event) => setCostCenterLabel(event.target.value)} placeholder="Libelle centre" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <select value={costCenterDimension} onChange={(event) => setCostCenterDimension(event.target.value as 'direction' | 'service' | 'workshop' | 'site' | 'project' | 'client' | 'equipment')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               {['direction', 'service', 'workshop', 'site', 'project', 'client', 'equipment'].map((item) => <option key={item} value={item}>{item}</option>)}
             </select>
-            <input type="number" value={costCenterPlanned} onChange={(event) => setCostCenterPlanned(Number(event.target.value) || 0)} placeholder="Prevu" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <input type="number" value={costCenterActual} onChange={(event) => setCostCenterActual(Number(event.target.value) || 0)} placeholder="Realise" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-            <button type="button" onClick={upsertCostCenter} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Enregistrer centre</button>
+            <input type="number" value={costCenterPlanned} onChange={(event) => setCostCenterPlanned(Number(event.target.value) || 0)} placeholder="Prevu" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <input type="number" value={costCenterActual} onChange={(event) => setCostCenterActual(Number(event.target.value) || 0)} placeholder="Realise" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+            <button type="button" onClick={upsertCostCenter} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Enregistrer centre</button>
           </div>
-          <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--srg-text-muted)]">
             <InfoCard title="Budget" rows={[`Prevu ${workspace.summary.budgetPlanned.toFixed(2)}`, `Realise ${workspace.summary.budgetActual.toFixed(2)}`, `Ecart ${workspace.summary.budgetVariance.toFixed(2)}`]} />
             <InfoCard title="Ratios" rows={[`Liquidite ${workspace.summary.liquidityRatio}`, `ROI ${workspace.summary.roi.toFixed(2)}%`, `Marge ${workspace.summary.margin.toFixed(2)}`]} />
             <InfoCard title="Centres" rows={workspace.store.costCenters.slice(0, 5).map((item) => `${item.code} ${item.variance.toFixed(2)}`)} />
@@ -432,27 +432,27 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
 
       <Section title="IA Finance" description="Analyse depenses, anomalies, doublons, previsions de tresorerie/retards/risques et explications en langage naturel.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
-          <input value={docQuery} onChange={(event) => setDocQuery(event.target.value)} placeholder="Requete docs 030 (pdf/factures/recus/releves/zip/ocr)" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 xl:col-span-3" />
-          <button type="button" onClick={ingestDocs} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Ingerer docs</button>
-          <select value={aiProjectId} onChange={(event) => setAiProjectId(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+          <input value={docQuery} onChange={(event) => setDocQuery(event.target.value)} placeholder="Requete docs 030 (pdf/factures/recus/releves/zip/ocr)" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 xl:col-span-3" />
+          <button type="button" onClick={ingestDocs} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Ingerer docs</button>
+          <select value={aiProjectId} onChange={(event) => setAiProjectId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
             {projects.map((project) => <option key={project.id} value={project.id}>{project.name}</option>)}
           </select>
-          <input value={aiQuestion} onChange={(event) => setAiQuestion(event.target.value)} placeholder="Question IA" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 xl:col-span-2" />
-          <button type="button" onClick={askAi} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 font-semibold text-white">Analyser</button>
+          <input value={aiQuestion} onChange={(event) => setAiQuestion(event.target.value)} placeholder="Question IA" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 xl:col-span-2" />
+          <button type="button" onClick={askAi} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 font-semibold text-white">Analyser</button>
         </div>
-        <pre className="mt-3 whitespace-pre-wrap rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs text-[var(--sea-ink-soft)]">{aiAnswer || 'No AI answer yet.'}</pre>
+        <pre className="mt-3 whitespace-pre-wrap rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 text-xs text-[var(--srg-text-muted)]">{aiAnswer || 'No AI answer yet.'}</pre>
       </Section>
 
       <Section title="Integrations & Exports" description="Prompts 030/031/032/033/034, dashboard finance, history/export et observabilite.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
-          <Link to="/knowledge-center" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Prompt 030 Knowledge</Link>
-          <Link to="/business-policy" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Prompt 031 Business Policy</Link>
-          <Link to="/project-execution" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Prompt 032 Project Execution</Link>
-          <Link to="/procurement-inventory" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Prompt 033 Procurement</Link>
-          <Link to="/maintenance" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Prompt 034 Maintenance</Link>
-          <button type="button" onClick={() => FinanceWorkspaceService.exportStore()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Export JSON</button>
-          <button type="button" onClick={() => FinanceWorkspaceService.exportGeneralLedgerCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Export Journal CSV</button>
-          <button type="button" onClick={() => FinanceWorkspaceService.exportCustomerAgingCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 font-semibold text-[var(--sea-ink)]">Export Clients CSV</button>
+          <Link to="/knowledge-center" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Prompt 030 Knowledge</Link>
+          <Link to="/business-policy" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Prompt 031 Business Policy</Link>
+          <Link to="/project-execution" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Prompt 032 Project Execution</Link>
+          <Link to="/procurement-inventory" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Prompt 033 Procurement</Link>
+          <Link to="/maintenance" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Prompt 034 Maintenance</Link>
+          <button type="button" onClick={() => FinanceWorkspaceService.exportStore()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Export JSON</button>
+          <button type="button" onClick={() => FinanceWorkspaceService.exportGeneralLedgerCsv()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Export Journal CSV</button>
+          <button type="button" onClick={() => FinanceWorkspaceService.exportCustomerAgingCsv()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 font-semibold text-[var(--srg-text-title)]">Export Clients CSV</button>
         </div>
       </Section>
     </div>
@@ -461,17 +461,17 @@ export default function FinanceWorkspace(props: { initialView?: FinanceView }) {
 
 function Metric(props: { label: string; value: string | number }) {
   return (
-    <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
-      <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">{props.label}</p>
-      <p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{props.value}</p>
+    <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+      <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{props.label}</p>
+      <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{props.value}</p>
     </div>
   )
 }
 
 function Info(props: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]">
-      <strong className="text-[var(--sea-ink)]">{props.label}: </strong>
+    <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-[var(--srg-text-muted)]">
+      <strong className="text-[var(--srg-text-title)]">{props.label}: </strong>
       {props.value}
     </div>
   )
@@ -479,8 +479,8 @@ function Info(props: { label: string; value: string }) {
 
 function InfoCard(props: { title: string; rows: string[] }) {
   return (
-    <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
-      <p className="font-semibold text-[var(--sea-ink)]">{props.title}</p>
+    <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+      <p className="font-semibold text-[var(--srg-text-title)]">{props.title}</p>
       <div className="mt-2 space-y-1">
         {props.rows.map((row) => <p key={row}>{row}</p>)}
       </div>

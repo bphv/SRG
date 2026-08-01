@@ -168,11 +168,11 @@ export default function BusinessPolicyWorkspace() {
     <div className="space-y-6">
       <Section title="Business Policy Workspace" description="Define enterprise policy, rules and coefficients for commercial intelligence.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Policies</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.policies}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Coefficients</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.coefficients}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Supplies</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.supplies}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Labor roles</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.laborRoles}</p></div>
-          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Learning suggestions</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.learningSuggestions}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Policies</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.policies}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Coefficients</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.coefficients}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Supplies</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.supplies}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Labor roles</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.laborRoles}</p></div>
+          <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Learning suggestions</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.learningSuggestions}</p></div>
         </div>
       </Section>
 
@@ -190,7 +190,7 @@ export default function BusinessPolicyWorkspace() {
                 setPolicyRules((policy?.rules ?? []).join('\n'))
                 setPolicyActive(policy?.active ?? true)
               }}
-              className={`rounded-2xl border px-3 py-2 text-sm ${selectedDomain === domain ? 'border-[var(--lagoon)] bg-[var(--surface)] font-semibold text-[var(--sea-ink)]' : 'border-[var(--line)] bg-[var(--surface-strong)] text-[var(--sea-ink-soft)]'}`}
+              className={`rounded-2xl border px-3 py-2 text-sm ${selectedDomain === domain ? 'border-[var(--srg-color-primary-400)] bg-[var(--srg-surface)] font-semibold text-[var(--srg-text-title)]' : 'border-[var(--srg-border)] bg-[var(--srg-surface-strong)] text-[var(--srg-text-muted)]'}`}
             >
               {domain}
             </button>
@@ -198,27 +198,27 @@ export default function BusinessPolicyWorkspace() {
         </div>
 
         <div className="mt-4 grid gap-3">
-          <input value={policyTitle} onChange={(event) => setPolicyTitle(event.target.value)} placeholder="Policy title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
-          <textarea value={policyDescription} onChange={(event) => setPolicyDescription(event.target.value)} placeholder="Policy description" className="min-h-16 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
-          <textarea value={policyRules} onChange={(event) => setPolicyRules(event.target.value)} placeholder="One rule per line" className="min-h-28 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
-          <label className="inline-flex items-center gap-2 text-sm text-[var(--sea-ink-soft)]">
+          <input value={policyTitle} onChange={(event) => setPolicyTitle(event.target.value)} placeholder="Policy title" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm" />
+          <textarea value={policyDescription} onChange={(event) => setPolicyDescription(event.target.value)} placeholder="Policy description" className="min-h-16 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm" />
+          <textarea value={policyRules} onChange={(event) => setPolicyRules(event.target.value)} placeholder="One rule per line" className="min-h-28 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm" />
+          <label className="inline-flex items-center gap-2 text-sm text-[var(--srg-text-muted)]">
             <input type="checkbox" checked={policyActive} onChange={(event) => setPolicyActive(event.target.checked)} /> active
           </label>
-          <button type="button" onClick={savePolicy} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white">Save policy</button>
+          <button type="button" onClick={savePolicy} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 text-sm font-semibold text-white">Save policy</button>
         </div>
       </Section>
 
       <Section title="Configurable Coefficients" description="Import, local, transport, transit, customs, insurance, warranty, contingency, inflation, margin, discount, VAT, retention, penalty and subcontracting coefficients.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 text-sm">
           {coefficientKeys.map((key) => (
-            <label key={key} className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">
-              <span className="font-semibold text-[var(--sea-ink)]">{key}</span>
+            <label key={key} className="grid gap-2 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3">
+              <span className="font-semibold text-[var(--srg-text-title)]">{key}</span>
               <input
                 type="number"
                 step="0.01"
                   value={coefficientMap[key]}
                 onChange={(event) => updateCoefficient(key, Number(event.target.value) || 0)}
-                className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2"
+                className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2"
               />
             </label>
           ))}
@@ -227,29 +227,29 @@ export default function BusinessPolicyWorkspace() {
 
       <Section title="Supplies Library" description="Manage references, family, model, origin, sourcing type, prices, stock, supplier and history.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
-          <input value={supplyReference} onChange={(event) => setSupplyReference(event.target.value)} placeholder="Reference" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplyFamily} onChange={(event) => setSupplyFamily(event.target.value)} placeholder="Family" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplySubFamily} onChange={(event) => setSupplySubFamily(event.target.value)} placeholder="Sub-family" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplyBrand} onChange={(event) => setSupplyBrand(event.target.value)} placeholder="Brand" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplyModel} onChange={(event) => setSupplyModel(event.target.value)} placeholder="Model" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplyOrigin} onChange={(event) => setSupplyOrigin(event.target.value)} placeholder="Origin" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplyCountry} onChange={(event) => setSupplyCountry(event.target.value)} placeholder="Country" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <select value={supplySourcingType} onChange={(event) => setSupplySourcingType(event.target.value as 'local' | 'import')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">
+          <input value={supplyReference} onChange={(event) => setSupplyReference(event.target.value)} placeholder="Reference" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplyFamily} onChange={(event) => setSupplyFamily(event.target.value)} placeholder="Family" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplySubFamily} onChange={(event) => setSupplySubFamily(event.target.value)} placeholder="Sub-family" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplyBrand} onChange={(event) => setSupplyBrand(event.target.value)} placeholder="Brand" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplyModel} onChange={(event) => setSupplyModel(event.target.value)} placeholder="Model" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplyOrigin} onChange={(event) => setSupplyOrigin(event.target.value)} placeholder="Origin" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplyCountry} onChange={(event) => setSupplyCountry(event.target.value)} placeholder="Country" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <select value={supplySourcingType} onChange={(event) => setSupplySourcingType(event.target.value as 'local' | 'import')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">
             <option value="local">Local</option>
             <option value="import">Import</option>
           </select>
-          <input value={supplyCurrency} onChange={(event) => setSupplyCurrency(event.target.value)} placeholder="Currency" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplyPurchasePrice} onChange={(event) => setSupplyPurchasePrice(Number(event.target.value) || 0)} placeholder="Purchase price" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplyAveragePrice} onChange={(event) => setSupplyAveragePrice(Number(event.target.value) || 0)} placeholder="Average price" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplySalePrice} onChange={(event) => setSupplySalePrice(Number(event.target.value) || 0)} placeholder="Sale price" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={supplyStock} onChange={(event) => setSupplyStock(Number(event.target.value) || 0)} placeholder="Stock" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={supplySupplier} onChange={(event) => setSupplySupplier(event.target.value)} placeholder="Supplier" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={createSupply} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add supply</button>
+          <input value={supplyCurrency} onChange={(event) => setSupplyCurrency(event.target.value)} placeholder="Currency" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplyPurchasePrice} onChange={(event) => setSupplyPurchasePrice(Number(event.target.value) || 0)} placeholder="Purchase price" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplyAveragePrice} onChange={(event) => setSupplyAveragePrice(Number(event.target.value) || 0)} placeholder="Average price" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplySalePrice} onChange={(event) => setSupplySalePrice(Number(event.target.value) || 0)} placeholder="Sale price" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={supplyStock} onChange={(event) => setSupplyStock(Number(event.target.value) || 0)} placeholder="Stock" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={supplySupplier} onChange={(event) => setSupplySupplier(event.target.value)} placeholder="Supplier" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={createSupply} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add supply</button>
         </div>
 
-        <div className="mt-4 grid gap-2 text-xs text-[var(--sea-ink-soft)]">
+        <div className="mt-4 grid gap-2 text-xs text-[var(--srg-text-muted)]">
           {store.supplies.slice(0, 10).map((item) => (
-            <div key={item.id} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
+            <div key={item.id} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
               {item.reference} | {item.family}/{item.subFamily} | {item.brand} {item.model} | {item.sourcingType} | stock {item.stock} | buy {item.purchasePrice} | sell {item.salePrice}
             </div>
           ))}
@@ -258,22 +258,22 @@ export default function BusinessPolicyWorkspace() {
 
       <Section title="Labor Library" description="Hourly and daily costs, markup, normal/night/weekend/holiday hours, bonus and travel.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
-          <input value={roleName} onChange={(event) => setRoleName(event.target.value)} placeholder="Role name" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleHourlyCost} onChange={(event) => setRoleHourlyCost(Number(event.target.value) || 0)} placeholder="Hourly cost" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleDailyCost} onChange={(event) => setRoleDailyCost(Number(event.target.value) || 0)} placeholder="Daily cost" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleMarkupPercent} onChange={(event) => setRoleMarkupPercent(Number(event.target.value) || 0)} placeholder="Markup %" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleNormalHours} onChange={(event) => setRoleNormalHours(Number(event.target.value) || 0)} placeholder="Normal hours" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleNightHours} onChange={(event) => setRoleNightHours(Number(event.target.value) || 0)} placeholder="Night hours" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleWeekendHours} onChange={(event) => setRoleWeekendHours(Number(event.target.value) || 0)} placeholder="Weekend hours" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleHolidayHours} onChange={(event) => setRoleHolidayHours(Number(event.target.value) || 0)} placeholder="Holiday hours" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleBonus} onChange={(event) => setRoleBonus(Number(event.target.value) || 0)} placeholder="Bonus" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={roleTravel} onChange={(event) => setRoleTravel(Number(event.target.value) || 0)} placeholder="Travel" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={createRole} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Add role</button>
+          <input value={roleName} onChange={(event) => setRoleName(event.target.value)} placeholder="Role name" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleHourlyCost} onChange={(event) => setRoleHourlyCost(Number(event.target.value) || 0)} placeholder="Hourly cost" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleDailyCost} onChange={(event) => setRoleDailyCost(Number(event.target.value) || 0)} placeholder="Daily cost" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleMarkupPercent} onChange={(event) => setRoleMarkupPercent(Number(event.target.value) || 0)} placeholder="Markup %" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleNormalHours} onChange={(event) => setRoleNormalHours(Number(event.target.value) || 0)} placeholder="Normal hours" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleNightHours} onChange={(event) => setRoleNightHours(Number(event.target.value) || 0)} placeholder="Night hours" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleWeekendHours} onChange={(event) => setRoleWeekendHours(Number(event.target.value) || 0)} placeholder="Weekend hours" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleHolidayHours} onChange={(event) => setRoleHolidayHours(Number(event.target.value) || 0)} placeholder="Holiday hours" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleBonus} onChange={(event) => setRoleBonus(Number(event.target.value) || 0)} placeholder="Bonus" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={roleTravel} onChange={(event) => setRoleTravel(Number(event.target.value) || 0)} placeholder="Travel" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={createRole} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Add role</button>
         </div>
 
-        <div className="mt-4 grid gap-2 text-xs text-[var(--sea-ink-soft)]">
+        <div className="mt-4 grid gap-2 text-xs text-[var(--srg-text-muted)]">
           {store.laborRoles.slice(0, 12).map((item) => (
-            <div key={item.id} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
+            <div key={item.id} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
               {item.name} | hourly {item.hourlyCost} | daily {item.dailyCost} | markup {item.markupPercent}% | hours N:{item.normalHours} Nght:{item.nightHours} Wknd:{item.weekendHours} Hol:{item.holidayHours}
             </div>
           ))}
@@ -282,20 +282,20 @@ export default function BusinessPolicyWorkspace() {
 
       <Section title="Documentary Learning (Prompt 030 reuse)" description="Analyze imported quote text and require manual confirmation before storing any rule.">
         <div className="grid gap-3 text-sm">
-          <input value={learningTitle} onChange={(event) => setLearningTitle(event.target.value)} placeholder="Imported quote title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <textarea value={learningContent} onChange={(event) => setLearningContent(event.target.value)} placeholder="Paste imported quote content" className="min-h-28 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={analyzeLearning} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Analyze and propose rule</button>
+          <input value={learningTitle} onChange={(event) => setLearningTitle(event.target.value)} placeholder="Imported quote title" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <textarea value={learningContent} onChange={(event) => setLearningContent(event.target.value)} placeholder="Paste imported quote content" className="min-h-28 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={analyzeLearning} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Analyze and propose rule</button>
         </div>
 
-        <div className="mt-4 grid gap-3 text-xs text-[var(--sea-ink-soft)]">
+        <div className="mt-4 grid gap-3 text-xs text-[var(--srg-text-muted)]">
           {store.learningSuggestions.slice(0, 8).map((item) => (
-            <div key={item.id} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.sourceTitle}</p>
+            <div key={item.id} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.sourceTitle}</p>
               <p>{item.askForConfirmation}</p>
               <p>marge {item.extracted.marginPercent}% | remise {item.extracted.discountPercent}% | TVA {item.extracted.taxPercent}%</p>
               <p>roles: {item.extracted.roles.join(', ') || 'n/a'}</p>
               <p>clauses: {item.extracted.clauses.join(', ') || 'n/a'}</p>
-              <button type="button" onClick={() => { BusinessPolicyWorkspaceService.acceptLearningSuggestion(item.id); refresh() }} className="mt-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-xs font-semibold text-[var(--sea-ink)]" disabled={item.accepted}>
+              <button type="button" onClick={() => { BusinessPolicyWorkspaceService.acceptLearningSuggestion(item.id); refresh() }} className="mt-2 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-title)]" disabled={item.accepted}>
                 {item.accepted ? 'Rule saved' : 'Save this rule manually'}
               </button>
             </div>
@@ -305,21 +305,21 @@ export default function BusinessPolicyWorkspace() {
 
       <Section title="Simulation" description="Adjust margin, tax, import coefficient, labor cost, currency and compare scenarios.">
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
-          <select value={simulationQuoteId} onChange={(event) => setSimulationQuoteId(event.target.value)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">
+          <select value={simulationQuoteId} onChange={(event) => setSimulationQuoteId(event.target.value)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">
             {store.quotes.map((quote) => <option key={quote.id} value={quote.id}>{quote.code} - {quote.customer}</option>)}
           </select>
-          <input value={simulationLabel} onChange={(event) => setSimulationLabel(event.target.value)} placeholder="Scenario label" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={simulationMarginDelta} onChange={(event) => setSimulationMarginDelta(Number(event.target.value) || 0)} placeholder="Margin delta" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={simulationTaxPercent} onChange={(event) => setSimulationTaxPercent(Number(event.target.value) || 0)} placeholder="Tax percent" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" step="0.01" value={simulationImportCoefficient} onChange={(event) => setSimulationImportCoefficient(Number(event.target.value) || 0)} placeholder="Import coefficient" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input type="number" value={simulationHourlyDelta} onChange={(event) => setSimulationHourlyDelta(Number(event.target.value) || 0)} placeholder="Labor delta %" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <input value={simulationCurrency} onChange={(event) => setSimulationCurrency(event.target.value)} placeholder="Currency" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={runSimulation} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Run simulation</button>
+          <input value={simulationLabel} onChange={(event) => setSimulationLabel(event.target.value)} placeholder="Scenario label" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={simulationMarginDelta} onChange={(event) => setSimulationMarginDelta(Number(event.target.value) || 0)} placeholder="Margin delta" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={simulationTaxPercent} onChange={(event) => setSimulationTaxPercent(Number(event.target.value) || 0)} placeholder="Tax percent" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" step="0.01" value={simulationImportCoefficient} onChange={(event) => setSimulationImportCoefficient(Number(event.target.value) || 0)} placeholder="Import coefficient" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input type="number" value={simulationHourlyDelta} onChange={(event) => setSimulationHourlyDelta(Number(event.target.value) || 0)} placeholder="Labor delta %" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <input value={simulationCurrency} onChange={(event) => setSimulationCurrency(event.target.value)} placeholder="Currency" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={runSimulation} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Run simulation</button>
         </div>
 
-        <div className="mt-4 grid gap-2 text-xs text-[var(--sea-ink-soft)]">
+        <div className="mt-4 grid gap-2 text-xs text-[var(--srg-text-muted)]">
           {store.simulations.slice(0, 8).map((item) => (
-            <div key={item.id} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
+            <div key={item.id} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
               {item.label} | before {item.beforeTotal.toFixed(2)} {'->'} after {item.afterTotal.toFixed(2)} | delta {item.delta.toFixed(2)} ({item.deltaPercent.toFixed(2)}%)
             </div>
           ))}
@@ -328,17 +328,17 @@ export default function BusinessPolicyWorkspace() {
 
       <Section title="Business AI" description="Explain quote cost, margin and expensive line items.">
         <div className="grid gap-3 text-sm">
-          <input value={businessQuestion} onChange={(event) => setBusinessQuestion(event.target.value)} placeholder="Ask business question" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
-          <button type="button" onClick={askBusiness} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Ask</button>
-          <pre className="whitespace-pre-wrap rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-xs text-[var(--sea-ink-soft)]">{businessAnswer || 'No answer yet.'}</pre>
+          <input value={businessQuestion} onChange={(event) => setBusinessQuestion(event.target.value)} placeholder="Ask business question" className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />
+          <button type="button" onClick={askBusiness} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Ask</button>
+          <pre className="whitespace-pre-wrap rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3 text-xs text-[var(--srg-text-muted)]">{businessAnswer || 'No answer yet.'}</pre>
         </div>
       </Section>
 
       <Section title="Integrations" description="Open Devis Workspace and export enterprise business policy data.">
         <div className="flex flex-wrap gap-2 text-sm">
-          <Link to="/devis" className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Open Devis Workspace</Link>
-          <button type="button" onClick={() => BusinessPolicyWorkspaceService.exportStore()} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Export JSON</button>
-          <button type="button" onClick={() => BusinessPolicyWorkspaceService.exportQuotesCsv()} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 font-semibold text-[var(--sea-ink)]">Export Devis CSV</button>
+          <Link to="/devis" className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 font-semibold text-white">Open Devis Workspace</Link>
+          <button type="button" onClick={() => BusinessPolicyWorkspaceService.exportStore()} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Export JSON</button>
+          <button type="button" onClick={() => BusinessPolicyWorkspaceService.exportQuotesCsv()} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 font-semibold text-[var(--srg-text-title)]">Export Devis CSV</button>
         </div>
       </Section>
     </div>

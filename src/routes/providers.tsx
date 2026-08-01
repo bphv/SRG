@@ -45,22 +45,22 @@ function ProvidersPage() {
       <PageHeader title="Providers" description="Statut, sante, quota, latence, cout et disponibilite des providers IA." />
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Providers actifs</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{enabledCount}</p></div>
-        <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Sains</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{providers.filter((item) => item.health === 'healthy').length}</p></div>
-        <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Latence moyenne</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{averageLatency} ms</p></div>
-        <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Disponibilite max</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">100%</p></div>
+        <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Providers actifs</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enabledCount}</p></div>
+        <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Sains</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{providers.filter((item) => item.health === 'healthy').length}</p></div>
+        <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Latence moyenne</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{averageLatency} ms</p></div>
+        <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Disponibilite max</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">100%</p></div>
       </div>
 
       <Section title="Providers" description="Activez, desactivez ou testez chaque provider visible du workspace.">
         <div className="mb-4 grid gap-3 md:grid-cols-3">
-          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un provider, SDK ou modalité" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <select value={healthFilter} onChange={(event) => setHealthFilter(event.target.value as 'all' | 'healthy' | 'degraded' | 'offline')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
+          <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Rechercher un provider, SDK ou modalité" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <select value={healthFilter} onChange={(event) => setHealthFilter(event.target.value as 'all' | 'healthy' | 'degraded' | 'offline')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
             <option value="all">Tous les états</option>
             <option value="healthy">Healthy</option>
             <option value="degraded">Degraded</option>
             <option value="offline">Offline</option>
           </select>
-          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--sea-ink-soft)]">Provider favori: <span className="font-semibold text-[var(--sea-ink)]">{favoriteProvider}</span></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm text-[var(--srg-text-muted)]">Provider favori: <span className="font-semibold text-[var(--srg-text-title)]">{favoriteProvider}</span></div>
         </div>
         <div className="grid gap-4 xl:grid-cols-2">
           {filteredProviders.length === 0 ? (
@@ -74,15 +74,15 @@ function ProvidersPage() {
             </div>
           ) : null}
           {filteredProviders.map((provider) => (
-            <article key={provider.id} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <article key={provider.id} className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">{provider.type}</p>
-                  <h3 className="mt-2 text-xl font-semibold text-[var(--sea-ink)]">{provider.label}</h3>
+                  <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{provider.type}</p>
+                  <h3 className="mt-2 text-xl font-semibold text-[var(--srg-text-title)]">{provider.label}</h3>
                 </div>
-                <span className="rounded-full bg-[var(--surface-strong)] px-3 py-1 text-xs text-[var(--sea-ink-soft)]">{provider.health}</span>
+                <span className="rounded-full bg-[var(--srg-surface-strong)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">{provider.health}</span>
               </div>
-              <div className="mt-4 grid gap-2 text-sm text-[var(--sea-ink-soft)] sm:grid-cols-2">
+              <div className="mt-4 grid gap-2 text-sm text-[var(--srg-text-muted)] sm:grid-cols-2">
                 <p><strong>Statut:</strong> {provider.status}</p>
                 <p><strong>Health:</strong> {provider.health}</p>
                 <p><strong>Quota:</strong> {provider.quota}</p>
@@ -97,14 +97,14 @@ function ProvidersPage() {
                 <p><strong>Modalites:</strong> {provider.modalities.join(', ')}</p>
                 <p><strong>Dernier test:</strong> {new Date(provider.lastTestedAt).toLocaleString()}</p>
               </div>
-              <div className="mt-4 rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs">
-                <p className="font-semibold text-[var(--sea-ink)]">Matrice de capacités</p>
-                <div className="mt-2 space-y-2 text-[var(--sea-ink-soft)]">
+              <div className="mt-4 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs">
+                <p className="font-semibold text-[var(--srg-text-title)]">Matrice de capacités</p>
+                <div className="mt-2 space-y-2 text-[var(--srg-text-muted)]">
                   {ProviderWorkspaceService.getCapabilityTaxonomy(provider).map((group) => (
                     <p key={group.category}><strong>{group.category}:</strong> {group.capabilities.length > 0 ? group.capabilities.join(', ') : 'none'}</p>
                   ))}
                 </div>
-                <p className="mt-2 text-[var(--sea-ink-soft)]"><strong>Limitations:</strong> {provider.limitations.join(', ')}</p>
+                <p className="mt-2 text-[var(--srg-text-muted)]"><strong>Limitations:</strong> {provider.limitations.join(', ')}</p>
               </div>
               <div className="mt-4 flex flex-wrap gap-2">
                 <button
@@ -118,7 +118,7 @@ function ProvidersPage() {
                       action: provider.status === 'enabled' ? 'disabled' : 'enabled',
                     })
                   }}
-                  className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-xs font-semibold text-white"
+                  className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-xs font-semibold text-white"
                 >
                   {provider.status === 'enabled' ? 'Desactiver' : 'Activer'}
                 </button>
@@ -133,11 +133,11 @@ function ProvidersPage() {
                       action: 'tested',
                     })
                   }}
-                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]"
+                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
                 >
                   Tester
                 </button>
-                <button type="button" onClick={() => setFavoriteProvider(provider.id)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">
+                <button type="button" onClick={() => setFavoriteProvider(provider.id)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]">
                   {favoriteProvider === provider.id ? 'Favori actif' : 'Définir favori'}
                 </button>
               </div>

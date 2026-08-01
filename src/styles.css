@@ -1,7 +1,9 @@
 
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&display=swap");
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
+@import "./app/theme/design-system.css";
 
 @theme {
   --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -87,7 +89,7 @@ body,
 
 body {
   margin: 0;
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
   font-family: var(--font-sans);
   background-color: var(--bg-base);
   background:
@@ -128,7 +130,7 @@ body::after {
 }
 
 a {
-  color: var(--lagoon-deep);
+  color: var(--srg-color-primary-500);
   text-decoration-color: rgba(50, 143, 151, 0.4);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
@@ -140,8 +142,8 @@ a:hover {
 
 code {
   font-size: 0.9em;
-  border: 1px solid var(--line);
-  background: color-mix(in oklab, var(--surface-strong) 82%, white 18%);
+  border: 1px solid var(--srg-border);
+  background: color-mix(in oklab, var(--srg-surface-strong) 82%, white 18%);
   border-radius: 7px;
   padding: 2px 7px;
 }
@@ -165,8 +167,8 @@ pre code {
 }
 
 .island-shell {
-  border: 1px solid var(--line);
-  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
+  border: 1px solid var(--srg-border);
+  background: linear-gradient(165deg, var(--srg-surface-strong), var(--srg-surface));
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
     0 22px 44px rgba(30, 90, 72, 0.1),
@@ -175,7 +177,7 @@ pre code {
 }
 
 .feature-card {
-  background: linear-gradient(165deg, color-mix(in oklab, var(--surface-strong) 93%, white 7%), var(--surface));
+  background: linear-gradient(165deg, color-mix(in oklab, var(--srg-surface-strong) 93%, white 7%), var(--srg-surface));
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
     0 18px 34px rgba(30, 90, 72, 0.1),
@@ -184,14 +186,14 @@ pre code {
 
 .feature-card:hover {
   transform: translateY(-2px);
-  border-color: color-mix(in oklab, var(--lagoon-deep) 35%, var(--line));
+  border-color: color-mix(in oklab, var(--srg-color-primary-500) 35%, var(--srg-border));
 }
 
 .demo-page {
   width: min(1080px, calc(100% - 2rem));
   margin-inline: auto;
   padding-block: clamp(2.25rem, 6vw, 4.5rem);
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
 }
 
 .demo-page-wide {
@@ -207,8 +209,8 @@ pre code {
 
 .demo-panel,
 .demo-card {
-  border: 1px solid var(--line);
-  background: linear-gradient(165deg, var(--surface-strong), var(--surface));
+  border: 1px solid var(--srg-border);
+  background: linear-gradient(165deg, var(--srg-surface-strong), var(--srg-surface));
   box-shadow:
     0 1px 0 var(--inset-glint) inset,
     0 18px 34px rgba(30, 90, 72, 0.1),
@@ -228,7 +230,7 @@ pre code {
 
 .demo-title {
   margin: 0;
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
   font-size: clamp(1.75rem, 4vw, 2.75rem);
   line-height: 1.05;
   font-weight: 800;
@@ -237,23 +239,23 @@ pre code {
 
 .demo-section-title {
   margin: 0;
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
   font-size: 1rem;
   font-weight: 700;
 }
 
 .demo-muted {
-  color: var(--sea-ink-soft);
+  color: var(--srg-text-muted);
 }
 
 .demo-input,
 .demo-select,
 .demo-textarea {
   width: 100%;
-  border: 1px solid var(--line);
+  border: 1px solid var(--srg-border);
   border-radius: 0.75rem;
-  background: color-mix(in oklab, var(--surface-strong) 88%, white 12%);
-  color: var(--sea-ink);
+  background: color-mix(in oklab, var(--srg-surface-strong) 88%, white 12%);
+  color: var(--srg-text-title);
   outline: none;
   transition: border-color 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
 }
@@ -276,8 +278,8 @@ pre code {
 .demo-input:focus,
 .demo-select:focus,
 .demo-textarea:focus {
-  border-color: color-mix(in oklab, var(--lagoon-deep) 58%, var(--line));
-  box-shadow: 0 0 0 3px color-mix(in oklab, var(--lagoon) 24%, transparent);
+  border-color: color-mix(in oklab, var(--srg-color-primary-500) 58%, var(--srg-border));
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--srg-color-primary-400) 24%, transparent);
 }
 
 .demo-button {
@@ -285,10 +287,10 @@ pre code {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  border: 1px solid color-mix(in oklab, var(--lagoon-deep) 34%, var(--line));
+  border: 1px solid color-mix(in oklab, var(--srg-color-primary-500) 34%, var(--srg-border));
   border-radius: 0.85rem;
-  background: color-mix(in oklab, var(--lagoon) 22%, var(--surface-strong));
-  color: var(--sea-ink);
+  background: color-mix(in oklab, var(--srg-color-primary-400) 22%, var(--srg-surface-strong));
+  color: var(--srg-text-title);
   padding: 0.72rem 1rem;
   font-size: 0.9rem;
   font-weight: 700;
@@ -298,7 +300,7 @@ pre code {
 
 .demo-button:hover {
   transform: translateY(-1px);
-  background: color-mix(in oklab, var(--lagoon) 30%, var(--surface-strong));
+  background: color-mix(in oklab, var(--srg-color-primary-400) 30%, var(--srg-surface-strong));
 }
 
 .demo-button:disabled {
@@ -308,9 +310,9 @@ pre code {
 }
 
 .demo-button-secondary {
-  border-color: var(--line);
-  background: color-mix(in oklab, var(--surface-strong) 74%, transparent);
-  color: var(--sea-ink-soft);
+  border-color: var(--srg-border);
+  background: color-mix(in oklab, var(--srg-surface-strong) 74%, transparent);
+  color: var(--srg-text-muted);
 }
 
 .demo-button-danger {
@@ -320,7 +322,7 @@ pre code {
 }
 
 .demo-list-item {
-  border: 1px solid var(--line);
+  border: 1px solid var(--srg-border);
   border-radius: 0.9rem;
   background: color-mix(in oklab, var(--chip-bg) 82%, transparent);
   padding: 0.9rem 1rem;
@@ -333,7 +335,7 @@ pre code {
   border: 1px solid var(--chip-line);
   border-radius: 999px;
   background: var(--chip-bg);
-  color: var(--sea-ink-soft);
+  color: var(--srg-text-muted);
   padding: 0.35rem 0.65rem;
   font-size: 0.75rem;
   font-weight: 700;
@@ -343,7 +345,7 @@ pre code {
   border: 1px solid rgba(193, 126, 42, 0.3);
   border-radius: 1rem;
   background: rgba(193, 126, 42, 0.1);
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
   padding: 1rem;
 }
 
@@ -353,41 +355,41 @@ pre code {
 }
 
 .demo-code-block {
-  border: 1px solid var(--line);
+  border: 1px solid var(--srg-border);
   border-radius: 1rem;
   background: color-mix(in oklab, var(--chip-bg) 88%, transparent);
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
   padding: 1rem;
 }
 
 .demo-table-shell {
   overflow-x: auto;
-  border: 1px solid var(--line);
+  border: 1px solid var(--srg-border);
   border-radius: 1rem;
-  background: color-mix(in oklab, var(--surface-strong) 78%, transparent);
+  background: color-mix(in oklab, var(--srg-surface-strong) 78%, transparent);
 }
 
 .demo-table {
   width: 100%;
   border-collapse: collapse;
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
 }
 
 .demo-table th,
 .demo-table td {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--srg-border);
   padding: 0.75rem 1rem;
   text-align: left;
 }
 
 .demo-table th {
   background: color-mix(in oklab, var(--chip-bg) 88%, transparent);
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
   font-weight: 700;
 }
 
 .demo-table tr:hover td {
-  background: color-mix(in oklab, var(--lagoon) 8%, transparent);
+  background: color-mix(in oklab, var(--srg-color-primary-400) 8%, transparent);
 }
 
 button,
@@ -410,7 +412,7 @@ a {
   display: inline-flex;
   align-items: center;
   text-decoration: none;
-  color: var(--sea-ink-soft);
+  color: var(--srg-text-muted);
 }
 
 .nav-link::after {
@@ -422,13 +424,13 @@ a {
   height: 2px;
   transform: scaleX(0);
   transform-origin: left;
-  background: linear-gradient(90deg, var(--lagoon), #7ed3bf);
+  background: linear-gradient(90deg, var(--srg-color-primary-400), #7ed3bf);
   transition: transform 170ms ease;
 }
 
 .nav-link:hover,
 .nav-link.is-active {
-  color: var(--sea-ink);
+  color: var(--srg-text-title);
 }
 
 .nav-link:hover::after,
@@ -443,7 +445,7 @@ a {
 }
 
 .site-footer {
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--srg-border);
   background: color-mix(in oklab, var(--header-bg) 84%, transparent 16%);
 }
 

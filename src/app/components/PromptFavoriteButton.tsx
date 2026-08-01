@@ -11,7 +11,7 @@ export default function PromptFavoriteButton({
     <button
       type="button"
       onClick={onToggle}
-      className="inline-flex items-center rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
+      className="inline-flex items-center rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
     >
       {prompt.favorite ? '★ Favori' : '☆ Favori'}
     </button>

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 export default function Card({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+    <div className="rounded-[var(--srg-radius-lg)] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-6 shadow-[var(--srg-shadow-md)]">
       {children}
     </div>
   )

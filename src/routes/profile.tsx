@@ -106,7 +106,7 @@ function ProfilePage() {
       <div className="space-y-6">
         <PageHeader title="Profil Utilisateur" description="Détails du compte, sécurité et appareils." />
         <Section title="Profil" description="Informations de compte.">
-          <p className="text-sm text-[var(--sea-ink-soft)]">Aucun utilisateur actif.</p>
+          <p className="text-sm text-[var(--srg-text-muted)]">Aucun utilisateur actif.</p>
         </Section>
       </div>
     )
@@ -178,11 +178,11 @@ function ProfilePage() {
       <PageHeader title="Profil Utilisateur" description="Matricule, sécurité, wallet, crédits, plan et appareils connectés." />
 
       <Section title="Informations" description="Identité et attributs de profil.">
-        <div className="mb-4 flex flex-wrap items-center gap-4 rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-[var(--lagoon-deep)] text-2xl font-semibold text-white">
+        <div className="mb-4 flex flex-wrap items-center gap-4 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+          <div className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-[var(--srg-color-primary-500)] text-2xl font-semibold text-white">
             {photoPreview ? <img src={photoPreview} alt="Photo utilisateur" className="h-20 w-20 object-cover" /> : profile.username.slice(0, 2).toUpperCase()}
           </div>
-          <label className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]">
+          <label className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]">
             Ajouter une photo
             <input
               type="file"
@@ -199,7 +199,7 @@ function ProfilePage() {
             />
           </label>
         </div>
-        <div className="grid gap-3 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm md:grid-cols-2">
+        <div className="grid gap-3 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm md:grid-cols-2">
           <p><strong>Matricule:</strong> {profile.matricule}</p>
           <p><strong>Username:</strong> {profile.username}</p>
           <p><strong>Téléphone:</strong> {profile.phone}</p>
@@ -221,7 +221,7 @@ function ProfilePage() {
       </Section>
 
       <Section title="Politique de sécurité" description="Avertissement pré-expiration et verrouillage temporaire.">
-        <div className="grid gap-3 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm md:grid-cols-2">
+        <div className="grid gap-3 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm md:grid-cols-2">
           <p><strong>Durée max password:</strong> {passwordPolicy?.maxAgeDays ?? '-'} jours</p>
           <p><strong>Avertissement:</strong> {passwordPolicy?.warningBeforeExpiryDays ?? '-'} jours avant expiration</p>
           <p><strong>Fenêtre lockout:</strong> {passwordPolicy?.temporaryLockoutMinutes ?? '-'} minutes</p>
@@ -233,45 +233,45 @@ function ProfilePage() {
 
       <Section title="Modifier le mot de passe" description="Validation de complexité et anti-réutilisation.">
         <div className="grid gap-3 md:grid-cols-2">
-          <input type="password" placeholder="Mot de passe actuel" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-          <input type="password" placeholder="Nouveau mot de passe" value={nextPassword} onChange={(event) => setNextPassword(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
+          <input type="password" placeholder="Mot de passe actuel" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+          <input type="password" placeholder="Nouveau mot de passe" value={nextPassword} onChange={(event) => setNextPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
         </div>
-        <button type="button" onClick={changePassword} className="mt-3 rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Changer le mot de passe</button>
+        <button type="button" onClick={changePassword} className="mt-3 rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Changer le mot de passe</button>
       </Section>
 
       <Section title="Modifier le téléphone" description="Numéro unique par utilisateur.">
         <div className="flex flex-wrap gap-3">
-          <input value={phone} onChange={(event) => setPhone(event.target.value)} className="min-w-[260px] rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-          <button type="button" onClick={changePhone} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm">Mettre à jour</button>
+          <input value={phone} onChange={(event) => setPhone(event.target.value)} className="min-w-[260px] rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+          <button type="button" onClick={changePhone} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm">Mettre à jour</button>
         </div>
       </Section>
 
       <Section title="Modifier la langue" description="Préférence locale utilisateur.">
         <div className="flex flex-wrap gap-3">
-          <input value={language} onChange={(event) => setLanguage(event.target.value)} className="min-w-[260px] rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
-          <button type="button" onClick={changeLanguage} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm">Mettre à jour</button>
+          <input value={language} onChange={(event) => setLanguage(event.target.value)} className="min-w-[260px] rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+          <button type="button" onClick={changeLanguage} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm">Mettre à jour</button>
         </div>
       </Section>
 
       <Section title="Préférences" description="Thème, entreprise et canaux de notifications préparés.">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="grid gap-2 text-sm">
-            <span className="font-semibold text-[var(--sea-ink)]">Entreprise</span>
-            <input value={company} onChange={(event) => setCompany(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3" />
+            <span className="font-semibold text-[var(--srg-text-title)]">Entreprise</span>
+            <input value={company} onChange={(event) => setCompany(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
           </label>
           <label className="grid gap-2 text-sm">
-            <span className="font-semibold text-[var(--sea-ink)]">Thème</span>
-            <select value={theme.mode} onChange={(event) => theme.setMode(event.target.value as 'light' | 'dark' | 'system')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3">
+            <span className="font-semibold text-[var(--srg-text-title)]">Thème</span>
+            <select value={theme.mode} onChange={(event) => theme.setMode(event.target.value as 'light' | 'dark' | 'system')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3">
               <option value="light">Light</option>
               <option value="dark">Dark</option>
               <option value="system">System</option>
             </select>
           </label>
-          <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
+          <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm text-[var(--srg-text-title)]">
             <input type="checkbox" checked={notifyByEmail} onChange={(event) => setNotifyByEmail(event.target.checked)} />
             <span>Notifications Email</span>
           </label>
-          <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
+          <label className="inline-flex items-center gap-2 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm text-[var(--srg-text-title)]">
             <input type="checkbox" checked={notifyBySms} onChange={(event) => setNotifyBySms(event.target.checked)} />
             <span>Notifications SMS</span>
           </label>
@@ -287,7 +287,7 @@ function ProfilePage() {
               setSessionPage(1)
             }}
             placeholder="Recherche session, device, UA, IP"
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           />
           <select
             value={sessionState}
@@ -295,7 +295,7 @@ function ProfilePage() {
               setSessionState(event.target.value as 'all' | 'active' | 'closed')
               setSessionPage(1)
             }}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           >
             <option value="all">Tous les statuts</option>
             <option value="active">Actives</option>
@@ -304,7 +304,7 @@ function ProfilePage() {
           <select
             value={sessionSort}
             onChange={(event) => setSessionSort(event.target.value as 'lastActivityDesc' | 'createdDesc' | 'deviceAsc')}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           >
             <option value="lastActivityDesc">Tri: activité récente</option>
             <option value="createdDesc">Tri: création récente</option>
@@ -313,7 +313,7 @@ function ProfilePage() {
         </div>
 
         <div className="mt-3 flex flex-wrap gap-2">
-          <label className="inline-flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-xs">
+          <label className="inline-flex items-center gap-2 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs">
             <input
               type="checkbox"
               checked={selectedSessionsOnPage.length > 0 && selectedSessionsOnPage.length === paginatedSessions.filter((session) => canSelectCurrent(session.sessionId)).length}
@@ -321,18 +321,18 @@ function ProfilePage() {
             />
             <span>Sélectionner la page</span>
           </label>
-          <button type="button" onClick={revokeSelected} className="rounded-2xl bg-[var(--lagoon-deep)] px-4 py-2 text-xs font-semibold text-white">
+          <button type="button" onClick={revokeSelected} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-xs font-semibold text-white">
             Révoquer la sélection ({selectedSessionIds.length})
           </button>
         </div>
 
         <div className="mt-3 space-y-2 text-sm">
-          {paginatedSessions.length === 0 ? <p className="text-[var(--sea-ink-soft)]">Aucune session trouvée.</p> : null}
+          {paginatedSessions.length === 0 ? <p className="text-[var(--srg-text-muted)]">Aucune session trouvée.</p> : null}
           {paginatedSessions.map((session) => {
             const isCurrent = session.sessionId === currentSessionId
             const [browser, os] = (session.userAgent ?? 'Unknown Browser / Unknown OS').split(' / ')
             return (
-              <div key={session.sessionId} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
+              <div key={session.sessionId} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p><strong>{session.deviceName}</strong> {isCurrent ? '(appareil courant)' : ''}</p>
                   <label className="inline-flex items-center gap-2 text-xs">
@@ -356,14 +356,14 @@ function ProfilePage() {
           })}
         </div>
 
-        <div className="mt-3 flex items-center justify-between text-xs text-[var(--sea-ink-soft)]">
+        <div className="mt-3 flex items-center justify-between text-xs text-[var(--srg-text-muted)]">
           <span>Page {clampedPage} / {totalPages}</span>
           <div className="flex gap-2">
             <button
               type="button"
               disabled={clampedPage <= 1}
               onClick={() => setSessionPage((current) => Math.max(1, current - 1))}
-              className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-1 disabled:opacity-50"
+              className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 disabled:opacity-50"
             >
               Précédente
             </button>
@@ -371,7 +371,7 @@ function ProfilePage() {
               type="button"
               disabled={clampedPage >= totalPages}
               onClick={() => setSessionPage((current) => Math.min(totalPages, current + 1))}
-              className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-1 disabled:opacity-50"
+              className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 disabled:opacity-50"
             >
               Suivante
             </button>
@@ -379,7 +379,7 @@ function ProfilePage() {
         </div>
       </Section>
 
-      {status ? <p className="text-sm text-[var(--sea-ink-soft)]">{status}</p> : null}
+      {status ? <p className="text-sm text-[var(--srg-text-muted)]">{status}</p> : null}
     </div>
   )
 }

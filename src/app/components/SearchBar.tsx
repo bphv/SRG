@@ -20,8 +20,9 @@ export default function SearchBar({
   }, [value, internalValue])
 
   return (
-    <div className="flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 shadow-[0_8px_22px_rgba(30,90,72,0.08)]">
+    <div className="srg-workspace flex items-center gap-2 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 shadow-[var(--srg-shadow-sm)]">
       <input
+        aria-label={placeholder}
         value={internalValue}
         onChange={(event) => {
           setInternalValue(event.target.value)
@@ -33,12 +34,12 @@ export default function SearchBar({
           }
         }}
         placeholder={placeholder}
-        className="w-full border-0 bg-transparent px-2 text-sm text-[var(--sea-ink)] outline-none placeholder:text-[var(--sea-ink-soft)]"
+        className="w-full border-0 bg-transparent px-2 text-sm text-[var(--srg-text-body)] outline-none placeholder:text-[var(--srg-text-muted)]"
       />
       <button
         type="button"
         onClick={() => onSearch(internalValue)}
-        className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[var(--palm)]"
+        className="rounded-2xl border border-transparent bg-[var(--srg-color-primary-500)] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
       >
         Search
       </button>

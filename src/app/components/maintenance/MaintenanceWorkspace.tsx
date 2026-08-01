@@ -183,7 +183,7 @@ export default function MaintenanceWorkspace() {
           <select
             value={workspace.selectedProjectId}
             onChange={(event) => workspace.setSelectedProjectId(event.target.value)}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           >
             <option value="all">all projects</option>
             {projects.map((project) => (
@@ -194,18 +194,18 @@ export default function MaintenanceWorkspace() {
             value={workspace.equipmentSearch}
             onChange={(event) => workspace.setEquipmentSearch(event.target.value)}
             placeholder="Recherche équipement"
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           />
           <input
             value={workspace.workOrderSearch}
             onChange={(event) => workspace.setWorkOrderSearch(event.target.value)}
             placeholder="Recherche intervention"
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           />
           <select
             value={workspace.statusFilter}
             onChange={(event) => workspace.setStatusFilter(event.target.value as 'all' | typeof workspace.workOrderStatuses[number])}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           >
             <option value="all">all statuses</option>
             {workspace.workOrderStatuses.map((item) => <option key={item} value={item}>{item}</option>)}
@@ -213,7 +213,7 @@ export default function MaintenanceWorkspace() {
           <select
             value={workspace.priorityFilter}
             onChange={(event) => workspace.setPriorityFilter(event.target.value as 'all' | typeof workspace.workOrderPriorities[number])}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           >
             <option value="all">all priorities</option>
             {workspace.workOrderPriorities.map((item) => <option key={item} value={item}>{item}</option>)}
@@ -221,7 +221,7 @@ export default function MaintenanceWorkspace() {
           <select
             value={workspace.maintenanceTypeFilter}
             onChange={(event) => workspace.setMaintenanceTypeFilter(event.target.value as 'all' | typeof workspace.maintenanceTypes[number])}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm"
           >
             <option value="all">all maintenance types</option>
             {workspace.maintenanceTypes.map((item) => <option key={item} value={item}>{item}</option>)}
@@ -231,18 +231,18 @@ export default function MaintenanceWorkspace() {
 
       <Section title="Equipements" description="Création/MAJ des actifs et suivi technique détaillé.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <input value={equipmentName} onChange={(event) => setEquipmentName(event.target.value)} placeholder="Nom équipement" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <input value={equipmentCode} onChange={(event) => setEquipmentCode(event.target.value)} placeholder="Code" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <input value={equipmentReference} onChange={(event) => setEquipmentReference(event.target.value)} placeholder="Référence" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <input value={equipmentSite} onChange={(event) => setEquipmentSite(event.target.value)} placeholder="Site" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <button type="button" onClick={onCreateEquipment} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Ajouter équipement</button>
+          <input value={equipmentName} onChange={(event) => setEquipmentName(event.target.value)} placeholder="Nom équipement" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <input value={equipmentCode} onChange={(event) => setEquipmentCode(event.target.value)} placeholder="Code" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <input value={equipmentReference} onChange={(event) => setEquipmentReference(event.target.value)} placeholder="Référence" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <input value={equipmentSite} onChange={(event) => setEquipmentSite(event.target.value)} placeholder="Site" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <button type="button" onClick={onCreateEquipment} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Ajouter équipement</button>
         </div>
         <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-3 text-sm">
           {workspace.filteredEquipments.slice(0, 12).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.code} - {item.name}</p>
-              <p className="mt-1 text-[var(--sea-ink-soft)]">{item.site} • {item.projectName}</p>
-              <p className="text-[var(--sea-ink-soft)]">status {item.status} • health {item.healthScore}% • availability {item.availabilityScore}%</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.code} - {item.name}</p>
+              <p className="mt-1 text-[var(--srg-text-muted)]">{item.site} • {item.projectName}</p>
+              <p className="text-[var(--srg-text-muted)]">status {item.status} • health {item.healthScore}% • availability {item.availabilityScore}%</p>
             </article>
           ))}
         </div>
@@ -250,30 +250,30 @@ export default function MaintenanceWorkspace() {
 
       <Section title="Interventions" description="Cycle complet: demande, assignation, exécution, rapport, validation, clôture.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <input value={workTitle} onChange={(event) => setWorkTitle(event.target.value)} placeholder="Titre intervention" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <select value={workEquipmentId} onChange={(event) => setWorkEquipmentId(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
+          <input value={workTitle} onChange={(event) => setWorkTitle(event.target.value)} placeholder="Titre intervention" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <select value={workEquipmentId} onChange={(event) => setWorkEquipmentId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
             {workspace.store.equipments.map((item) => <option key={item.id} value={item.id}>{item.code}</option>)}
           </select>
-          <select value={workPriority} onChange={(event) => setWorkPriority(event.target.value as 'low' | 'medium' | 'high' | 'critical')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm">
+          <select value={workPriority} onChange={(event) => setWorkPriority(event.target.value as 'low' | 'medium' | 'high' | 'critical')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm">
             {workspace.workOrderPriorities.map((item) => <option key={item} value={item}>{item}</option>)}
           </select>
-          <button type="button" onClick={onCreateWorkOrder} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Créer intervention</button>
-          <button type="button" onClick={onAssignFirstRequest} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]">Assigner première demande</button>
+          <button type="button" onClick={onCreateWorkOrder} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Créer intervention</button>
+          <button type="button" onClick={onAssignFirstRequest} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]">Assigner première demande</button>
         </div>
 
         <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <input value={partRef} onChange={(event) => setPartRef(event.target.value)} placeholder="Ref pièce" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <input type="number" min={1} value={partQty} onChange={(event) => setPartQty(Number(event.target.value))} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm" />
-          <button type="button" onClick={onConsumePart} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]">Consommer pièce + pointage</button>
-          <button type="button" onClick={onCloseFirstAssigned} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]">Rapport + clôture</button>
+          <input value={partRef} onChange={(event) => setPartRef(event.target.value)} placeholder="Ref pièce" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <input type="number" min={1} value={partQty} onChange={(event) => setPartQty(Number(event.target.value))} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm" />
+          <button type="button" onClick={onConsumePart} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]">Consommer pièce + pointage</button>
+          <button type="button" onClick={onCloseFirstAssigned} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]">Rapport + clôture</button>
         </div>
 
         <div className="mt-4 space-y-2 text-sm">
           {workspace.filteredWorkOrders.slice(0, 16).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.code} - {item.title}</p>
-              <p className="text-[var(--sea-ink-soft)]">{item.maintenanceType} • {item.priority} • {item.status}</p>
-              <p className="text-[var(--sea-ink-soft)]">tech {item.assignedTechnician || 'unassigned'} • cost {item.totalCost.toFixed(2)} • downtime {item.downtimeMinutes} min</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.code} - {item.title}</p>
+              <p className="text-[var(--srg-text-muted)]">{item.maintenanceType} • {item.priority} • {item.status}</p>
+              <p className="text-[var(--srg-text-muted)]">tech {item.assignedTechnician || 'unassigned'} • cost {item.totalCost.toFixed(2)} • downtime {item.downtimeMinutes} min</p>
             </article>
           ))}
         </div>
@@ -282,10 +282,10 @@ export default function MaintenanceWorkspace() {
       <Section title="Planning" description="Calendrier, charge atelier, indisponibilités et interventions simultanées.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
           {workspace.store.planning.slice(0, 12).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.title}</p>
-              <p className="text-[var(--sea-ink-soft)]">{item.view} • {item.startDate} {'->'} {item.endDate}</p>
-              <p className="text-[var(--sea-ink-soft)]">atelier {item.workshopLoad}% • équipe {item.teamLoad}% • simultanées {item.simultaneousInterventions}</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.title}</p>
+              <p className="text-[var(--srg-text-muted)]">{item.view} • {item.startDate} {'->'} {item.endDate}</p>
+              <p className="text-[var(--srg-text-muted)]">atelier {item.workshopLoad}% • équipe {item.teamLoad}% • simultanées {item.simultaneousInterventions}</p>
             </article>
           ))}
         </div>
@@ -294,11 +294,11 @@ export default function MaintenanceWorkspace() {
       <Section title="Techniciens" description="Compétences, habilitations, historiques et productivité.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
           {workspace.store.technicians.slice(0, 16).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.name}</p>
-              <p className="text-[var(--sea-ink-soft)]">{item.team}</p>
-              <p className="text-[var(--sea-ink-soft)]">skills: {item.skills.join(', ')}</p>
-              <p className="text-[var(--sea-ink-soft)]">hours {item.totalHours} • productivity {item.productivityScore}%</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.name}</p>
+              <p className="text-[var(--srg-text-muted)]">{item.team}</p>
+              <p className="text-[var(--srg-text-muted)]">skills: {item.skills.join(', ')}</p>
+              <p className="text-[var(--srg-text-muted)]">hours {item.totalHours} • productivity {item.productivityScore}%</p>
             </article>
           ))}
         </div>
@@ -307,10 +307,10 @@ export default function MaintenanceWorkspace() {
       <Section title="Stocks maintenance & Pièces" description="Stock critique, seuils, consommation et déclenchement de réappro.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
           {workspace.store.spareParts.slice(0, 20).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.reference} - {item.name}</p>
-              <p className="text-[var(--sea-ink-soft)]">stock {item.stock} / seuil {item.minThreshold}</p>
-              <p className="text-[var(--sea-ink-soft)]">fournisseur {item.supplier} • auto-order {item.automaticOrder ? 'yes' : 'no'}</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.reference} - {item.name}</p>
+              <p className="text-[var(--srg-text-muted)]">stock {item.stock} / seuil {item.minThreshold}</p>
+              <p className="text-[var(--srg-text-muted)]">fournisseur {item.supplier} • auto-order {item.automaticOrder ? 'yes' : 'no'}</p>
             </article>
           ))}
         </div>
@@ -318,13 +318,13 @@ export default function MaintenanceWorkspace() {
 
       <Section title="Checklists" description="Modèles et exécutions checklists maintenance/qualité/sécurité.">
         <div className="mb-3 flex flex-wrap gap-2">
-          <button type="button" onClick={onRunChecklist} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exécuter checklist par défaut</button>
+          <button type="button" onClick={onRunChecklist} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exécuter checklist par défaut</button>
         </div>
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
           {workspace.store.checklistTemplates.slice(0, 12).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.title}</p>
-              <p className="text-[var(--sea-ink-soft)]">{item.kind} • {item.items.length} points</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.title}</p>
+              <p className="text-[var(--srg-text-muted)]">{item.kind} • {item.items.length} points</p>
             </article>
           ))}
         </div>
@@ -332,15 +332,15 @@ export default function MaintenanceWorkspace() {
 
       <Section title="AI Maintenance" description="Questions pannes, réparations, planning, coûts, stock, disponibilité, MTBF/MTTR/OEE.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <input value={aiQuestion} onChange={(event) => setAiQuestion(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm xl:col-span-3" />
-          <button type="button" onClick={onAskAi} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Interroger IA</button>
+          <input value={aiQuestion} onChange={(event) => setAiQuestion(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm xl:col-span-3" />
+          <button type="button" onClick={onAskAi} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Interroger IA</button>
         </div>
         <div className="mt-3 space-y-2 text-sm">
           {workspace.store.aiInsights.slice(0, 8).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">Q: {item.question}</p>
-              <p className="mt-1 text-[var(--sea-ink-soft)]">{item.answer}</p>
-              <p className="text-xs text-[var(--sea-ink-soft)]">confidence {item.confidence}</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">Q: {item.question}</p>
+              <p className="mt-1 text-[var(--srg-text-muted)]">{item.answer}</p>
+              <p className="text-xs text-[var(--srg-text-muted)]">confidence {item.confidence}</p>
             </article>
           ))}
         </div>
@@ -348,14 +348,14 @@ export default function MaintenanceWorkspace() {
 
       <Section title="Archive Intelligence" description="Recherche globale docs/interventions/pièces/devis/commandes + export JSON, printable et script audio.">
         <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          <input value={archiveQuestion} onChange={(event) => setArchiveQuestion(event.target.value)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm xl:col-span-3" />
-          <button type="button" onClick={onArchiveIntelligence} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]">Lancer intelligence</button>
+          <input value={archiveQuestion} onChange={(event) => setArchiveQuestion(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm xl:col-span-3" />
+          <button type="button" onClick={onArchiveIntelligence} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]">Lancer intelligence</button>
         </div>
         <div className="mt-3 space-y-2 text-sm">
           {workspace.store.archiveQueries.slice(0, 6).map((item) => (
-            <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4">
-              <p className="font-semibold text-[var(--sea-ink)]">{item.question}</p>
-              <p className="text-[var(--sea-ink-soft)]">docs {item.documents.length} • interventions {item.interventions.length} • pièces {item.parts.length} • devis {item.quotes.length} • commandes {item.orders.length}</p>
+            <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.question}</p>
+              <p className="text-[var(--srg-text-muted)]">docs {item.documents.length} • interventions {item.interventions.length} • pièces {item.parts.length} • devis {item.quotes.length} • commandes {item.orders.length}</p>
             </article>
           ))}
         </div>
@@ -363,9 +363,9 @@ export default function MaintenanceWorkspace() {
 
       <Section title="Exports" description="Exports JSON/CSV du workspace maintenance.">
         <div className="flex flex-wrap gap-2">
-          <button type="button" onClick={() => MaintenanceWorkspaceService.exportStore()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter JSON</button>
-          <button type="button" onClick={() => MaintenanceWorkspaceService.exportWorkOrdersCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter interventions CSV</button>
-          <button type="button" onClick={() => MaintenanceWorkspaceService.exportSparePartsCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter pièces CSV</button>
+          <button type="button" onClick={() => MaintenanceWorkspaceService.exportStore()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter JSON</button>
+          <button type="button" onClick={() => MaintenanceWorkspaceService.exportWorkOrdersCsv()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter interventions CSV</button>
+          <button type="button" onClick={() => MaintenanceWorkspaceService.exportSparePartsCsv()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter pièces CSV</button>
         </div>
       </Section>
     </div>
@@ -374,17 +374,17 @@ export default function MaintenanceWorkspace() {
 
 function Metric(props: { label: string; value: string | number }) {
   return (
-    <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
-      <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">{props.label}</p>
-      <p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{props.value}</p>
+    <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+      <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{props.label}</p>
+      <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{props.value}</p>
     </div>
   )
 }
 
 function Info(props: { label: string; value: string }) {
   return (
-    <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]">
-      <strong className="text-[var(--sea-ink)]">{props.label}: </strong>
+    <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-[var(--srg-text-muted)]">
+      <strong className="text-[var(--srg-text-title)]">{props.label}: </strong>
       {props.value}
     </div>
   )

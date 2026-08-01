@@ -10,10 +10,10 @@ export default function Section({
   children: ReactNode
 }) {
   return (
-    <section className="mb-8 rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+    <section className="srg-fade-up srg-workspace mb-8 rounded-[var(--srg-radius-xl)] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
       <div className="mb-4">
-        <h2 className="text-xl font-semibold text-[var(--sea-ink)]">{title}</h2>
-        {description ? <p className="mt-2 text-sm text-[var(--sea-ink-soft)]">{description}</p> : null}
+        <h2 className="srg-h3 text-xl font-semibold text-[var(--srg-text-title)]">{title}</h2>
+        {description ? <p className="srg-body mt-2 text-sm text-[var(--srg-text-muted)]">{description}</p> : null}
       </div>
       {children}
     </section>

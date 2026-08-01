@@ -10,13 +10,13 @@ export default function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <div className="mb-6 rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+    <div className="srg-fade-up mb-6 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-6 shadow-[var(--srg-shadow-md)]">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="mb-2 text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">
+          <p className="srg-label mb-2">
             {title}
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-[var(--sea-ink)] sm:text-4xl">
+          <h1 className="srg-display text-3xl font-semibold tracking-tight text-[var(--srg-text-title)] sm:text-4xl">
             {description}
           </h1>
         </div>

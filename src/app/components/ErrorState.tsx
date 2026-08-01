@@ -37,19 +37,19 @@ export default function ErrorState({
   const copy = variantCopy[variant]
 
   return (
-    <div className="rounded-[2rem] border border-[rgba(223,78,78,0.24)] bg-[linear-gradient(180deg,rgba(255,245,245,0.98),rgba(255,235,235,0.94))] p-8 text-center text-red-900 dark:bg-[linear-gradient(180deg,rgba(55,21,21,0.92),rgba(44,18,18,0.94))]">
-      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.5rem] border border-[rgba(223,78,78,0.24)] bg-white/80 text-2xl text-[#9b2f2f] dark:bg-black/10" aria-hidden>
+    <div className="rounded-[2rem] border border-[color-mix(in_oklab,var(--srg-color-danger-500)_30%,transparent)] bg-[color-mix(in_oklab,var(--srg-color-danger-50)_86%,var(--srg-surface)_14%)] p-8 text-center text-[var(--srg-color-danger-800)]">
+      <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-[1.5rem] border border-[color-mix(in_oklab,var(--srg-color-danger-500)_30%,transparent)] bg-[var(--srg-surface-strong)] text-2xl text-[var(--srg-color-danger-700)]" aria-hidden>
         !
       </div>
       <p className="mt-5 text-xl font-semibold">{copy.title}</p>
-      <p className="mt-2 text-sm text-red-700">{copy.description}</p>
-      <p className="mt-3 text-sm text-red-800">{message}</p>
+      <p className="mt-2 text-sm text-[var(--srg-color-danger-700)]">{copy.description}</p>
+      <p className="mt-3 text-sm text-[var(--srg-color-danger-800)]">{message}</p>
       {onRetry ? (
         <div className="mt-5">
           <button
             type="button"
             onClick={onRetry}
-            className="rounded-3xl border border-[rgba(223,78,78,0.24)] bg-white px-4 py-2 text-sm font-semibold text-[#9b2f2f] transition hover:bg-red-50 dark:bg-black/10 dark:hover:bg-black/20"
+            className="rounded-3xl border border-[color-mix(in_oklab,var(--srg-color-danger-500)_30%,transparent)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-color-danger-700)] transition hover:bg-[color-mix(in_oklab,var(--srg-color-danger-100)_76%,transparent)]"
           >
             {retryLabel}
           </button>

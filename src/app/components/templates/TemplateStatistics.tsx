@@ -20,9 +20,9 @@ export default function TemplateStatistics({
         { label: 'Communautaires', value: community },
         { label: 'Utilisations', value: uses },
       ].map((item) => (
-        <div key={item.label} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 text-sm text-[var(--sea-ink)] shadow-[0_18px_34px_rgba(30,90,72,0.06)]">
-          <p className="text-sm text-[var(--sea-ink-soft)]">{item.label}</p>
-          <p className="mt-3 text-3xl font-semibold text-[var(--sea-ink)]">{item.value}</p>
+        <div key={item.label} className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 text-sm text-[var(--srg-text-title)] shadow-[var(--srg-shadow-sm)]">
+          <p className="text-sm text-[var(--srg-text-muted)]">{item.label}</p>
+          <p className="mt-3 text-3xl font-semibold text-[var(--srg-text-title)]">{item.value}</p>
         </div>
       ))}
     </div>

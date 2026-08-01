@@ -14,21 +14,21 @@ export default function ConfirmDialog({
   onCancel: () => void
 }) {
   return (
-    <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
-      <h2 className="text-xl font-semibold text-[var(--sea-ink)]">{title}</h2>
-      <p className="mt-3 text-sm text-[var(--sea-ink-soft)]">{description}</p>
+    <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-6 shadow-[var(--srg-shadow-md)]">
+      <h2 className="text-xl font-semibold text-[var(--srg-text-title)]">{title}</h2>
+      <p className="mt-3 text-sm text-[var(--srg-text-muted)]">{description}</p>
       <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink-soft)] transition hover:bg-[var(--chip-bg)]"
+          className="rounded-xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-muted)] transition hover:bg-[var(--chip-bg)]"
         >
           {cancelLabel}
         </button>
         <button
           type="button"
           onClick={onConfirm}
-          className="rounded-xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--palm)]"
+          className="rounded-xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
         >
           {confirmLabel}
         </button>

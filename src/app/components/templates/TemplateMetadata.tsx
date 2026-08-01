@@ -16,35 +16,35 @@ export default function TemplateMetadata({
   recommendedModel: string
 }) {
   return (
-    <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
-      <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Métadonnées</h3>
-      <div className="mt-5 grid gap-4 text-sm text-[var(--sea-ink-soft)] sm:grid-cols-2">
+    <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-6 shadow-[var(--srg-shadow-md)]">
+      <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Métadonnées</h3>
+      <div className="mt-5 grid gap-4 text-sm text-[var(--srg-text-muted)] sm:grid-cols-2">
         <div>
-          <p className="font-semibold text-[var(--sea-ink)]">Auteur</p>
+          <p className="font-semibold text-[var(--srg-text-title)]">Auteur</p>
           <p>{author}</p>
         </div>
         <div>
-          <p className="font-semibold text-[var(--sea-ink)]">Version</p>
+          <p className="font-semibold text-[var(--srg-text-title)]">Version</p>
           <p>{version}</p>
         </div>
         <div>
-          <p className="font-semibold text-[var(--sea-ink)]">Créé le</p>
+          <p className="font-semibold text-[var(--srg-text-title)]">Créé le</p>
           <p>{createdAt}</p>
         </div>
         <div>
-          <p className="font-semibold text-[var(--sea-ink)]">Dernière modif</p>
+          <p className="font-semibold text-[var(--srg-text-title)]">Dernière modif</p>
           <p>{updatedAt}</p>
         </div>
         <div>
-          <p className="font-semibold text-[var(--sea-ink)]">Langue</p>
+          <p className="font-semibold text-[var(--srg-text-title)]">Langue</p>
           <p>{language}</p>
         </div>
         <div>
-          <p className="font-semibold text-[var(--sea-ink)]">Provider recommandé</p>
+          <p className="font-semibold text-[var(--srg-text-title)]">Provider recommandé</p>
           <p>{provider}</p>
         </div>
         <div className="sm:col-span-2">
-          <p className="font-semibold text-[var(--sea-ink)]">Modèle recommandé</p>
+          <p className="font-semibold text-[var(--srg-text-title)]">Modèle recommandé</p>
           <p>{recommendedModel}</p>
         </div>
       </div>

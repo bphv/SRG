@@ -37,7 +37,7 @@ function SettingsPage() {
               theme.setMode(next.themeMode)
               setStatus('Préférences réinitialisées.')
             }}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
           >
             Réinitialiser
           </button>
@@ -46,7 +46,7 @@ function SettingsPage() {
 
       <Section title="Workspace shell" description="Sidebar, thème et dernière page ouverte.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <label className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink)]">
+          <label className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-title)]">
             <span className="mb-3 block font-semibold">Sidebar</span>
             <span className="inline-flex items-center gap-2">
               <input
@@ -58,7 +58,7 @@ function SettingsPage() {
             </span>
           </label>
 
-          <label className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink)]">
+          <label className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-title)]">
             <span className="mb-3 block font-semibold">Thème</span>
             <select
               value={theme.mode}
@@ -67,7 +67,7 @@ function SettingsPage() {
                 setPreferences(WorkspacePreferencesService.getPreferences())
                 setStatus('Préférence de thème enregistrée.')
               }}
-              className="w-full rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3"
+              className="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3"
             >
               <option value="light">Light</option>
               <option value="dark">Dark</option>
@@ -75,26 +75,26 @@ function SettingsPage() {
             </select>
           </label>
 
-          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink)]">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-title)]">
             <span className="mb-3 block font-semibold">Dernière page</span>
-            <p className="text-[var(--sea-ink-soft)]">{preferences.recentPage}</p>
+            <p className="text-[var(--srg-text-muted)]">{preferences.recentPage}</p>
           </div>
 
-          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink)]">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-title)]">
             <span className="mb-3 block font-semibold">Notifications</span>
-            <p className="text-[var(--sea-ink-soft)]">{notifications.notifications.filter((item) => !item.read).length} non lue(s)</p>
+            <p className="text-[var(--srg-text-muted)]">{notifications.notifications.filter((item) => !item.read).length} non lue(s)</p>
           </div>
         </div>
       </Section>
 
       <Section title="AI defaults" description="Provider et modèle favoris réutilisés dans les workspaces.">
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="grid gap-2 text-sm text-[var(--sea-ink)]">
+          <label className="grid gap-2 text-sm text-[var(--srg-text-title)]">
             <span className="font-semibold">Provider favori</span>
             <select
               value={preferences.favoriteProvider}
               onChange={(event) => syncPreferences((current) => ({ ...current, favoriteProvider: event.target.value }), 'Provider favori mis à jour.')}
-              className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3"
+              className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3"
             >
               <option value="openai">OpenAI</option>
               <option value="anthropic">Anthropic</option>
@@ -103,12 +103,12 @@ function SettingsPage() {
               <option value="mock">Mock</option>
             </select>
           </label>
-          <label className="grid gap-2 text-sm text-[var(--sea-ink)]">
+          <label className="grid gap-2 text-sm text-[var(--srg-text-title)]">
             <span className="font-semibold">Modèle favori</span>
             <input
               value={preferences.favoriteModel}
               onChange={(event) => syncPreferences((current) => ({ ...current, favoriteModel: event.target.value }), 'Modèle favori mis à jour.')}
-              className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3"
+              className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3"
             />
           </label>
         </div>
@@ -116,8 +116,8 @@ function SettingsPage() {
 
       <Section title="Layouts et tables" description="Vue, taille des tableaux, tri et colonnes visibles persistés côté application.">
         <div className="grid gap-4 xl:grid-cols-2">
-          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
-            <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Layouts</h3>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
+            <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Layouts</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {[
                 { id: 'projects', label: 'Projects' },
@@ -125,7 +125,7 @@ function SettingsPage() {
                 { id: 'history', label: 'History' },
                 { id: 'providers', label: 'Providers' },
               ].map((item) => (
-                <label key={item.id} className="grid gap-2 text-sm text-[var(--sea-ink)]">
+                <label key={item.id} className="grid gap-2 text-sm text-[var(--srg-text-title)]">
                   <span className="font-semibold">{item.label}</span>
                   <select
                     value={preferences.pageLayouts[item.id] ?? 'grid'}
@@ -133,7 +133,7 @@ function SettingsPage() {
                       ...current,
                       pageLayouts: { ...current.pageLayouts, [item.id]: event.target.value },
                     }), `Layout ${item.label} enregistré.`)}
-                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3"
+                    className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3"
                   >
                     <option value="grid">Grid</option>
                     <option value="list">List</option>
@@ -144,8 +144,8 @@ function SettingsPage() {
             </div>
           </div>
 
-          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
-            <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Tables</h3>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
+            <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Tables</h3>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               {[
                 { id: 'history', label: 'History size' },
@@ -153,7 +153,7 @@ function SettingsPage() {
                 { id: 'notifications', label: 'Notifications size' },
                 { id: 'sessions', label: 'Sessions size' },
               ].map((item) => (
-                <label key={item.id} className="grid gap-2 text-sm text-[var(--sea-ink)]">
+                <label key={item.id} className="grid gap-2 text-sm text-[var(--srg-text-title)]">
                   <span className="font-semibold">{item.label}</span>
                   <input
                     type="number"
@@ -164,7 +164,7 @@ function SettingsPage() {
                       ...current,
                       tableSizes: { ...current.tableSizes, [item.id]: Number(event.target.value) },
                     }), `Taille ${item.label} enregistrée.`)}
-                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3"
+                    className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3"
                   />
                 </label>
               ))}
@@ -183,23 +183,23 @@ function SettingsPage() {
           />
         ) : (
           <div className="grid gap-4 xl:grid-cols-3">
-            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
-              <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Tris</h3>
-              <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-[var(--sea-ink-soft)]">{JSON.stringify(preferences.sorts, null, 2)}</pre>
+            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
+              <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Tris</h3>
+              <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-[var(--srg-text-muted)]">{JSON.stringify(preferences.sorts, null, 2)}</pre>
             </div>
-            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
-              <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Filtres</h3>
-              <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-[var(--sea-ink-soft)]">{JSON.stringify(preferences.filters, null, 2)}</pre>
+            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
+              <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Filtres</h3>
+              <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-[var(--srg-text-muted)]">{JSON.stringify(preferences.filters, null, 2)}</pre>
             </div>
-            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
-              <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Colonnes visibles</h3>
-              <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-[var(--sea-ink-soft)]">{JSON.stringify(preferences.visibleColumns, null, 2)}</pre>
+            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
+              <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Colonnes visibles</h3>
+              <pre className="mt-4 whitespace-pre-wrap break-words text-xs text-[var(--srg-text-muted)]">{JSON.stringify(preferences.visibleColumns, null, 2)}</pre>
             </div>
           </div>
         )}
       </Section>
 
-      {status ? <p className="text-sm text-[var(--sea-ink-soft)]">{status}</p> : null}
+      {status ? <p className="text-sm text-[var(--srg-text-muted)]">{status}</p> : null}
     </div>
   )
 }

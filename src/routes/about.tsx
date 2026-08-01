@@ -18,9 +18,9 @@ function About() {
             { title: 'Generate', copy: 'Exécuter les scénarios IA avec options avancées.' },
             { title: 'Knowledge Center', copy: 'Diffuser guides, FAQ, exemples et références.' },
           ].map((item) => (
-            <div key={item.title} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">{item.title}</p>
-              <p className="mt-3 text-sm text-[var(--sea-ink-soft)]">{item.copy}</p>
+            <div key={item.title} className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{item.title}</p>
+              <p className="mt-3 text-sm text-[var(--srg-text-muted)]">{item.copy}</p>
             </div>
           ))}
         </div>

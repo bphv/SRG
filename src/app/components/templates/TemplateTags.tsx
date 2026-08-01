@@ -12,7 +12,7 @@ export default function TemplateTags({
           key={tag}
           type="button"
           onClick={() => onTagClick(tag)}
-          className="rounded-full border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-1 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
+          className="rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-1 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
         >
           {tag}
         </button>

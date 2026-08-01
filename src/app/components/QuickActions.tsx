@@ -15,17 +15,17 @@ const actions = [
 
 export default function QuickActions() {
   return (
-    <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+    <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
       <div className="mb-5">
-        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--lagoon-deep)]">Actions rapides</p>
-        <p className="text-sm text-[var(--sea-ink-soft)]">Accès direct aux tâches SRG courantes.</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--srg-color-primary-500)]">Actions rapides</p>
+        <p className="text-sm text-[var(--srg-text-muted)]">Accès direct aux tâches SRG courantes.</p>
       </div>
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
         {actions.map((action) => (
           <Link
             key={action.id}
             to={action.href}
-            className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)] hover:bg-[var(--surface)]"
+            className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)] hover:bg-[var(--srg-surface)]"
           >
             {action.label}
           </Link>
