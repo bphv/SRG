@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { KnowledgeWorkspaceService } from '#/app/services/KnowledgeWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
-import type { KnowledgeFilters, KnowledgeDocumentRecord } from '#/app/services/KnowledgeWorkspaceService'
+import type { KnowledgeFilters, KnowledgeDocumentRecord, KnowledgeEnterpriseSearchFilters } from '#/app/services/KnowledgeWorkspaceService'
 
 export function useKnowledgeWorkspace() {
   const [tick, setTick] = useState(0)
@@ -21,6 +21,26 @@ export function useKnowledgeWorkspace() {
     semanticUi: typeof persisted?.semanticUi === 'boolean' ? persisted.semanticUi : false,
   })
 
+  const persistedEnterprise = preferences.filters['knowledge-enterprise'] as Record<string, string | boolean | number> | undefined
+  const defaultEnterprise = KnowledgeWorkspaceService.getEnterpriseSearchDefaults()
+  const [enterpriseFilters, setEnterpriseFiltersState] = useState<KnowledgeEnterpriseSearchFilters>({
+    text: typeof persistedEnterprise?.text === 'string' ? persistedEnterprise.text : defaultEnterprise.text,
+    year: typeof persistedEnterprise?.year === 'string' ? persistedEnterprise.year : defaultEnterprise.year,
+    chantier: typeof persistedEnterprise?.chantier === 'string' ? persistedEnterprise.chantier : defaultEnterprise.chantier,
+    client: typeof persistedEnterprise?.client === 'string' ? persistedEnterprise.client : defaultEnterprise.client,
+    fournisseur: typeof persistedEnterprise?.fournisseur === 'string' ? persistedEnterprise.fournisseur : defaultEnterprise.fournisseur,
+    equipement: typeof persistedEnterprise?.equipement === 'string' ? persistedEnterprise.equipement : defaultEnterprise.equipement,
+    reference: typeof persistedEnterprise?.reference === 'string' ? persistedEnterprise.reference : defaultEnterprise.reference,
+    puissanceKwMin: typeof persistedEnterprise?.puissanceKwMin === 'number' ? persistedEnterprise.puissanceKwMin : defaultEnterprise.puissanceKwMin,
+    puissanceKwMax: typeof persistedEnterprise?.puissanceKwMax === 'number' ? persistedEnterprise.puissanceKwMax : defaultEnterprise.puissanceKwMax,
+    rpmMin: typeof persistedEnterprise?.rpmMin === 'number' ? persistedEnterprise.rpmMin : defaultEnterprise.rpmMin,
+    rpmMax: typeof persistedEnterprise?.rpmMax === 'number' ? persistedEnterprise.rpmMax : defaultEnterprise.rpmMax,
+    numeroSerie: typeof persistedEnterprise?.numeroSerie === 'string' ? persistedEnterprise.numeroSerie : defaultEnterprise.numeroSerie,
+    technicien: typeof persistedEnterprise?.technicien === 'string' ? persistedEnterprise.technicien : defaultEnterprise.technicien,
+    semanticUi: typeof persistedEnterprise?.semanticUi === 'boolean' ? persistedEnterprise.semanticUi : defaultEnterprise.semanticUi,
+    favoritesOnly: typeof persistedEnterprise?.favoritesOnly === 'boolean' ? persistedEnterprise.favoritesOnly : defaultEnterprise.favoritesOnly,
+  })
+
   const refresh = () => setTick((value) => value + 1)
 
   const persistFilters = (next: KnowledgeFilters) => {
@@ -28,9 +48,16 @@ export function useKnowledgeWorkspace() {
     WorkspacePreferencesService.setFilters('knowledge-workspace', next)
   }
 
+  const persistEnterpriseFilters = (next: KnowledgeEnterpriseSearchFilters) => {
+    setEnterpriseFiltersState(next)
+    WorkspacePreferencesService.setFilters('knowledge-enterprise', next)
+  }
+
   const searchResult = useMemo(() => KnowledgeWorkspaceService.performSearch(filters), [tick, filters])
   const store = useMemo(() => KnowledgeWorkspaceService.getStore(), [tick])
   const summary = useMemo(() => KnowledgeWorkspaceService.getSummary(), [tick])
+  const enterpriseDocuments = useMemo(() => KnowledgeWorkspaceService.searchEnterprise(enterpriseFilters, false), [tick, enterpriseFilters])
+  const graph = useMemo(() => KnowledgeWorkspaceService.buildDocumentGraph(), [tick])
 
   const selectedByIds = (ids: string[]): KnowledgeDocumentRecord[] => store.documents.filter((item) => ids.includes(item.id))
 
@@ -38,9 +65,16 @@ export function useKnowledgeWorkspace() {
     tick,
     filters,
     setFilters: persistFilters,
+    enterpriseFilters,
+    setEnterpriseFilters: persistEnterpriseFilters,
     store,
     summary,
     documents: searchResult.documents,
+    enterpriseDocuments,
+    graph,
+    ocrQueue: store.ocrQueue,
+    decompressions: store.decompressions,
+    aiAnswers: store.aiAnswers,
     suggestions: searchResult.suggestions,
     similarDocuments: searchResult.similar,
     categories: KnowledgeWorkspaceService.listCategories(),
@@ -52,7 +86,7 @@ export function useKnowledgeWorkspace() {
 }
 
 function isType(value: unknown): value is KnowledgeFilters['type'] {
-  return value === 'all' || value === 'markdown' || value === 'txt' || value === 'pdf' || value === 'docx' || value === 'csv' || value === 'json' || value === 'xml' || value === 'html' || value === 'image' || value === 'audio' || value === 'video' || value === 'web-link' || value === 'note' || value === 'faq' || value === 'guide' || value === 'documentation'
+  return value === 'all' || value === 'markdown' || value === 'txt' || value === 'pdf' || value === 'doc' || value === 'docx' || value === 'xls' || value === 'xlsx' || value === 'csv' || value === 'json' || value === 'xml' || value === 'html' || value === 'image' || value === 'audio' || value === 'video' || value === 'email-export' || value === 'technical-plan' || value === 'scan' || value === 'invoice' || value === 'delivery-note' || value === 'receipt-note' || value === 'photo' || value === 'report' || value === 'web-link' || value === 'note' || value === 'faq' || value === 'guide' || value === 'documentation'
 }
 
 function isStatus(value: unknown): value is KnowledgeFilters['status'] {

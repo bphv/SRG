@@ -11,22 +11,45 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountingRouteImport } from './routes/accounting'
 import { Route as AdministrationRouteImport } from './routes/administration'
 import { Route as AgentsRouteImport } from './routes/agents'
+import { Route as AttendanceRouteImport } from './routes/attendance'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as BusinessPolicyRouteImport } from './routes/business-policy'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as DevisRouteImport } from './routes/devis'
+import { Route as EmployeesRouteImport } from './routes/employees'
+import { Route as EvaluationsRouteImport } from './routes/evaluations'
+import { Route as FinanceRouteImport } from './routes/finance'
+import { Route as FinanceBudgetsRouteImport } from './routes/finance-budgets'
+import { Route as FinanceCustomersRouteImport } from './routes/finance-customers'
+import { Route as FinanceSuppliersRouteImport } from './routes/finance-suppliers'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as HistoryRouteImport } from './routes/history'
+import { Route as HrContractsRouteImport } from './routes/hr-contracts'
+import { Route as HumanResourcesRouteImport } from './routes/human-resources'
 import { Route as KnowledgeCenterRouteImport } from './routes/knowledge-center'
+import { Route as LeavesRouteImport } from './routes/leaves'
+import { Route as MaintenanceRouteImport } from './routes/maintenance'
+import { Route as ManagementControlRouteImport } from './routes/management-control'
 import { Route as ObservabilityRouteImport } from './routes/observability'
+import { Route as OrganizationRouteImport } from './routes/organization'
+import { Route as PayrollRouteImport } from './routes/payroll'
+import { Route as ProcurementInventoryRouteImport } from './routes/procurement-inventory'
 import { Route as ProfileRouteImport } from './routes/profile'
+import { Route as ProjectExecutionRouteImport } from './routes/project-execution'
 import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PromptStudioRouteImport } from './routes/prompt-studio'
 import { Route as PromptTemplatesRouteImport } from './routes/prompt-templates'
 import { Route as ProvidersRouteImport } from './routes/providers'
+import { Route as RecruitmentRouteImport } from './routes/recruitment'
 import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SettingsRouteImport } from './routes/settings'
+import { Route as SkillsRouteImport } from './routes/skills'
+import { Route as TrainingsRouteImport } from './routes/trainings'
+import { Route as TreasuryRouteImport } from './routes/treasury'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -36,6 +59,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountingRoute = AccountingRouteImport.update({
+  id: '/accounting',
+  path: '/accounting',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdministrationRoute = AdministrationRouteImport.update({
@@ -48,9 +76,19 @@ const AgentsRoute = AgentsRouteImport.update({
   path: '/agents',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AttendanceRoute = AttendanceRouteImport.update({
+  id: '/attendance',
+  path: '/attendance',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BusinessPolicyRoute = BusinessPolicyRouteImport.update({
+  id: '/business-policy',
+  path: '/business-policy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -63,6 +101,41 @@ const DashboardRoute = DashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DevisRoute = DevisRouteImport.update({
+  id: '/devis',
+  path: '/devis',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EmployeesRoute = EmployeesRouteImport.update({
+  id: '/employees',
+  path: '/employees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EvaluationsRoute = EvaluationsRouteImport.update({
+  id: '/evaluations',
+  path: '/evaluations',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceRoute = FinanceRouteImport.update({
+  id: '/finance',
+  path: '/finance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceBudgetsRoute = FinanceBudgetsRouteImport.update({
+  id: '/finance-budgets',
+  path: '/finance-budgets',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceCustomersRoute = FinanceCustomersRouteImport.update({
+  id: '/finance-customers',
+  path: '/finance-customers',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FinanceSuppliersRoute = FinanceSuppliersRouteImport.update({
+  id: '/finance-suppliers',
+  path: '/finance-suppliers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const GenerateRoute = GenerateRouteImport.update({
   id: '/generate',
   path: '/generate',
@@ -73,9 +146,34 @@ const HistoryRoute = HistoryRouteImport.update({
   path: '/history',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HrContractsRoute = HrContractsRouteImport.update({
+  id: '/hr-contracts',
+  path: '/hr-contracts',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HumanResourcesRoute = HumanResourcesRouteImport.update({
+  id: '/human-resources',
+  path: '/human-resources',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const KnowledgeCenterRoute = KnowledgeCenterRouteImport.update({
   id: '/knowledge-center',
   path: '/knowledge-center',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LeavesRoute = LeavesRouteImport.update({
+  id: '/leaves',
+  path: '/leaves',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MaintenanceRoute = MaintenanceRouteImport.update({
+  id: '/maintenance',
+  path: '/maintenance',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ManagementControlRoute = ManagementControlRouteImport.update({
+  id: '/management-control',
+  path: '/management-control',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ObservabilityRoute = ObservabilityRouteImport.update({
@@ -83,9 +181,29 @@ const ObservabilityRoute = ObservabilityRouteImport.update({
   path: '/observability',
   getParentRoute: () => rootRouteImport,
 } as any)
+const OrganizationRoute = OrganizationRouteImport.update({
+  id: '/organization',
+  path: '/organization',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayrollRoute = PayrollRouteImport.update({
+  id: '/payroll',
+  path: '/payroll',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProcurementInventoryRoute = ProcurementInventoryRouteImport.update({
+  id: '/procurement-inventory',
+  path: '/procurement-inventory',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileRoute = ProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProjectExecutionRoute = ProjectExecutionRouteImport.update({
+  id: '/project-execution',
+  path: '/project-execution',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsRoute = ProjectsRouteImport.update({
@@ -108,6 +226,11 @@ const ProvidersRoute = ProvidersRouteImport.update({
   path: '/providers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RecruitmentRoute = RecruitmentRouteImport.update({
+  id: '/recruitment',
+  path: '/recruitment',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ReviewsRoute = ReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
@@ -118,150 +241,326 @@ const SettingsRoute = SettingsRouteImport.update({
   path: '/settings',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SkillsRoute = SkillsRouteImport.update({
+  id: '/skills',
+  path: '/skills',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TrainingsRoute = TrainingsRouteImport.update({
+  id: '/trainings',
+  path: '/trainings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TreasuryRoute = TreasuryRouteImport.update({
+  id: '/treasury',
+  path: '/treasury',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accounting': typeof AccountingRoute
   '/administration': typeof AdministrationRoute
   '/agents': typeof AgentsRoute
+  '/attendance': typeof AttendanceRoute
   '/auth': typeof AuthRoute
+  '/business-policy': typeof BusinessPolicyRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
+  '/devis': typeof DevisRoute
+  '/employees': typeof EmployeesRoute
+  '/evaluations': typeof EvaluationsRoute
+  '/finance': typeof FinanceRoute
+  '/finance-budgets': typeof FinanceBudgetsRoute
+  '/finance-customers': typeof FinanceCustomersRoute
+  '/finance-suppliers': typeof FinanceSuppliersRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
+  '/hr-contracts': typeof HrContractsRoute
+  '/human-resources': typeof HumanResourcesRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
+  '/leaves': typeof LeavesRoute
+  '/maintenance': typeof MaintenanceRoute
+  '/management-control': typeof ManagementControlRoute
   '/observability': typeof ObservabilityRoute
+  '/organization': typeof OrganizationRoute
+  '/payroll': typeof PayrollRoute
+  '/procurement-inventory': typeof ProcurementInventoryRoute
   '/profile': typeof ProfileRoute
+  '/project-execution': typeof ProjectExecutionRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
+  '/recruitment': typeof RecruitmentRoute
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
+  '/skills': typeof SkillsRoute
+  '/trainings': typeof TrainingsRoute
+  '/treasury': typeof TreasuryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accounting': typeof AccountingRoute
   '/administration': typeof AdministrationRoute
   '/agents': typeof AgentsRoute
+  '/attendance': typeof AttendanceRoute
   '/auth': typeof AuthRoute
+  '/business-policy': typeof BusinessPolicyRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
+  '/devis': typeof DevisRoute
+  '/employees': typeof EmployeesRoute
+  '/evaluations': typeof EvaluationsRoute
+  '/finance': typeof FinanceRoute
+  '/finance-budgets': typeof FinanceBudgetsRoute
+  '/finance-customers': typeof FinanceCustomersRoute
+  '/finance-suppliers': typeof FinanceSuppliersRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
+  '/hr-contracts': typeof HrContractsRoute
+  '/human-resources': typeof HumanResourcesRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
+  '/leaves': typeof LeavesRoute
+  '/maintenance': typeof MaintenanceRoute
+  '/management-control': typeof ManagementControlRoute
   '/observability': typeof ObservabilityRoute
+  '/organization': typeof OrganizationRoute
+  '/payroll': typeof PayrollRoute
+  '/procurement-inventory': typeof ProcurementInventoryRoute
   '/profile': typeof ProfileRoute
+  '/project-execution': typeof ProjectExecutionRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
+  '/recruitment': typeof RecruitmentRoute
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
+  '/skills': typeof SkillsRoute
+  '/trainings': typeof TrainingsRoute
+  '/treasury': typeof TreasuryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/accounting': typeof AccountingRoute
   '/administration': typeof AdministrationRoute
   '/agents': typeof AgentsRoute
+  '/attendance': typeof AttendanceRoute
   '/auth': typeof AuthRoute
+  '/business-policy': typeof BusinessPolicyRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
+  '/devis': typeof DevisRoute
+  '/employees': typeof EmployeesRoute
+  '/evaluations': typeof EvaluationsRoute
+  '/finance': typeof FinanceRoute
+  '/finance-budgets': typeof FinanceBudgetsRoute
+  '/finance-customers': typeof FinanceCustomersRoute
+  '/finance-suppliers': typeof FinanceSuppliersRoute
   '/generate': typeof GenerateRoute
   '/history': typeof HistoryRoute
+  '/hr-contracts': typeof HrContractsRoute
+  '/human-resources': typeof HumanResourcesRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
+  '/leaves': typeof LeavesRoute
+  '/maintenance': typeof MaintenanceRoute
+  '/management-control': typeof ManagementControlRoute
   '/observability': typeof ObservabilityRoute
+  '/organization': typeof OrganizationRoute
+  '/payroll': typeof PayrollRoute
+  '/procurement-inventory': typeof ProcurementInventoryRoute
   '/profile': typeof ProfileRoute
+  '/project-execution': typeof ProjectExecutionRoute
   '/projects': typeof ProjectsRoute
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
+  '/recruitment': typeof RecruitmentRoute
   '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
+  '/skills': typeof SkillsRoute
+  '/trainings': typeof TrainingsRoute
+  '/treasury': typeof TreasuryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/accounting'
     | '/administration'
     | '/agents'
+    | '/attendance'
     | '/auth'
+    | '/business-policy'
     | '/chat'
     | '/dashboard'
+    | '/devis'
+    | '/employees'
+    | '/evaluations'
+    | '/finance'
+    | '/finance-budgets'
+    | '/finance-customers'
+    | '/finance-suppliers'
     | '/generate'
     | '/history'
+    | '/hr-contracts'
+    | '/human-resources'
     | '/knowledge-center'
+    | '/leaves'
+    | '/maintenance'
+    | '/management-control'
     | '/observability'
+    | '/organization'
+    | '/payroll'
+    | '/procurement-inventory'
     | '/profile'
+    | '/project-execution'
     | '/projects'
     | '/prompt-studio'
     | '/prompt-templates'
     | '/providers'
+    | '/recruitment'
     | '/reviews'
     | '/settings'
+    | '/skills'
+    | '/trainings'
+    | '/treasury'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/accounting'
     | '/administration'
     | '/agents'
+    | '/attendance'
     | '/auth'
+    | '/business-policy'
     | '/chat'
     | '/dashboard'
+    | '/devis'
+    | '/employees'
+    | '/evaluations'
+    | '/finance'
+    | '/finance-budgets'
+    | '/finance-customers'
+    | '/finance-suppliers'
     | '/generate'
     | '/history'
+    | '/hr-contracts'
+    | '/human-resources'
     | '/knowledge-center'
+    | '/leaves'
+    | '/maintenance'
+    | '/management-control'
     | '/observability'
+    | '/organization'
+    | '/payroll'
+    | '/procurement-inventory'
     | '/profile'
+    | '/project-execution'
     | '/projects'
     | '/prompt-studio'
     | '/prompt-templates'
     | '/providers'
+    | '/recruitment'
     | '/reviews'
     | '/settings'
+    | '/skills'
+    | '/trainings'
+    | '/treasury'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/accounting'
     | '/administration'
     | '/agents'
+    | '/attendance'
     | '/auth'
+    | '/business-policy'
     | '/chat'
     | '/dashboard'
+    | '/devis'
+    | '/employees'
+    | '/evaluations'
+    | '/finance'
+    | '/finance-budgets'
+    | '/finance-customers'
+    | '/finance-suppliers'
     | '/generate'
     | '/history'
+    | '/hr-contracts'
+    | '/human-resources'
     | '/knowledge-center'
+    | '/leaves'
+    | '/maintenance'
+    | '/management-control'
     | '/observability'
+    | '/organization'
+    | '/payroll'
+    | '/procurement-inventory'
     | '/profile'
+    | '/project-execution'
     | '/projects'
     | '/prompt-studio'
     | '/prompt-templates'
     | '/providers'
+    | '/recruitment'
     | '/reviews'
     | '/settings'
+    | '/skills'
+    | '/trainings'
+    | '/treasury'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountingRoute: typeof AccountingRoute
   AdministrationRoute: typeof AdministrationRoute
   AgentsRoute: typeof AgentsRoute
+  AttendanceRoute: typeof AttendanceRoute
   AuthRoute: typeof AuthRoute
+  BusinessPolicyRoute: typeof BusinessPolicyRoute
   ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRoute
+  DevisRoute: typeof DevisRoute
+  EmployeesRoute: typeof EmployeesRoute
+  EvaluationsRoute: typeof EvaluationsRoute
+  FinanceRoute: typeof FinanceRoute
+  FinanceBudgetsRoute: typeof FinanceBudgetsRoute
+  FinanceCustomersRoute: typeof FinanceCustomersRoute
+  FinanceSuppliersRoute: typeof FinanceSuppliersRoute
   GenerateRoute: typeof GenerateRoute
   HistoryRoute: typeof HistoryRoute
+  HrContractsRoute: typeof HrContractsRoute
+  HumanResourcesRoute: typeof HumanResourcesRoute
   KnowledgeCenterRoute: typeof KnowledgeCenterRoute
+  LeavesRoute: typeof LeavesRoute
+  MaintenanceRoute: typeof MaintenanceRoute
+  ManagementControlRoute: typeof ManagementControlRoute
   ObservabilityRoute: typeof ObservabilityRoute
+  OrganizationRoute: typeof OrganizationRoute
+  PayrollRoute: typeof PayrollRoute
+  ProcurementInventoryRoute: typeof ProcurementInventoryRoute
   ProfileRoute: typeof ProfileRoute
+  ProjectExecutionRoute: typeof ProjectExecutionRoute
   ProjectsRoute: typeof ProjectsRoute
   PromptStudioRoute: typeof PromptStudioRoute
   PromptTemplatesRoute: typeof PromptTemplatesRoute
   ProvidersRoute: typeof ProvidersRoute
+  RecruitmentRoute: typeof RecruitmentRoute
   ReviewsRoute: typeof ReviewsRoute
   SettingsRoute: typeof SettingsRoute
+  SkillsRoute: typeof SkillsRoute
+  TrainingsRoute: typeof TrainingsRoute
+  TreasuryRoute: typeof TreasuryRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -280,6 +579,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AboutRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/accounting': {
+      id: '/accounting'
+      path: '/accounting'
+      fullPath: '/accounting'
+      preLoaderRoute: typeof AccountingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/administration': {
       id: '/administration'
       path: '/administration'
@@ -294,11 +600,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AgentsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/attendance': {
+      id: '/attendance'
+      path: '/attendance'
+      fullPath: '/attendance'
+      preLoaderRoute: typeof AttendanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/auth': {
       id: '/auth'
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/business-policy': {
+      id: '/business-policy'
+      path: '/business-policy'
+      fullPath: '/business-policy'
+      preLoaderRoute: typeof BusinessPolicyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -315,6 +635,55 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/devis': {
+      id: '/devis'
+      path: '/devis'
+      fullPath: '/devis'
+      preLoaderRoute: typeof DevisRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/employees': {
+      id: '/employees'
+      path: '/employees'
+      fullPath: '/employees'
+      preLoaderRoute: typeof EmployeesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/evaluations': {
+      id: '/evaluations'
+      path: '/evaluations'
+      fullPath: '/evaluations'
+      preLoaderRoute: typeof EvaluationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance': {
+      id: '/finance'
+      path: '/finance'
+      fullPath: '/finance'
+      preLoaderRoute: typeof FinanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance-budgets': {
+      id: '/finance-budgets'
+      path: '/finance-budgets'
+      fullPath: '/finance-budgets'
+      preLoaderRoute: typeof FinanceBudgetsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance-customers': {
+      id: '/finance-customers'
+      path: '/finance-customers'
+      fullPath: '/finance-customers'
+      preLoaderRoute: typeof FinanceCustomersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/finance-suppliers': {
+      id: '/finance-suppliers'
+      path: '/finance-suppliers'
+      fullPath: '/finance-suppliers'
+      preLoaderRoute: typeof FinanceSuppliersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/generate': {
       id: '/generate'
       path: '/generate'
@@ -329,11 +698,46 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HistoryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hr-contracts': {
+      id: '/hr-contracts'
+      path: '/hr-contracts'
+      fullPath: '/hr-contracts'
+      preLoaderRoute: typeof HrContractsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/human-resources': {
+      id: '/human-resources'
+      path: '/human-resources'
+      fullPath: '/human-resources'
+      preLoaderRoute: typeof HumanResourcesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/knowledge-center': {
       id: '/knowledge-center'
       path: '/knowledge-center'
       fullPath: '/knowledge-center'
       preLoaderRoute: typeof KnowledgeCenterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/leaves': {
+      id: '/leaves'
+      path: '/leaves'
+      fullPath: '/leaves'
+      preLoaderRoute: typeof LeavesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/maintenance': {
+      id: '/maintenance'
+      path: '/maintenance'
+      fullPath: '/maintenance'
+      preLoaderRoute: typeof MaintenanceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/management-control': {
+      id: '/management-control'
+      path: '/management-control'
+      fullPath: '/management-control'
+      preLoaderRoute: typeof ManagementControlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/observability': {
@@ -343,11 +747,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ObservabilityRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/organization': {
+      id: '/organization'
+      path: '/organization'
+      fullPath: '/organization'
+      preLoaderRoute: typeof OrganizationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payroll': {
+      id: '/payroll'
+      path: '/payroll'
+      fullPath: '/payroll'
+      preLoaderRoute: typeof PayrollRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/procurement-inventory': {
+      id: '/procurement-inventory'
+      path: '/procurement-inventory'
+      fullPath: '/procurement-inventory'
+      preLoaderRoute: typeof ProcurementInventoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile': {
       id: '/profile'
       path: '/profile'
       fullPath: '/profile'
       preLoaderRoute: typeof ProfileRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/project-execution': {
+      id: '/project-execution'
+      path: '/project-execution'
+      fullPath: '/project-execution'
+      preLoaderRoute: typeof ProjectExecutionRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects': {
@@ -378,6 +810,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProvidersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/recruitment': {
+      id: '/recruitment'
+      path: '/recruitment'
+      fullPath: '/recruitment'
+      preLoaderRoute: typeof RecruitmentRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/reviews': {
       id: '/reviews'
       path: '/reviews'
@@ -392,28 +831,72 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SettingsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/skills': {
+      id: '/skills'
+      path: '/skills'
+      fullPath: '/skills'
+      preLoaderRoute: typeof SkillsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/trainings': {
+      id: '/trainings'
+      path: '/trainings'
+      fullPath: '/trainings'
+      preLoaderRoute: typeof TrainingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/treasury': {
+      id: '/treasury'
+      path: '/treasury'
+      fullPath: '/treasury'
+      preLoaderRoute: typeof TreasuryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountingRoute: AccountingRoute,
   AdministrationRoute: AdministrationRoute,
   AgentsRoute: AgentsRoute,
+  AttendanceRoute: AttendanceRoute,
   AuthRoute: AuthRoute,
+  BusinessPolicyRoute: BusinessPolicyRoute,
   ChatRoute: ChatRoute,
   DashboardRoute: DashboardRoute,
+  DevisRoute: DevisRoute,
+  EmployeesRoute: EmployeesRoute,
+  EvaluationsRoute: EvaluationsRoute,
+  FinanceRoute: FinanceRoute,
+  FinanceBudgetsRoute: FinanceBudgetsRoute,
+  FinanceCustomersRoute: FinanceCustomersRoute,
+  FinanceSuppliersRoute: FinanceSuppliersRoute,
   GenerateRoute: GenerateRoute,
   HistoryRoute: HistoryRoute,
+  HrContractsRoute: HrContractsRoute,
+  HumanResourcesRoute: HumanResourcesRoute,
   KnowledgeCenterRoute: KnowledgeCenterRoute,
+  LeavesRoute: LeavesRoute,
+  MaintenanceRoute: MaintenanceRoute,
+  ManagementControlRoute: ManagementControlRoute,
   ObservabilityRoute: ObservabilityRoute,
+  OrganizationRoute: OrganizationRoute,
+  PayrollRoute: PayrollRoute,
+  ProcurementInventoryRoute: ProcurementInventoryRoute,
   ProfileRoute: ProfileRoute,
+  ProjectExecutionRoute: ProjectExecutionRoute,
   ProjectsRoute: ProjectsRoute,
   PromptStudioRoute: PromptStudioRoute,
   PromptTemplatesRoute: PromptTemplatesRoute,
   ProvidersRoute: ProvidersRoute,
+  RecruitmentRoute: RecruitmentRoute,
   ReviewsRoute: ReviewsRoute,
   SettingsRoute: SettingsRoute,
+  SkillsRoute: SkillsRoute,
+  TrainingsRoute: TrainingsRoute,
+  TreasuryRoute: TreasuryRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

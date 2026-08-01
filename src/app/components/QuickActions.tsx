@@ -7,6 +7,10 @@ const actions = [
   { id: 'quick-4', label: 'Knowledge Center', href: '/knowledge-center' },
   { id: 'quick-5', label: 'Providers', href: '/providers' },
   { id: 'quick-6', label: 'Historique', href: '/history' },
+  { id: 'quick-7', label: 'Procurement & Inventory', href: '/procurement-inventory' },
+  { id: 'quick-8', label: 'Maintenance', href: '/maintenance' },
+  { id: 'quick-9', label: 'Finance', href: '/finance' },
+  { id: 'quick-10', label: 'Ressources Humaines', href: '/human-resources' },
 ]
 
 export default function QuickActions() {

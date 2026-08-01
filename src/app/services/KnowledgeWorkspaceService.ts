@@ -9,7 +9,10 @@ export type KnowledgeDocumentType =
   | 'markdown'
   | 'txt'
   | 'pdf'
+  | 'doc'
   | 'docx'
+  | 'xls'
+  | 'xlsx'
   | 'csv'
   | 'json'
   | 'xml'
@@ -17,6 +20,14 @@ export type KnowledgeDocumentType =
   | 'image'
   | 'audio'
   | 'video'
+  | 'email-export'
+  | 'technical-plan'
+  | 'scan'
+  | 'invoice'
+  | 'delivery-note'
+  | 'receipt-note'
+  | 'photo'
+  | 'report'
   | 'web-link'
   | 'note'
   | 'faq'
@@ -29,20 +40,39 @@ export type KnowledgeImportType =
   | 'local'
   | 'multiple'
   | 'drag-drop'
+  | 'folder'
   | 'zip'
+  | 'rar'
+  | '7z'
   | 'url'
   | 'github'
+  | 'network'
+  | 'sharepoint'
+  | 'google-drive'
+  | 'onedrive'
+  | 'dropbox'
   | 'markdown'
   | 'pdf'
   | 'csv'
   | 'json'
+  | 'doc'
   | 'docx'
+  | 'xls'
+  | 'xlsx'
   | 'html'
   | 'images'
   | 'audio'
   | 'video'
+  | 'emails'
+  | 'technical-plans'
+  | 'scans'
+  | 'invoices'
+  | 'delivery-notes'
+  | 'receipt-notes'
+  | 'photos'
+  | 'reports'
 
-export type KnowledgeExportType = 'markdown' | 'pdf' | 'json' | 'csv' | 'zip'
+export type KnowledgeExportType = 'markdown' | 'pdf' | 'json' | 'csv' | 'zip' | 'word' | 'excel' | 'printable'
 
 export type KnowledgeDocumentVersion = {
   id: string
@@ -83,8 +113,63 @@ export type KnowledgeDocumentRecord = {
   inTrash: boolean
   collectionIds: string[]
   source: string
+  sourcePath: string
+  originalName: string
+  sourceCreatedAt: string
+  sourceModifiedAt: string
+  relatedDocumentIds: string[]
   createdAt: string
   updatedAt: string
+  ocr: {
+    status: 'pending' | 'queued' | 'running' | 'completed' | 'failed'
+    progress: number
+    language: string
+    confidence: number
+    queuePosition: number
+    diagnostics: string
+    preview: string
+  }
+  extraction: {
+    entreprise: string
+    client: string
+    fournisseur: string
+    projet: string
+    site: string
+    machine: string
+    equipement: string
+    reference: string
+    marque: string
+    modele: string
+    puissanceKw: number
+    rpm: number
+    numeroSerie: string
+    date: string
+    auteur: string
+    technicien: string
+    montant: number
+    devise: string
+    documentsLies: string[]
+    motsCles: string[]
+    resume: string
+    categorie: string
+    tags: string[]
+    version: string
+  }
+  classification: {
+    category: string
+    subCategory: string
+    collection: string
+    famille: string
+    equipement: string
+    client: string
+    fournisseur: string
+    site: string
+    annee: string
+    projet: string
+    chantier: string
+    service: string
+    departement: string
+  }
   index: {
     status: KnowledgeIndexStatus
     chunks: number
@@ -152,6 +237,71 @@ export type KnowledgeExportRecord = {
   createdAt: string
 }
 
+export type KnowledgeDecompressionRecord = {
+  id: string
+  archiveName: string
+  archiveType: 'zip' | 'rar' | '7z'
+  tree: Array<{ path: string; name: string; type: KnowledgeDocumentType; createdAt: string; modifiedAt: string }>
+  createdAt: string
+  linkedDocumentIds: string[]
+}
+
+export type KnowledgeOcrQueueItem = {
+  id: string
+  documentId: string
+  status: 'queued' | 'running' | 'completed' | 'failed'
+  progress: number
+  language: string
+  confidence: number
+  diagnostics: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type KnowledgeEnterpriseSearchFilters = {
+  text: string
+  year: string
+  chantier: string
+  client: string
+  fournisseur: string
+  equipement: string
+  reference: string
+  puissanceKwMin: number
+  puissanceKwMax: number
+  rpmMin: number
+  rpmMax: number
+  numeroSerie: string
+  technicien: string
+  semanticUi: boolean
+  favoritesOnly: boolean
+}
+
+export type KnowledgeGraphNode = {
+  id: string
+  label: string
+  type: 'entreprise' | 'projet' | 'chantier' | 'machine' | 'equipement' | 'rapport' | 'facture' | 'photo' | 'intervention' | 'technicien' | 'fournisseur'
+}
+
+export type KnowledgeGraphEdge = {
+  id: string
+  from: string
+  to: string
+  relation: string
+}
+
+export type KnowledgeAiAnswer = {
+  id: string
+  question: string
+  answerText: string
+  answerAudioPlaceholder: string
+  summary: string
+  confidenceScore: number
+  sources: Array<{ documentId: string; title: string; source: string; score: number }>
+  documentsUsed: string[]
+  references: string[]
+  createdAt: string
+}
+
 export type KnowledgeRagRun = {
   id: string
   documentIds: string[]
@@ -169,9 +319,12 @@ export type KnowledgeWorkspaceStore = {
   events: KnowledgeEvent[]
   diagnostics: KnowledgeDiagnostic[]
   imports: KnowledgeImportRecord[]
+  decompressions: KnowledgeDecompressionRecord[]
+  ocrQueue: KnowledgeOcrQueueItem[]
   searches: KnowledgeSearchRecord[]
   exports: KnowledgeExportRecord[]
   ragRuns: KnowledgeRagRun[]
+  aiAnswers: KnowledgeAiAnswer[]
 }
 
 export type KnowledgeFilters = {
@@ -211,11 +364,21 @@ function toTypeFromName(name: string): KnowledgeDocumentType {
   if (lower.endsWith('.md') || lower.endsWith('.markdown')) return 'markdown'
   if (lower.endsWith('.txt')) return 'txt'
   if (lower.endsWith('.pdf')) return 'pdf'
+  if (lower.endsWith('.doc')) return 'doc'
   if (lower.endsWith('.docx')) return 'docx'
+  if (lower.endsWith('.xls')) return 'xls'
+  if (lower.endsWith('.xlsx')) return 'xlsx'
   if (lower.endsWith('.csv')) return 'csv'
   if (lower.endsWith('.json')) return 'json'
   if (lower.endsWith('.xml')) return 'xml'
   if (lower.endsWith('.html') || lower.endsWith('.htm')) return 'html'
+  if (lower.endsWith('.eml') || lower.endsWith('.msg')) return 'email-export'
+  if (lower.includes('plan')) return 'technical-plan'
+  if (lower.includes('scan')) return 'scan'
+  if (lower.includes('facture') || lower.includes('invoice')) return 'invoice'
+  if (lower.includes('livraison') || lower.includes('delivery')) return 'delivery-note'
+  if (lower.includes('reception') || lower.includes('receipt')) return 'receipt-note'
+  if (lower.includes('rapport') || lower.includes('report')) return 'report'
   if (/\.(png|jpg|jpeg|gif|webp|svg)$/.test(lower)) return 'image'
   if (/\.(mp3|wav|ogg|m4a)$/.test(lower)) return 'audio'
   if (/\.(mp4|mov|avi|mkv|webm)$/.test(lower)) return 'video'
@@ -226,6 +389,10 @@ function fromMimeType(mimeType: string): KnowledgeDocumentType | undefined {
   if (mimeType.startsWith('image/')) return 'image'
   if (mimeType.startsWith('audio/')) return 'audio'
   if (mimeType.startsWith('video/')) return 'video'
+  if (mimeType.includes('msword')) return 'doc'
+  if (mimeType.includes('wordprocessingml')) return 'docx'
+  if (mimeType.includes('spreadsheetml')) return 'xlsx'
+  if (mimeType.includes('msexcel') || mimeType.includes('excel')) return 'xls'
   if (mimeType.includes('pdf')) return 'pdf'
   if (mimeType.includes('json')) return 'json'
   if (mimeType.includes('csv')) return 'csv'
@@ -258,6 +425,14 @@ function makeDocument(params: {
 }): KnowledgeDocumentRecord {
   const createdAt = nowIso()
   const keywords = parseKeywords(params.title, params.content)
+  const text = `${params.title} ${params.content}`.toLowerCase()
+  const puissanceMatch = text.match(/(\d{1,4})\s?(kw|cv)/)
+  const rpmMatch = text.match(/(\d{3,5})\s?rpm/)
+  const montantMatch = text.match(/(\d+(?:[.,]\d+)?)\s?(usd|eur|xaf|xof|cfa|€|\$)/)
+  const serialMatch = text.match(/(?:serial|serie|s\/n|sn|numero serie|n°)\s*[:#-]?\s*([a-z0-9-]{4,})/)
+  const yearMatch = text.match(/\b(20\d{2}|19\d{2})\b/)
+  const technicienMatch = text.match(/(?:technicien|technician)\s*[:#-]?\s*([a-z\s'-]{3,40})/)
+
   return {
     id: id('kdoc'),
     title: params.title,
@@ -272,8 +447,63 @@ function makeDocument(params: {
     inTrash: false,
     collectionIds: params.collectionIds ?? [],
     source: params.source,
+    sourcePath: params.source,
+    originalName: params.title,
+    sourceCreatedAt: createdAt,
+    sourceModifiedAt: createdAt,
+    relatedDocumentIds: [],
     createdAt,
     updatedAt: createdAt,
+    ocr: {
+      status: 'pending',
+      progress: 0,
+      language: 'fr',
+      confidence: 0,
+      queuePosition: 0,
+      diagnostics: 'OCR engine not connected (app-layer placeholder).',
+      preview: '',
+    },
+    extraction: {
+      entreprise: text.includes('abb') ? 'ABB' : '',
+      client: '',
+      fournisseur: text.includes('abb') ? 'ABB' : '',
+      projet: text.includes('razel') ? 'Razel' : '',
+      site: '',
+      machine: '',
+      equipement: text.includes('moteur') ? 'moteur' : '',
+      reference: '',
+      marque: text.includes('abb') ? 'ABB' : '',
+      modele: '',
+      puissanceKw: puissanceMatch ? Number(puissanceMatch[1].replace(',', '.')) : 0,
+      rpm: rpmMatch ? Number(rpmMatch[1]) : 0,
+      numeroSerie: serialMatch ? serialMatch[1].toUpperCase() : '',
+      date: yearMatch ? `${yearMatch[1]}-01-01` : createdAt,
+      auteur: params.author,
+      technicien: technicienMatch ? technicienMatch[1].trim() : '',
+      montant: montantMatch ? Number(montantMatch[1].replace(',', '.')) : 0,
+      devise: montantMatch ? montantMatch[2].toUpperCase() : '',
+      documentsLies: [],
+      motsCles: keywords,
+      resume: params.content.slice(0, 180),
+      categorie: params.category,
+      tags: params.tags,
+      version: '1.0.0',
+    },
+    classification: {
+      category: params.category,
+      subCategory: params.type,
+      collection: params.collectionIds?.[0] ?? 'default',
+      famille: params.type,
+      equipement: text.includes('moteur') ? 'moteur' : '',
+      client: '',
+      fournisseur: text.includes('abb') ? 'ABB' : '',
+      site: '',
+      annee: yearMatch ? yearMatch[1] : new Date(createdAt).getFullYear().toString(),
+      projet: text.includes('razel') ? 'Razel' : '',
+      chantier: text.includes('razel') ? 'Razel' : '',
+      service: '',
+      departement: '',
+    },
     index: {
       status: 'indexed',
       chunks: Math.max(1, Math.ceil(params.content.length / 500)),
@@ -366,9 +596,12 @@ function defaultStore(): KnowledgeWorkspaceStore {
     events: [],
     diagnostics: [],
     imports: [],
+    decompressions: [],
+    ocrQueue: [],
     searches: [],
     exports: [],
     ragRuns: [],
+    aiAnswers: [],
   }
 }
 
@@ -578,6 +811,413 @@ export class KnowledgeWorkspaceService {
     })
     this.recordImport(type, title || 'manual', [created], 95)
     return created
+  }
+
+  static importArchivePlaceholder(type: 'zip' | 'rar' | '7z', archiveName: string, actorName: string): KnowledgeDecompressionRecord {
+    const baseDate = nowIso()
+    const tree = [
+      { path: `${archiveName}/`, name: archiveName, type: 'documentation' as KnowledgeDocumentType, createdAt: baseDate, modifiedAt: baseDate },
+      { path: `${archiveName}/reports/inspection-report-01.pdf`, name: 'inspection-report-01.pdf', type: 'pdf' as KnowledgeDocumentType, createdAt: baseDate, modifiedAt: baseDate },
+      { path: `${archiveName}/invoices/facture-2022-abb.csv`, name: 'facture-2022-abb.csv', type: 'csv' as KnowledgeDocumentType, createdAt: baseDate, modifiedAt: baseDate },
+      { path: `${archiveName}/photos/moteur-12345.jpg`, name: 'moteur-12345.jpg', type: 'photo' as KnowledgeDocumentType, createdAt: baseDate, modifiedAt: baseDate },
+    ]
+
+    const linkedDocumentIds = tree
+      .filter((item) => item.path !== `${archiveName}/`)
+      .map((item) => this.addDocument({
+        title: item.name,
+        description: `Imported from ${type} archive`,
+        content: `Archive entry ${item.path} from ${archiveName}`,
+        documentType: item.type,
+        category: this.suggestCategory(item.type, item.name),
+        tags: [type, 'archive', 'decompressed'],
+        source: `${type}:${item.path}`,
+        author: actorName,
+      }).id)
+
+    const record: KnowledgeDecompressionRecord = {
+      id: id('kdecomp'),
+      archiveName,
+      archiveType: type,
+      tree,
+      createdAt: nowIso(),
+      linkedDocumentIds,
+    }
+
+    const store = this.getStore()
+    this.writeStorage({ ...store, decompressions: [record, ...store.decompressions].slice(0, 120) })
+    this.recordImport(type, archiveName, this.getStore().documents.filter((item) => linkedDocumentIds.includes(item.id)), 240)
+    this.pushEvent('info', 'decompression.done', `${type.toUpperCase()} archive analyzed: ${archiveName}`)
+    this.logHistory('Knowledge decompression', `${type}:${archiveName}`, 'modification', 'completed')
+    return record
+  }
+
+  static enqueueOcr(documentId: string, language: string): KnowledgeOcrQueueItem | undefined {
+    const document = this.getStore().documents.find((item) => item.id === documentId)
+    if (!document) return undefined
+
+    const store = this.getStore()
+    const queueItem: KnowledgeOcrQueueItem = {
+      id: id('kocr'),
+      documentId,
+      status: 'queued',
+      progress: 0,
+      language: language.trim() || 'fr',
+      confidence: 0,
+      diagnostics: 'Queued for OCR processing (placeholder).',
+      createdAt: nowIso(),
+      updatedAt: nowIso(),
+    }
+
+    this.writeStorage({ ...store, ocrQueue: [queueItem, ...store.ocrQueue].slice(0, 240) })
+    this.updateDocument(documentId, (item) => ({
+      ...item,
+      ocr: {
+        ...item.ocr,
+        status: 'queued',
+        progress: 0,
+        language: queueItem.language,
+        queuePosition: 1,
+        diagnostics: queueItem.diagnostics,
+      },
+    }))
+
+    this.pushEvent('info', 'ocr.queued', `OCR queued for ${document.title}.`)
+    this.logHistory('Knowledge OCR', `queued:${document.title}`, 'modification', 'completed')
+    return queueItem
+  }
+
+  static runOcr(documentId: string): void {
+    const store = this.getStore()
+    const queueItem = store.ocrQueue.find((item) => item.documentId === documentId)
+    const progress = 100
+    const confidence = Number((0.78 + Math.random() * 0.2).toFixed(2))
+
+    this.writeStorage({
+      ...store,
+      ocrQueue: store.ocrQueue.map((item) => (
+        item.documentId === documentId
+          ? {
+              ...item,
+              status: 'completed',
+              progress,
+              confidence,
+              diagnostics: 'OCR completed (placeholder engine).',
+              updatedAt: nowIso(),
+            }
+          : item
+      )),
+    })
+
+    this.updateDocument(documentId, (item) => ({
+      ...item,
+      ocr: {
+        ...item.ocr,
+        status: 'completed',
+        progress,
+        confidence,
+        queuePosition: 0,
+        diagnostics: 'OCR completed (placeholder engine).',
+        preview: item.content.slice(0, 500),
+      },
+    }))
+
+    this.pushEvent('info', 'ocr.completed', `OCR completed for document ${documentId}.`)
+    this.pushDiagnostic()
+    this.logHistory('Knowledge OCR', `completed:${documentId}`, 'validation', 'completed')
+    if (queueItem) {
+      this.autoExtractAndClassify(documentId)
+    }
+  }
+
+  static autoExtractAndClassify(documentId: string): void {
+    this.updateDocument(documentId, (item) => {
+      const text = `${item.title} ${item.content}`.toLowerCase()
+      const kwMatch = text.match(/(\d{1,4})\s?kw/)
+      const rpmMatch = text.match(/(\d{3,5})\s?rpm/)
+      const yearMatch = text.match(/\b(20\d{2}|19\d{2})\b/)
+      const serialMatch = text.match(/(?:serial|serie|s\/n|sn|numero serie|n°)\s*[:#-]?\s*([a-z0-9-]{4,})/)
+      const amountMatch = text.match(/(\d+(?:[.,]\d+)?)\s?(usd|eur|xaf|xof|cfa|€|\$|millions?)/)
+      const chantierMatch = text.match(/(?:chantier|site|project|projet)\s*[:#-]?\s*([a-z0-9\s'-]{3,50})/)
+
+      const puissanceKw = kwMatch ? Number(kwMatch[1]) : item.extraction.puissanceKw
+      const rpm = rpmMatch ? Number(rpmMatch[1]) : item.extraction.rpm
+      const montant = amountMatch ? Number(amountMatch[1].replace(',', '.')) : item.extraction.montant
+      const devise = amountMatch ? amountMatch[2].toUpperCase() : item.extraction.devise
+      const chantier = chantierMatch ? chantierMatch[1].trim() : item.classification.chantier
+
+      const extraction = {
+        ...item.extraction,
+        entreprise: text.includes('abb') ? 'ABB' : item.extraction.entreprise,
+        fournisseur: text.includes('abb') ? 'ABB' : item.extraction.fournisseur,
+        projet: chantier || item.extraction.projet,
+        equipement: text.includes('moteur') ? 'moteur' : item.extraction.equipement,
+        marque: text.includes('abb') ? 'ABB' : item.extraction.marque,
+        puissanceKw,
+        rpm,
+        numeroSerie: serialMatch ? serialMatch[1].toUpperCase() : item.extraction.numeroSerie,
+        date: yearMatch ? `${yearMatch[1]}-01-01` : item.extraction.date,
+        montant,
+        devise,
+        motsCles: Array.from(new Set([...item.extraction.motsCles, ...parseKeywords(item.title, item.content)])).slice(0, 12),
+        resume: item.content.slice(0, 220),
+        categorie: item.category,
+        tags: item.tags,
+      }
+
+      const classification = {
+        ...item.classification,
+        category: item.category,
+        subCategory: item.documentType,
+        famille: item.documentType,
+        equipement: extraction.equipement,
+        fournisseur: extraction.fournisseur,
+        annee: extraction.date.slice(0, 4),
+        projet: extraction.projet,
+        chantier: extraction.projet,
+      }
+
+      return {
+        ...item,
+        extraction,
+        classification,
+      }
+    })
+
+    this.pushEvent('info', 'extraction.classification', `Extraction and classification completed for ${documentId}.`)
+    this.logHistory('Knowledge extraction', `document:${documentId}`, 'modification', 'completed')
+  }
+
+  static getEnterpriseSearchDefaults(): KnowledgeEnterpriseSearchFilters {
+    return {
+      text: '',
+      year: '',
+      chantier: '',
+      client: '',
+      fournisseur: '',
+      equipement: '',
+      reference: '',
+      puissanceKwMin: 0,
+      puissanceKwMax: 0,
+      rpmMin: 0,
+      rpmMax: 0,
+      numeroSerie: '',
+      technicien: '',
+      semanticUi: false,
+      favoritesOnly: false,
+    }
+  }
+
+  static searchEnterprise(filters: KnowledgeEnterpriseSearchFilters, track = true): KnowledgeDocumentRecord[] {
+    const query = filters.text.trim().toLowerCase()
+    const matches = this.getStore().documents.filter((item) => {
+      if (filters.favoritesOnly && !item.favorite) return false
+      if (filters.year && item.classification.annee !== filters.year) return false
+      if (filters.chantier && !item.classification.chantier.toLowerCase().includes(filters.chantier.toLowerCase())) return false
+      if (filters.client && !item.classification.client.toLowerCase().includes(filters.client.toLowerCase())) return false
+      if (filters.fournisseur && !item.classification.fournisseur.toLowerCase().includes(filters.fournisseur.toLowerCase())) return false
+      if (filters.equipement && !item.classification.equipement.toLowerCase().includes(filters.equipement.toLowerCase())) return false
+      if (filters.reference && !item.extraction.reference.toLowerCase().includes(filters.reference.toLowerCase())) return false
+      if (filters.numeroSerie && !item.extraction.numeroSerie.toLowerCase().includes(filters.numeroSerie.toLowerCase())) return false
+      if (filters.technicien && !item.extraction.technicien.toLowerCase().includes(filters.technicien.toLowerCase())) return false
+      if (filters.puissanceKwMin > 0 && item.extraction.puissanceKw < filters.puissanceKwMin) return false
+      if (filters.puissanceKwMax > 0 && item.extraction.puissanceKw > filters.puissanceKwMax) return false
+      if (filters.rpmMin > 0 && item.extraction.rpm < filters.rpmMin) return false
+      if (filters.rpmMax > 0 && item.extraction.rpm > filters.rpmMax) return false
+      if (!query) return true
+      return `${item.title} ${item.description} ${item.content} ${item.tags.join(' ')} ${item.category}`.toLowerCase().includes(query)
+    })
+
+    if (track) {
+      const store = this.getStore()
+      const history: KnowledgeSearchRecord = {
+        id: id('ksearch-enterprise'),
+        query: query || 'enterprise-filter',
+        filters: JSON.stringify(filters),
+        resultCount: matches.length,
+        createdAt: nowIso(),
+        semanticUi: filters.semanticUi,
+      }
+      this.writeStorage({ ...store, searches: [history, ...store.searches].slice(0, 140) })
+      this.pushEvent('info', 'search.enterprise', `Enterprise search returned ${matches.length} result(s).`)
+    }
+    return matches
+  }
+
+  static buildDocumentGraph(): { nodes: KnowledgeGraphNode[]; edges: KnowledgeGraphEdge[] } {
+    const documents = this.getStore().documents
+    const nodes = new Map<string, KnowledgeGraphNode>()
+    const edges: KnowledgeGraphEdge[] = []
+
+    for (const item of documents) {
+      const entrepriseId = `entreprise:${item.extraction.entreprise || 'unknown'}`
+      const projetId = `projet:${item.classification.projet || 'unknown'}`
+      const chantierId = `chantier:${item.classification.chantier || 'unknown'}`
+      const machineId = `machine:${item.extraction.machine || 'unknown'}`
+      const equipementId = `equipement:${item.classification.equipement || 'unknown'}`
+      const fournisseurId = `fournisseur:${item.classification.fournisseur || 'unknown'}`
+      const technicienId = `technicien:${item.extraction.technicien || 'unknown'}`
+      const documentTypeNode: KnowledgeGraphNode['type'] = item.documentType === 'invoice'
+        ? 'facture'
+        : item.documentType === 'photo' || item.documentType === 'image'
+          ? 'photo'
+          : 'rapport'
+      const documentNodeId = `${documentTypeNode}:${item.id}`
+
+      const pairs: Array<[string, string, KnowledgeGraphNode['type'], string]> = [
+        [entrepriseId, item.extraction.entreprise || 'Unknown Enterprise', 'entreprise', 'contains'],
+        [projetId, item.classification.projet || 'Unknown Project', 'projet', 'owns'],
+        [chantierId, item.classification.chantier || 'Unknown Chantier', 'chantier', 'hosts'],
+        [machineId, item.extraction.machine || 'Unknown Machine', 'machine', 'mounts'],
+        [equipementId, item.classification.equipement || 'Unknown Equipment', 'equipement', 'includes'],
+        [documentNodeId, item.title, documentTypeNode, 'documents'],
+        [technicienId, item.extraction.technicien || 'Unknown Technician', 'technicien', 'handled-by'],
+        [fournisseurId, item.classification.fournisseur || 'Unknown Supplier', 'fournisseur', 'provided-by'],
+      ]
+
+      for (const [nodeId, label, type] of pairs) {
+        if (!nodes.has(nodeId)) nodes.set(nodeId, { id: nodeId, label, type })
+      }
+
+      edges.push(
+        { id: id('gedge'), from: entrepriseId, to: projetId, relation: 'entreprise-projet' },
+        { id: id('gedge'), from: projetId, to: chantierId, relation: 'projet-chantier' },
+        { id: id('gedge'), from: chantierId, to: machineId, relation: 'chantier-machine' },
+        { id: id('gedge'), from: machineId, to: equipementId, relation: 'machine-equipement' },
+        { id: id('gedge'), from: equipementId, to: documentNodeId, relation: 'equipement-document' },
+        { id: id('gedge'), from: documentNodeId, to: technicienId, relation: 'document-technicien' },
+        { id: id('gedge'), from: documentNodeId, to: fournisseurId, relation: 'document-fournisseur' },
+      )
+    }
+
+    return { nodes: Array.from(nodes.values()).slice(0, 300), edges: edges.slice(0, 800) }
+  }
+
+  static answerEnterpriseQuestion(question: string): KnowledgeAiAnswer {
+    const normalized = question.toLowerCase()
+    let candidates = this.getStore().documents
+
+    const abb = normalized.includes('abb')
+    const moteurs = normalized.includes('moteur') || normalized.includes('moteurs')
+    const razel = normalized.includes('razel')
+    const montant = normalized.match(/(\d+)\s?(million|millions)/)
+    const year = normalized.match(/\b(20\d{2}|19\d{2})\b/)
+    const serial = normalized.match(/(?:moteur|document).*?(\d{4,})/)
+
+    if (abb) candidates = candidates.filter((item) => item.extraction.marque.toLowerCase().includes('abb') || item.title.toLowerCase().includes('abb'))
+    if (moteurs) candidates = candidates.filter((item) => item.classification.equipement.toLowerCase().includes('moteur') || item.title.toLowerCase().includes('moteur'))
+    if (razel) candidates = candidates.filter((item) => item.classification.chantier.toLowerCase().includes('razel') || item.content.toLowerCase().includes('razel'))
+    if (year) candidates = candidates.filter((item) => item.classification.annee === year[1])
+    if (serial) candidates = candidates.filter((item) => item.extraction.numeroSerie.includes(serial[1]) || item.content.includes(serial[1]))
+    if (montant) {
+      const threshold = Number(montant[1]) * 1000000
+      candidates = candidates.filter((item) => item.extraction.montant >= threshold)
+    }
+
+    const sources = candidates.slice(0, 8).map((item) => ({
+      documentId: item.id,
+      title: item.title,
+      source: item.source,
+      score: Number((item.index.metadata.score + 0.05).toFixed(2)),
+    }))
+
+    const answerText = candidates.length === 0
+      ? 'No exact enterprise document found for this question. Try broader filters.'
+      : `Found ${candidates.length} matching enterprise document(s). Top sources include ${sources.map((item) => item.title).join(', ')}.`
+
+    const result: KnowledgeAiAnswer = {
+      id: id('kai'),
+      question,
+      answerText,
+      answerAudioPlaceholder: 'audio-response-placeholder',
+      summary: answerText,
+      confidenceScore: candidates.length === 0 ? 0.32 : Number(Math.min(0.96, 0.55 + candidates.length * 0.04).toFixed(2)),
+      sources,
+      documentsUsed: sources.map((item) => item.documentId),
+      references: sources.map((item) => `${item.title} (${item.source})`),
+      createdAt: nowIso(),
+    }
+
+    const store = this.getStore()
+    this.writeStorage({ ...store, aiAnswers: [result, ...store.aiAnswers].slice(0, 160) })
+    this.pushEvent('info', 'ai.question', `Enterprise AI answer generated for question: ${question.slice(0, 80)}`)
+    this.logHistory('Knowledge AI question', question, 'validation', 'completed')
+    return result
+  }
+
+  static async exportEnterpriseReport(format: 'pdf' | 'word' | 'excel' | 'csv' | 'markdown' | 'json' | 'printable', title: string, documentIds: string[]): Promise<void> {
+    const selected = this.getStore().documents.filter((item) => documentIds.includes(item.id))
+    const reportTitle = title.trim() || 'EDI report'
+
+    if (format === 'json') {
+      WorkspaceExchangeService.downloadJson(`${reportTitle}.json`, selected)
+    }
+
+    if (format === 'markdown') {
+      const markdown = [`# ${reportTitle}`, '', `Generated at: ${nowIso()}`, '']
+      for (const item of selected) {
+        markdown.push(`## ${item.title}`)
+        markdown.push(`- Type: ${item.documentType}`)
+        markdown.push(`- Equipement: ${item.classification.equipement || 'n/a'}`)
+        markdown.push(`- Fournisseur: ${item.classification.fournisseur || 'n/a'}`)
+        markdown.push(`- Puissance: ${item.extraction.puissanceKw || 0} KW`)
+        markdown.push(`- RPM: ${item.extraction.rpm || 0}`)
+        markdown.push(`- Montant: ${item.extraction.montant || 0} ${item.extraction.devise || ''}`)
+        markdown.push('')
+      }
+      WorkspaceExchangeService.downloadText(`${reportTitle}.md`, markdown.join('\n'), 'text/markdown;charset=utf-8')
+    }
+
+    if (format === 'csv' || format === 'excel') {
+      const rows = [
+        ['title', 'type', 'category', 'fournisseur', 'equipement', 'puissanceKw', 'rpm', 'numeroSerie', 'montant', 'devise', 'annee'],
+        ...selected.map((item) => [
+          item.title,
+          item.documentType,
+          item.category,
+          item.classification.fournisseur,
+          item.classification.equipement,
+          String(item.extraction.puissanceKw),
+          String(item.extraction.rpm),
+          item.extraction.numeroSerie,
+          String(item.extraction.montant),
+          item.extraction.devise,
+          item.classification.annee,
+        ]),
+      ]
+      if (format === 'csv') {
+        WorkspaceExchangeService.downloadCsv(`${reportTitle}.csv`, rows)
+      } else {
+        const tsv = rows.map((row) => row.join('\t')).join('\n')
+        WorkspaceExchangeService.downloadText(`${reportTitle}.xlsx`, tsv, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+      }
+    }
+
+    if (format === 'word') {
+      const lines = [reportTitle, `Generated at: ${nowIso()}`, '']
+      for (const item of selected) {
+        lines.push(`${item.title} | ${item.documentType} | ${item.classification.fournisseur} | ${item.classification.equipement}`)
+      }
+      WorkspaceExchangeService.downloadText(`${reportTitle}.docx`, lines.join('\n'), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    }
+
+    if (format === 'printable') {
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>${reportTitle}</title></head><body><h1>${reportTitle}</h1>${selected.map((item) => `<article><h2>${item.title}</h2><p>${item.description}</p></article>`).join('')}</body></html>`
+      WorkspaceExchangeService.downloadText(`${reportTitle}.html`, html, 'text/html;charset=utf-8')
+    }
+
+    if (format === 'pdf') {
+      await this.downloadPdf(selected)
+    }
+
+    const store = this.getStore()
+    this.writeStorage({
+      ...store,
+      exports: [{ id: id('kexport'), format, documentIds: selected.map((item) => item.id), createdAt: nowIso() }, ...store.exports].slice(0, 160),
+    })
+
+    this.pushEvent('info', 'report.export', `Enterprise report exported in ${format}.`)
+    this.logHistory('Knowledge report', format, 'publication', 'completed')
   }
 
   static reindexDocument(documentId: string): void {
@@ -836,6 +1476,25 @@ export class KnowledgeWorkspaceService {
       WorkspaceExchangeService.downloadText('srg-knowledge-export.md', body, 'text/markdown;charset=utf-8')
     }
 
+    if (format === 'word') {
+      const lines = selected.map((item) => `${item.title} | ${item.documentType} | ${item.category} | score ${item.index.metadata.score}`)
+      WorkspaceExchangeService.downloadText('srg-knowledge-export.docx', lines.join('\n'), 'application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+    }
+
+    if (format === 'excel') {
+      const rows = [
+        ['title', 'type', 'category', 'status', 'score', 'updatedAt'],
+        ...selected.map((item) => [item.title, item.documentType, item.category, item.status, String(item.index.metadata.score), item.updatedAt]),
+      ]
+      const tsv = rows.map((row) => row.join('\t')).join('\n')
+      WorkspaceExchangeService.downloadText('srg-knowledge-export.xlsx', tsv, 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+    }
+
+    if (format === 'printable') {
+      const html = `<!doctype html><html><head><meta charset="utf-8"><title>SRG Knowledge Export</title></head><body><h1>SRG Knowledge Export</h1>${selected.map((item) => `<article><h2>${item.title}</h2><p>${item.description}</p></article>`).join('')}</body></html>`
+      WorkspaceExchangeService.downloadText('srg-knowledge-export.html', html, 'text/html;charset=utf-8')
+    }
+
     if (format === 'zip') {
       const pseudoZip = {
         note: 'Application-layer ZIP placeholder bundle.',
@@ -882,6 +1541,39 @@ export class KnowledgeWorkspaceService {
       .sort((left, right) => right.count - left.count)
       .slice(0, 8)
 
+    const archiveTypes = ['zip', 'rar', '7z'] as const
+    const byArchiveType = archiveTypes.map((type) => ({
+      type,
+      count: store.decompressions.filter((item) => item.archiveType === type).length,
+    }))
+
+    const byDocumentType = Array.from(
+      documents.reduce((acc, item) => acc.set(item.documentType, (acc.get(item.documentType) ?? 0) + 1), new Map<string, number>()).entries(),
+    )
+      .map(([type, count]) => ({ type, count }))
+      .sort((left, right) => right.count - left.count)
+      .slice(0, 12)
+
+    const topFournisseurs = Array.from(
+      documents
+        .filter((item) => item.classification.fournisseur)
+        .reduce((acc, item) => acc.set(item.classification.fournisseur, (acc.get(item.classification.fournisseur) ?? 0) + 1), new Map<string, number>())
+        .entries(),
+    )
+      .map(([name, count]) => ({ name, count }))
+      .sort((left, right) => right.count - left.count)
+      .slice(0, 8)
+
+    const topChantiers = Array.from(
+      documents
+        .filter((item) => item.classification.chantier)
+        .reduce((acc, item) => acc.set(item.classification.chantier, (acc.get(item.classification.chantier) ?? 0) + 1), new Map<string, number>())
+        .entries(),
+    )
+      .map(([name, count]) => ({ name, count }))
+      .sort((left, right) => right.count - left.count)
+      .slice(0, 8)
+
     return {
       documents: documents.length,
       collections: collections.length,
@@ -907,6 +1599,17 @@ export class KnowledgeWorkspaceService {
         searches: store.searches.slice(0, 12).map((item) => item.resultCount),
         volume: documents.slice(0, 12).map((item) => item.index.metadata.size),
         latency: store.diagnostics.slice(0, 12).map((item) => item.latencyMs),
+      },
+      edi: {
+        decompressions: store.decompressions.length,
+        ocrQueued: store.ocrQueue.filter((item) => item.status === 'queued' || item.status === 'running').length,
+        ocrCompleted: store.ocrQueue.filter((item) => item.status === 'completed').length,
+        enterpriseAnswers: store.aiAnswers.length,
+        reports: store.exports.length,
+        byArchiveType,
+        byDocumentType,
+        topFournisseurs,
+        topChantiers,
       },
     }
   }
@@ -949,15 +1652,27 @@ export class KnowledgeWorkspaceService {
   private static mapImportTypeToDocumentType(type: KnowledgeImportType): KnowledgeDocumentType {
     if (type === 'markdown') return 'markdown'
     if (type === 'pdf') return 'pdf'
+    if (type === 'doc') return 'doc'
     if (type === 'csv') return 'csv'
     if (type === 'json') return 'json'
     if (type === 'docx') return 'docx'
+    if (type === 'xls') return 'xls'
+    if (type === 'xlsx') return 'xlsx'
     if (type === 'html') return 'html'
     if (type === 'images') return 'image'
     if (type === 'audio') return 'audio'
     if (type === 'video') return 'video'
+    if (type === 'emails') return 'email-export'
+    if (type === 'technical-plans') return 'technical-plan'
+    if (type === 'scans') return 'scan'
+    if (type === 'invoices') return 'invoice'
+    if (type === 'delivery-notes') return 'delivery-note'
+    if (type === 'receipt-notes') return 'receipt-note'
+    if (type === 'photos') return 'photo'
+    if (type === 'reports') return 'report'
     if (type === 'url') return 'web-link'
     if (type === 'github') return 'documentation'
+    if (type === 'zip' || type === 'rar' || type === '7z') return 'documentation'
     return 'documentation'
   }
 
@@ -1052,17 +1767,101 @@ export class KnowledgeWorkspaceService {
       if (!Array.isArray(parsed.documents) || !Array.isArray(parsed.collections)) {
         return defaultStore()
       }
+
+      const now = nowIso()
+      const normalizedDocuments = parsed.documents.map((item) => {
+        const doc = item as Partial<KnowledgeDocumentRecord>
+        const keywords = Array.isArray(doc.index?.metadata.keywords) ? doc.index.metadata.keywords : []
+        const fallbackDate = typeof doc.createdAt === 'string' ? doc.createdAt : now
+        const fallbackUpdatedAt = typeof doc.updatedAt === 'string' ? doc.updatedAt : fallbackDate
+        const fallbackType = doc.documentType ?? 'documentation'
+        const fallbackCategory = typeof doc.category === 'string' ? doc.category : 'documentation'
+        const fallbackTags = Array.isArray(doc.tags) ? doc.tags : []
+        const fallbackCollection = Array.isArray(doc.collectionIds) ? doc.collectionIds : []
+
+        return {
+          ...(doc as KnowledgeDocumentRecord),
+          title: typeof doc.title === 'string' ? doc.title : 'Untitled',
+          description: typeof doc.description === 'string' ? doc.description : '',
+          content: typeof doc.content === 'string' ? doc.content : '',
+          documentType: fallbackType,
+          category: fallbackCategory,
+          tags: fallbackTags,
+          sourcePath: typeof doc.sourcePath === 'string' ? doc.sourcePath : doc.source ?? 'unknown',
+          originalName: typeof doc.originalName === 'string' ? doc.originalName : doc.title ?? 'Untitled',
+          sourceCreatedAt: typeof doc.sourceCreatedAt === 'string' ? doc.sourceCreatedAt : fallbackDate,
+          sourceModifiedAt: typeof doc.sourceModifiedAt === 'string' ? doc.sourceModifiedAt : fallbackUpdatedAt,
+          relatedDocumentIds: Array.isArray(doc.relatedDocumentIds) ? doc.relatedDocumentIds : [],
+          createdAt: fallbackDate,
+          updatedAt: fallbackUpdatedAt,
+          collectionIds: fallbackCollection,
+          ocr: {
+            status: doc.ocr?.status ?? 'pending',
+            progress: typeof doc.ocr?.progress === 'number' ? doc.ocr.progress : 0,
+            language: typeof doc.ocr?.language === 'string' ? doc.ocr.language : 'fr',
+            confidence: typeof doc.ocr?.confidence === 'number' ? doc.ocr.confidence : 0,
+            queuePosition: typeof doc.ocr?.queuePosition === 'number' ? doc.ocr.queuePosition : 0,
+            diagnostics: typeof doc.ocr?.diagnostics === 'string' ? doc.ocr.diagnostics : 'OCR engine not connected (app-layer placeholder).',
+            preview: typeof doc.ocr?.preview === 'string' ? doc.ocr.preview : '',
+          },
+          extraction: {
+            entreprise: doc.extraction?.entreprise ?? '',
+            client: doc.extraction?.client ?? '',
+            fournisseur: doc.extraction?.fournisseur ?? '',
+            projet: doc.extraction?.projet ?? '',
+            site: doc.extraction?.site ?? '',
+            machine: doc.extraction?.machine ?? '',
+            equipement: doc.extraction?.equipement ?? '',
+            reference: doc.extraction?.reference ?? '',
+            marque: doc.extraction?.marque ?? '',
+            modele: doc.extraction?.modele ?? '',
+            puissanceKw: typeof doc.extraction?.puissanceKw === 'number' ? doc.extraction.puissanceKw : 0,
+            rpm: typeof doc.extraction?.rpm === 'number' ? doc.extraction.rpm : 0,
+            numeroSerie: doc.extraction?.numeroSerie ?? '',
+            date: doc.extraction?.date ?? fallbackDate,
+            auteur: doc.extraction?.auteur ?? doc.index?.metadata.author ?? 'System',
+            technicien: doc.extraction?.technicien ?? '',
+            montant: typeof doc.extraction?.montant === 'number' ? doc.extraction.montant : 0,
+            devise: doc.extraction?.devise ?? '',
+            documentsLies: Array.isArray(doc.extraction?.documentsLies) ? doc.extraction.documentsLies : [],
+            motsCles: Array.isArray(doc.extraction?.motsCles) ? doc.extraction.motsCles : keywords,
+            resume: doc.extraction?.resume ?? doc.index?.metadata.summary ?? '',
+            categorie: doc.extraction?.categorie ?? fallbackCategory,
+            tags: Array.isArray(doc.extraction?.tags) ? doc.extraction.tags : fallbackTags,
+            version: doc.extraction?.version ?? doc.index?.metadata.version ?? '1.0.0',
+          },
+          classification: {
+            category: doc.classification?.category ?? fallbackCategory,
+            subCategory: doc.classification?.subCategory ?? fallbackType,
+            collection: doc.classification?.collection ?? (fallbackCollection[0] ?? 'default'),
+            famille: doc.classification?.famille ?? fallbackType,
+            equipement: doc.classification?.equipement ?? '',
+            client: doc.classification?.client ?? '',
+            fournisseur: doc.classification?.fournisseur ?? '',
+            site: doc.classification?.site ?? '',
+            annee: doc.classification?.annee ?? new Date(fallbackDate).getFullYear().toString(),
+            projet: doc.classification?.projet ?? '',
+            chantier: doc.classification?.chantier ?? '',
+            service: doc.classification?.service ?? '',
+            departement: doc.classification?.departement ?? '',
+          },
+        }
+      })
+
       return {
         ...defaultStore(),
         ...parsed,
-        documents: parsed.documents,
+        documents: normalizedDocuments,
         collections: parsed.collections,
         events: Array.isArray(parsed.events) ? parsed.events : [],
         diagnostics: Array.isArray(parsed.diagnostics) ? parsed.diagnostics : [],
         imports: Array.isArray(parsed.imports) ? parsed.imports : [],
+        decompressions: Array.isArray(parsed.decompressions) ? parsed.decompressions : [],
+        ocrQueue: Array.isArray(parsed.ocrQueue) ? parsed.ocrQueue : [],
         searches: Array.isArray(parsed.searches) ? parsed.searches : [],
         exports: Array.isArray(parsed.exports) ? parsed.exports : [],
         ragRuns: Array.isArray(parsed.ragRuns) ? parsed.ragRuns : [],
+        aiAnswers: Array.isArray(parsed.aiAnswers) ? parsed.aiAnswers : [],
       }
     } catch {
       return defaultStore()

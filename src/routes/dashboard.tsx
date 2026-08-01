@@ -20,6 +20,12 @@ import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorks
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { AgentWorkspaceService } from '#/app/services/AgentWorkspaceService'
 import { KnowledgeWorkspaceService } from '#/app/services/KnowledgeWorkspaceService'
+import { BusinessPolicyWorkspaceService } from '#/app/services/BusinessPolicyWorkspaceService'
+import { ProjectExecutionWorkspaceService } from '#/app/services/ProjectExecutionWorkspaceService'
+import { ProcurementInventoryWorkspaceService } from '#/app/services/ProcurementInventoryWorkspaceService'
+import { MaintenanceWorkspaceService } from '#/app/services/MaintenanceWorkspaceService'
+import { FinanceWorkspaceService } from '#/app/services/FinanceWorkspaceService'
+import { HumanResourcesWorkspaceService } from '#/app/services/HumanResourcesWorkspaceService'
 import { PromptCollectionService } from '#/app/services/PromptCollectionService'
 import { PromptMarketplaceService } from '#/app/services/PromptMarketplaceService'
 import { PromptReviewService } from '#/app/services/PromptReviewService'
@@ -115,6 +121,12 @@ function DashboardPage() {
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
   const agentSummary = AgentWorkspaceService.getSummary()
   const knowledgeSummary = KnowledgeWorkspaceService.getSummary()
+  const businessPolicySummary = BusinessPolicyWorkspaceService.getSummary()
+  const projectExecutionSummary = ProjectExecutionWorkspaceService.getSummary()
+  const procurementSummary = ProcurementInventoryWorkspaceService.getSummary()
+  const maintenanceSummary = MaintenanceWorkspaceService.getSummary()
+  const financeSummary = FinanceWorkspaceService.getSummary()
+  const humanResourcesSummary = HumanResourcesWorkspaceService.getSummary()
 
   if (loading) {
     return (
@@ -335,8 +347,163 @@ function DashboardPage() {
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Index graph:</strong> {knowledgeSummary.charts.indexations.join(' / ') || 'n/a'}</div>
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Search graph:</strong> {knowledgeSummary.charts.searches.join(' / ') || 'n/a'}</div>
         </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-5 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Decompressions:</strong> {knowledgeSummary.edi.decompressions}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">OCR queued:</strong> {knowledgeSummary.edi.ocrQueued}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">OCR completed:</strong> {knowledgeSummary.edi.ocrCompleted}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">AI answers:</strong> {knowledgeSummary.edi.enterpriseAnswers}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Reports:</strong> {knowledgeSummary.edi.reports}</div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3 text-sm">
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Archives</p>
+            <div className="mt-3 space-y-2">{knowledgeSummary.edi.byArchiveType.map((item) => <div key={item.type} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.type.toUpperCase()} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top fournisseurs</p>
+            <div className="mt-3 space-y-2">{knowledgeSummary.edi.topFournisseurs.slice(0, 6).map((item) => <div key={item.name} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.name} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top chantiers</p>
+            <div className="mt-3 space-y-2">{knowledgeSummary.edi.topChantiers.slice(0, 6).map((item) => <div key={item.name} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.name} • {item.count}</div>)}</div>
+          </div>
+        </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link to="/knowledge-center" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Knowledge Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Business Policy & Devis" description="Politiques metier, coefficients, fournitures, main d'oeuvre, devis, facturation et simulation.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Policies</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.policies}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Coefficients</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.coefficients}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Supplies</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.supplies}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Labor roles</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.laborRoles}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Devis</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.quotes}</p></div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Billing docs:</strong> {businessPolicySummary.billingDocuments}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Learning suggestions:</strong> {businessPolicySummary.learningSuggestions}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Simulations:</strong> {businessPolicySummary.simulations}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Total quote value:</strong> {businessPolicySummary.totalQuoteValue.toFixed(2)}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/business-policy" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Business Policy Workspace</Link>
+          <Link to="/devis" className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Ouvrir Devis Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Project Execution" description="Suivi execution industrielle: projets, budget, avancement, retards, incidents et risques.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Projects</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.projects}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Budget total</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.totalBudget.toFixed(2)}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Budget consomme</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.consumedBudget.toFixed(2)}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Avancement</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.progress.toFixed(1)}%</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Retards</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.delays}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Risques</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.risks}</p></div>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Incidents:</strong> {projectExecutionSummary.incidents}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Top clients:</strong> {projectExecutionSummary.topClients.map((item) => `${item.name} (${item.count})`).join(' | ') || 'n/a'}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Top fournisseurs:</strong> {projectExecutionSummary.topSuppliers.map((item) => `${item.name} (${item.count})`).join(' | ') || 'n/a'}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Top techniciens:</strong> {projectExecutionSummary.topTechnicians.map((item) => `${item.name} (${item.count})`).join(' | ') || 'n/a'}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/project-execution" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Project Execution Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Procurement & Inventory" description="Demandes d'achat, appels d'offres, fournisseurs, commandes, stocks, receptions et logistique.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Requests</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{procurementSummary.requests}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Tenders</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{procurementSummary.tenders}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Suppliers</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{procurementSummary.suppliers}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Orders</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{procurementSummary.orders}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Stock items</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{procurementSummary.stockItems}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Logistics</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{procurementSummary.logistics}</p></div>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Request budget:</strong> {procurementSummary.requestBudget.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Order value:</strong> {procurementSummary.orderValue.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Low stock:</strong> {procurementSummary.lowStock}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Open non-conformities:</strong> {procurementSummary.openNonConformities}</div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3 text-sm">
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top suppliers</p>
+            <div className="mt-3 space-y-2">{procurementSummary.topSuppliers.map((item) => <div key={item.name} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.name} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Stock by category</p>
+            <div className="mt-3 space-y-2">{procurementSummary.byCategory.slice(0, 8).map((item) => <div key={item.category} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.category} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Stock by store</p>
+            <div className="mt-3 space-y-2">{procurementSummary.byStore.slice(0, 8).map((item) => <div key={item.name} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.name} • {item.count}</div>)}</div>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/procurement-inventory" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Procurement & Inventory Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Maintenance CMMS" description="Equipements, interventions, disponibilité, MTBF/MTTR, OEE, pièces et diagnostics.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Equipements</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.equipments}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Interventions</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.workOrders}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Disponibilité</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.availability}%</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">MTBF</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.mtbf} h</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">MTTR</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.mttr} h</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">OEE</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.oee}%</p></div>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Coût maintenance:</strong> {maintenanceSummary.totalMaintenanceCost.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Downtime:</strong> {maintenanceSummary.totalDowntimeMinutes} min</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Pièces:</strong> {maintenanceSummary.spareParts}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Diagnostics:</strong> {maintenanceSummary.diagnostics}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/maintenance" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Maintenance Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Enterprise Finance" description="Comptabilite, tresorerie, budgets, controle de gestion et analyse financiere.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Comptes</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{financeSummary.accounts}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Ecritures</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{financeSummary.entries}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Factures clients</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{financeSummary.customerInvoices}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Factures fournisseurs</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{financeSummary.supplierInvoices}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Tresorerie</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{financeSummary.treasuryBalance.toFixed(2)}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Marge</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{financeSummary.margin.toFixed(2)}</p></div>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Cash Flow:</strong> {financeSummary.cashFlow.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">EBITDA:</strong> {financeSummary.ebitda.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">ROI:</strong> {financeSummary.roi.toFixed(2)}%</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Ecart budget:</strong> {financeSummary.budgetVariance.toFixed(2)}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/finance" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Finance Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Enterprise Human Resources" description="Ressources humaines, paie, effectifs, competences, recrutement et pilotage workforce.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Employes</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.employees}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Actifs</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.activeEmployees}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Contrats</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.contracts}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Paies</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.payrollRecords}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Conges</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.leaveRequests}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Recrutements</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.recruitments}</p></div>
+        </div>
+        <div className="mt-4 grid gap-3 lg:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Payroll total:</strong> {humanResourcesSummary.payrollTotal.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Presence heures:</strong> {humanResourcesSummary.attendanceHours.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Overtime:</strong> {humanResourcesSummary.overtimeHours.toFixed(2)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Diagnostics:</strong> {humanResourcesSummary.diagnostics}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/human-resources" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir HR Workspace</Link>
         </div>
       </Section>
 

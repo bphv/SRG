@@ -5,7 +5,7 @@ import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { useKnowledgeWorkspace } from '#/app/hooks/useKnowledgeWorkspace'
 import { KnowledgeWorkspaceService } from '#/app/services/KnowledgeWorkspaceService'
-import type { KnowledgeDocumentRecord, KnowledgeExportType, KnowledgeImportType } from '#/app/services/KnowledgeWorkspaceService'
+import type { KnowledgeDocumentRecord, KnowledgeExportType, KnowledgeImportType, KnowledgeEnterpriseSearchFilters } from '#/app/services/KnowledgeWorkspaceService'
 
 function sparkline(values: number[]): string {
   const blocks = ['_', '.', '-', '=', '*', '#']
@@ -20,7 +20,27 @@ function byId(list: KnowledgeDocumentRecord[], id: string | null): KnowledgeDocu
 
 export default function KnowledgeWorkspace() {
   const business = useBusiness()
-  const { store, summary, filters, setFilters, documents, suggestions, similarDocuments, categories, tags, authors, selectedByIds, refresh } = useKnowledgeWorkspace()
+  const {
+    store,
+    summary,
+    filters,
+    setFilters,
+    enterpriseFilters,
+    setEnterpriseFilters,
+    documents,
+    enterpriseDocuments,
+    graph,
+    ocrQueue,
+    decompressions,
+    aiAnswers,
+    suggestions,
+    similarDocuments,
+    categories,
+    tags,
+    authors,
+    selectedByIds,
+    refresh,
+  } = useKnowledgeWorkspace()
   const currentSession = business.currentSession
   const actorName = currentSession
     ? business.snapshot.users.find((user) => user.id === currentSession.userId)?.username ?? 'System'
@@ -41,12 +61,21 @@ export default function KnowledgeWorkspace() {
   const [ragCollectionId, setRagCollectionId] = useState<string>('all')
   const [ragCategory, setRagCategory] = useState<string>('all')
   const [ragPreview, setRagPreview] = useState('')
+  const [archiveName, setArchiveName] = useState('enterprise-archive')
+  const [ocrLanguage, setOcrLanguage] = useState('fr')
+  const [reportTitle, setReportTitle] = useState('EDI enterprise report')
+  const [aiQuestion, setAiQuestion] = useState('Quels sont les moteurs ABB installes sur le chantier Razel en 2022 avec references et montants ?')
+  const [aiPreview, setAiPreview] = useState('')
 
   const selected = useMemo(() => byId(store.documents, selectedDocumentId) ?? documents.at(0), [store.documents, documents, selectedDocumentId])
   const checkedDocuments = useMemo(() => selectedByIds(selectedDocumentIds), [selectedDocumentIds, selectedByIds])
   const importHistory = summary.importHistory.slice(0, 10)
   const searchHistory = summary.searchHistory.slice(0, 10)
   const exportHistory = summary.exportHistory.slice(0, 10)
+
+  const updateEnterpriseFilters = (patch: Partial<KnowledgeEnterpriseSearchFilters>) => {
+    setEnterpriseFilters({ ...enterpriseFilters, ...patch })
+  }
 
   const toggleSelectedForRag = (id: string, checked: boolean) => {
     setSelectedDocumentIds((current) => (
@@ -77,6 +106,18 @@ export default function KnowledgeWorkspace() {
     refresh()
   }
 
+  const exportEnterprise = async (format: 'pdf' | 'word' | 'excel' | 'csv' | 'markdown' | 'json' | 'printable') => {
+    const ids = selectedDocumentIds.length > 0 ? selectedDocumentIds : enterpriseDocuments.slice(0, 12).map((item) => item.id)
+    await KnowledgeWorkspaceService.exportEnterpriseReport(format, reportTitle, ids)
+    refresh()
+  }
+
+  const runEnterpriseAi = () => {
+    const answer = KnowledgeWorkspaceService.answerEnterpriseQuestion(aiQuestion)
+    setAiPreview(`${answer.answerText}\n\nConfidence: ${answer.confidenceScore}\nSources: ${answer.sources.map((item) => item.title).join(' | ') || 'n/a'}`)
+    refresh()
+  }
+
   return (
     <div className="space-y-6">
       <Section title="Knowledge Workspace" description="Shared documentation memory for all SRG workspaces.">
@@ -87,6 +128,14 @@ export default function KnowledgeWorkspace() {
           <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Indexed</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.indexations}</p></div>
           <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Favorites</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.favorites}</p></div>
           <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Volume</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.volume}</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Decompressions</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.edi.decompressions}</p></div>
+          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">OCR queued</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.edi.ocrQueued}</p></div>
+          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">OCR completed</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.edi.ocrCompleted}</p></div>
+          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">AI answers</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.edi.enterpriseAnswers}</p></div>
+          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Reports</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{summary.edi.reports}</p></div>
+          <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Graph nodes</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{graph.nodes.length}</p></div>
         </div>
       </Section>
 
@@ -101,7 +150,7 @@ export default function KnowledgeWorkspace() {
                 {categories.map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
               <select value={filters.type} onChange={(event) => setFilters({ ...filters, type: event.target.value as typeof filters.type })} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-sm">
-                {['all', 'markdown', 'txt', 'pdf', 'docx', 'csv', 'json', 'xml', 'html', 'image', 'audio', 'video', 'web-link', 'note', 'faq', 'guide', 'documentation'].map((item) => <option key={item} value={item}>{item}</option>)}
+                {['all', 'markdown', 'txt', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'json', 'xml', 'html', 'image', 'audio', 'video', 'email-export', 'technical-plan', 'scan', 'invoice', 'delivery-note', 'receipt-note', 'photo', 'report', 'web-link', 'note', 'faq', 'guide', 'documentation'].map((item) => <option key={item} value={item}>{item}</option>)}
               </select>
               <select value={filters.status} onChange={(event) => setFilters({ ...filters, status: event.target.value as typeof filters.status })} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-sm">
                 {['all', 'draft', 'validated', 'archived', 'trash'].map((item) => <option key={item} value={item}>{item}</option>)}
@@ -148,6 +197,9 @@ export default function KnowledgeWorkspace() {
                 <div className="mt-2 flex flex-wrap gap-1">
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.toggleFavorite(document.id); refresh() }} className="rounded-xl border border-[var(--line)] px-2 py-1 text-xs">{document.favorite ? 'Unfavorite' : 'Favorite'}</button>
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.reindexDocument(document.id); refresh() }} className="rounded-xl border border-[var(--line)] px-2 py-1 text-xs">Index</button>
+                  <button type="button" onClick={() => { KnowledgeWorkspaceService.enqueueOcr(document.id, ocrLanguage); refresh() }} className="rounded-xl border border-[var(--line)] px-2 py-1 text-xs">Queue OCR</button>
+                  <button type="button" onClick={() => { KnowledgeWorkspaceService.runOcr(document.id); refresh() }} className="rounded-xl border border-[var(--line)] px-2 py-1 text-xs">Run OCR</button>
+                  <button type="button" onClick={() => { KnowledgeWorkspaceService.autoExtractAndClassify(document.id); refresh() }} className="rounded-xl border border-[var(--line)] px-2 py-1 text-xs">Extract/Classify</button>
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.setStatus(document.id, 'validated'); refresh() }} className="rounded-xl border border-[var(--line)] px-2 py-1 text-xs">Validate</button>
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.setStatus(document.id, 'archived'); refresh() }} className="rounded-xl border border-[var(--line)] px-2 py-1 text-xs">Archive</button>
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.setStatus(document.id, 'trash'); refresh() }} className="rounded-xl border border-[rgba(223,78,78,0.24)] px-2 py-1 text-xs text-[#9b2f2f]">Trash</button>
@@ -175,6 +227,35 @@ export default function KnowledgeWorkspace() {
                     <p className="mt-1 text-[var(--sea-ink)]">{selected.source}</p>
                     <p className="text-[var(--sea-ink-soft)]">author {selected.index.metadata.author}</p>
                     <p className="text-[var(--sea-ink-soft)]">version {selected.index.metadata.version}</p>
+                  </div>
+                </div>
+
+                <div className="mt-3 grid gap-3 text-xs lg:grid-cols-3">
+                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-[var(--sea-ink-soft)]">
+                    <p className="font-semibold text-[var(--sea-ink)]">OCR</p>
+                    <p>Status: {selected.ocr.status}</p>
+                    <p>Progress: {selected.ocr.progress}%</p>
+                    <p>Lang: {selected.ocr.language}</p>
+                    <p>Confidence: {selected.ocr.confidence}</p>
+                    <p className="mt-1">{selected.ocr.diagnostics}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-[var(--sea-ink-soft)]">
+                    <p className="font-semibold text-[var(--sea-ink)]">Extraction</p>
+                    <p>Entreprise: {selected.extraction.entreprise || 'n/a'}</p>
+                    <p>Fournisseur: {selected.extraction.fournisseur || 'n/a'}</p>
+                    <p>Equipement: {selected.extraction.equipement || 'n/a'}</p>
+                    <p>Puissance: {selected.extraction.puissanceKw || 0} KW</p>
+                    <p>RPM: {selected.extraction.rpm || 0}</p>
+                    <p>Serie: {selected.extraction.numeroSerie || 'n/a'}</p>
+                  </div>
+                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-[var(--sea-ink-soft)]">
+                    <p className="font-semibold text-[var(--sea-ink)]">Classification</p>
+                    <p>Category: {selected.classification.category}</p>
+                    <p>Sous categorie: {selected.classification.subCategory}</p>
+                    <p>Projet: {selected.classification.projet || 'n/a'}</p>
+                    <p>Chantier: {selected.classification.chantier || 'n/a'}</p>
+                    <p>Annee: {selected.classification.annee || 'n/a'}</p>
+                    <p>Famille: {selected.classification.famille || 'n/a'}</p>
                   </div>
                 </div>
 
@@ -217,7 +298,7 @@ export default function KnowledgeWorkspace() {
                   <input value={newCollectionName} onChange={(event) => setNewCollectionName(event.target.value)} placeholder="Collection name" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
                   <input value={newCollectionDescription} onChange={(event) => setNewCollectionDescription(event.target.value)} placeholder="Collection description" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.createCollection(newCollectionName, newCollectionDescription); setNewCollectionName(''); setNewCollectionDescription(''); refresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Create Collection</button>
-                  <button type="button" onClick={() => { const firstCollection = store.collections[0]; KnowledgeWorkspaceService.assignToCollection(selected.id, firstCollection.id); refresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Assign to first collection</button>
+                  <button type="button" onClick={() => { const firstCollection = store.collections.at(0); if (firstCollection) { KnowledgeWorkspaceService.assignToCollection(selected.id, firstCollection.id); refresh() } }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Assign to first collection</button>
                 </div>
 
                 <div
@@ -252,18 +333,31 @@ export default function KnowledgeWorkspace() {
                     }} />
                   </label>
                   <button type="button" onClick={() => runTextImport('zip')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import ZIP</button>
+                  <button type="button" onClick={() => { KnowledgeWorkspaceService.importArchivePlaceholder('zip', archiveName || 'enterprise-zip', actorName); refresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Analyze ZIP</button>
+                  <button type="button" onClick={() => { KnowledgeWorkspaceService.importArchivePlaceholder('rar', archiveName || 'enterprise-rar', actorName); refresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Analyze RAR</button>
+                  <button type="button" onClick={() => { KnowledgeWorkspaceService.importArchivePlaceholder('7z', archiveName || 'enterprise-7z', actorName); refresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Analyze 7Z</button>
                   <button type="button" onClick={() => runTextImport('markdown')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import Markdown</button>
                   <button type="button" onClick={() => runTextImport('pdf')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import PDF</button>
                   <button type="button" onClick={() => runTextImport('csv')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import CSV</button>
                   <button type="button" onClick={() => runTextImport('json')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import JSON</button>
+                  <button type="button" onClick={() => runTextImport('doc')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import DOC</button>
                   <button type="button" onClick={() => runTextImport('docx')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import DOCX</button>
+                  <button type="button" onClick={() => runTextImport('xls')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import XLS</button>
+                  <button type="button" onClick={() => runTextImport('xlsx')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import XLSX</button>
                   <button type="button" onClick={() => runTextImport('html')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import HTML</button>
                   <button type="button" onClick={() => runTextImport('images')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import Images</button>
                   <button type="button" onClick={() => runTextImport('audio')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import Audio</button>
                   <button type="button" onClick={() => runTextImport('video')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import Video</button>
+                  <button type="button" onClick={() => runTextImport('network')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import Network</button>
+                  <button type="button" onClick={() => runTextImport('sharepoint')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import SharePoint</button>
+                  <button type="button" onClick={() => runTextImport('google-drive')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import GDrive</button>
+                  <button type="button" onClick={() => runTextImport('onedrive')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import OneDrive</button>
+                  <button type="button" onClick={() => runTextImport('dropbox')} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Import Dropbox</button>
                 </div>
 
                 <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <input value={archiveName} onChange={(event) => setArchiveName(event.target.value)} placeholder="Archive base name" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
+                  <input value={ocrLanguage} onChange={(event) => setOcrLanguage(event.target.value)} placeholder="OCR language (fr/en)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
                   <input value={importTitle} onChange={(event) => setImportTitle(event.target.value)} placeholder="Import title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
                   <textarea value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Import text payload" className="min-h-16 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
                   <input value={urlInput} onChange={(event) => setUrlInput(event.target.value)} placeholder="Import URL" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm" />
@@ -298,6 +392,88 @@ export default function KnowledgeWorkspace() {
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.connectToGenerate(selectedDocumentIds); refresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Send Context to Generate</button>
                   <button type="button" onClick={() => { KnowledgeWorkspaceService.connectToConversation(selectedDocumentIds); refresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Send Context to Conversation</button>
+                </div>
+              </Section>
+
+              <Section title="Enterprise Search (EDI)" description="Filtres metier: annee, chantier, client, fournisseur, equipement, reference, puissance, RPM, numero serie, technicien.">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
+                  <input value={enterpriseFilters.text} onChange={(event) => updateEnterpriseFilters({ text: event.target.value })} placeholder="Requete metier" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input value={enterpriseFilters.year} onChange={(event) => updateEnterpriseFilters({ year: event.target.value })} placeholder="Annee (ex: 2022)" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input value={enterpriseFilters.chantier} onChange={(event) => updateEnterpriseFilters({ chantier: event.target.value })} placeholder="Chantier / Projet" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input value={enterpriseFilters.client} onChange={(event) => updateEnterpriseFilters({ client: event.target.value })} placeholder="Client" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input value={enterpriseFilters.fournisseur} onChange={(event) => updateEnterpriseFilters({ fournisseur: event.target.value })} placeholder="Fournisseur" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input value={enterpriseFilters.equipement} onChange={(event) => updateEnterpriseFilters({ equipement: event.target.value })} placeholder="Equipement" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input value={enterpriseFilters.reference} onChange={(event) => updateEnterpriseFilters({ reference: event.target.value })} placeholder="Reference" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input value={enterpriseFilters.numeroSerie} onChange={(event) => updateEnterpriseFilters({ numeroSerie: event.target.value })} placeholder="Numero serie" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input type="number" value={enterpriseFilters.puissanceKwMin} onChange={(event) => updateEnterpriseFilters({ puissanceKwMin: Number(event.target.value) || 0 })} placeholder="KW min" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input type="number" value={enterpriseFilters.puissanceKwMax} onChange={(event) => updateEnterpriseFilters({ puissanceKwMax: Number(event.target.value) || 0 })} placeholder="KW max" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input type="number" value={enterpriseFilters.rpmMin} onChange={(event) => updateEnterpriseFilters({ rpmMin: Number(event.target.value) || 0 })} placeholder="RPM min" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <input type="number" value={enterpriseFilters.rpmMax} onChange={(event) => updateEnterpriseFilters({ rpmMax: Number(event.target.value) || 0 })} placeholder="RPM max" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-sm">
+                  <label className="inline-flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">
+                    <input type="checkbox" checked={enterpriseFilters.semanticUi} onChange={(event) => updateEnterpriseFilters({ semanticUi: event.target.checked })} /> semantic UI
+                  </label>
+                  <label className="inline-flex items-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">
+                    <input type="checkbox" checked={enterpriseFilters.favoritesOnly} onChange={(event) => updateEnterpriseFilters({ favoritesOnly: event.target.checked })} /> favorites only
+                  </label>
+                  <button type="button" onClick={() => { KnowledgeWorkspaceService.searchEnterprise(enterpriseFilters, true); refresh() }} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Run enterprise search</button>
+                </div>
+                <div className="mt-3 grid gap-2 text-xs text-[var(--sea-ink-soft)]">
+                  <p className="font-semibold text-[var(--sea-ink)]">Results: {enterpriseDocuments.length}</p>
+                  {enterpriseDocuments.slice(0, 12).map((item) => (
+                    <button key={item.id} type="button" onClick={() => setSelectedDocumentId(item.id)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-left">
+                      {item.title} | {item.classification.annee} | {item.classification.chantier || 'n/a'} | {item.classification.fournisseur || 'n/a'} | {item.extraction.puissanceKw || 0} KW | {item.extraction.rpm || 0} RPM
+                    </button>
+                  ))}
+                </div>
+              </Section>
+
+              <Section title="Decompression + OCR Queue" description="Suivi des archives decomposes et pipeline OCR applicatif (placeholder).">
+                <div className="grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
+                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">
+                    <p className="font-semibold text-[var(--sea-ink)]">Archive decomposition</p>
+                    {decompressions.length === 0 ? <p>Aucune archive analysee.</p> : decompressions.slice(0, 8).map((item) => <p key={item.id}>{item.archiveType.toUpperCase()} | {item.archiveName} | files {item.tree.length}</p>)}
+                  </div>
+                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">
+                    <p className="font-semibold text-[var(--sea-ink)]">OCR queue</p>
+                    {ocrQueue.length === 0 ? <p>Aucun item OCR.</p> : ocrQueue.slice(0, 10).map((item) => <p key={item.id}>{item.documentId} | {item.status} | {item.progress}% | conf {item.confidence}</p>)}
+                  </div>
+                </div>
+              </Section>
+
+              <Section title="Document Graph" description="Visual graph app-layer des relations entreprise/projet/chantier/equipement/documents.">
+                <div className="grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
+                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">
+                    <p className="font-semibold text-[var(--sea-ink)]">Nodes ({graph.nodes.length})</p>
+                    {graph.nodes.slice(0, 16).map((node) => <p key={node.id}>{node.type} | {node.label}</p>)}
+                  </div>
+                  <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3">
+                    <p className="font-semibold text-[var(--sea-ink)]">Edges ({graph.edges.length})</p>
+                    {graph.edges.slice(0, 20).map((edge) => <p key={edge.id}>{edge.relation}: {edge.from} {'->'} {edge.to}</p>)}
+                  </div>
+                </div>
+              </Section>
+
+              <Section title="Report Center + AI Response Metadata" description="Exports enterprise PDF/Word/Excel/CSV/Markdown/JSON/Printable et reponses IA tracees.">
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4 text-sm">
+                  <input value={reportTitle} onChange={(event) => setReportTitle(event.target.value)} placeholder="Report title" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <button type="button" onClick={() => { void exportEnterprise('pdf') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Export PDF</button>
+                  <button type="button" onClick={() => { void exportEnterprise('word') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Export Word</button>
+                  <button type="button" onClick={() => { void exportEnterprise('excel') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Export Excel</button>
+                  <button type="button" onClick={() => { void exportEnterprise('csv') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Export CSV</button>
+                  <button type="button" onClick={() => { void exportEnterprise('markdown') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Export Markdown</button>
+                  <button type="button" onClick={() => { void exportEnterprise('json') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Export JSON</button>
+                  <button type="button" onClick={() => { void exportEnterprise('printable') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2">Export Printable</button>
+                </div>
+                <div className="mt-3 grid gap-3 text-sm">
+                  <input value={aiQuestion} onChange={(event) => setAiQuestion(event.target.value)} placeholder="Question IA entreprise" className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2" />
+                  <button type="button" onClick={runEnterpriseAi} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 font-semibold text-white">Generate AI answer with metadata</button>
+                  <pre className="whitespace-pre-wrap rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-xs text-[var(--sea-ink-soft)]">{aiPreview || 'Run AI question to preview text/audio/summary/source metadata.'}</pre>
+                </div>
+                <div className="mt-3 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 text-xs text-[var(--sea-ink-soft)]">
+                  <p className="font-semibold text-[var(--sea-ink)]">AI history</p>
+                  {aiAnswers.length === 0 ? <p>No AI enterprise answers yet.</p> : aiAnswers.slice(0, 8).map((item) => <p key={item.id}>{item.question} | confidence {item.confidenceScore} | docs {item.documentsUsed.length}</p>)}
                 </div>
               </Section>
             </>
@@ -337,6 +513,9 @@ export default function KnowledgeWorkspace() {
           <button type="button" onClick={() => { void exportSelection('pdf') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Export PDF</button>
           <button type="button" onClick={() => { void exportSelection('json') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Export JSON</button>
           <button type="button" onClick={() => { void exportSelection('csv') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Export CSV</button>
+          <button type="button" onClick={() => { void exportSelection('word') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Export Word</button>
+          <button type="button" onClick={() => { void exportSelection('excel') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Export Excel</button>
+          <button type="button" onClick={() => { void exportSelection('printable') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Export Printable</button>
           <button type="button" onClick={() => { void exportSelection('zip') }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm">Export ZIP</button>
           <button type="button" onClick={() => { KnowledgeWorkspaceService.reindexAll(); refresh() }} className="rounded-2xl bg-[var(--lagoon-deep)] px-3 py-2 text-sm font-semibold text-white">Reindex All</button>
         </div>

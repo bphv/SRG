@@ -8,6 +8,12 @@ import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorks
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { AgentWorkspaceService } from '#/app/services/AgentWorkspaceService'
 import { KnowledgeWorkspaceService } from '#/app/services/KnowledgeWorkspaceService'
+import { BusinessPolicyWorkspaceService } from '#/app/services/BusinessPolicyWorkspaceService'
+import { ProjectExecutionWorkspaceService } from '#/app/services/ProjectExecutionWorkspaceService'
+import { ProcurementInventoryWorkspaceService } from '#/app/services/ProcurementInventoryWorkspaceService'
+import { MaintenanceWorkspaceService } from '#/app/services/MaintenanceWorkspaceService'
+import { FinanceWorkspaceService } from '#/app/services/FinanceWorkspaceService'
+import { HumanResourcesWorkspaceService } from '#/app/services/HumanResourcesWorkspaceService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
@@ -128,6 +134,12 @@ function HistoryPage() {
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
   const agentSummary = AgentWorkspaceService.getSummary()
   const knowledgeSummary = KnowledgeWorkspaceService.getSummary()
+  const businessPolicySummary = BusinessPolicyWorkspaceService.getSummary()
+  const projectExecutionSummary = ProjectExecutionWorkspaceService.getSummary()
+  const procurementSummary = ProcurementInventoryWorkspaceService.getSummary()
+  const maintenanceSummary = MaintenanceWorkspaceService.getSummary()
+  const financeSummary = FinanceWorkspaceService.getSummary()
+  const humanResourcesSummary = HumanResourcesWorkspaceService.getSummary()
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -281,6 +293,13 @@ function HistoryPage() {
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Consultations</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.consultationHistory.length}</p></div>
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Exports</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.exportHistory.length}</p></div>
         </div>
+        <div className="mt-3 grid gap-4 md:grid-cols-2 xl:grid-cols-5 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Decompressions</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.edi.decompressions}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">OCR queued</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.edi.ocrQueued}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">OCR completed</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.edi.ocrCompleted}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">AI answers</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.edi.enterpriseAnswers}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Enterprise reports</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.edi.reports}</p></div>
+        </div>
         <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
             <p className="font-semibold text-[var(--sea-ink)]">Imports</p>
@@ -295,9 +314,246 @@ function HistoryPage() {
             {knowledgeSummary.exportHistory.slice(0, 6).map((item) => <p key={item.id}>{item.format} | {item.documentIds.length} docs | {new Date(item.createdAt).toLocaleString()}</p>)}
           </div>
         </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Archive distribution</p>
+            {knowledgeSummary.edi.byArchiveType.map((item) => <p key={item.type}>{item.type.toUpperCase()} | {item.count}</p>)}
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Top document types</p>
+            {knowledgeSummary.edi.byDocumentType.slice(0, 8).map((item) => <p key={item.type}>{item.type} | {item.count}</p>)}
+          </div>
+        </div>
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => WorkspaceExchangeService.downloadJson('srg-knowledge-history.json', knowledgeSummary)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter history knowledge JSON</button>
           <button type="button" onClick={() => { void navigate({ to: '/knowledge-center' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Knowledge Workspace</button>
+        </div>
+      </Section>
+
+      <Section title="Business Policy & Devis History" description="Politiques, regles, devis, facturation, suggestions d'apprentissage, simulations et reponses IA.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Policies</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.policies}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Coefficients</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.coefficients}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Quotes</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.quotes}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Billing docs</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.billingDocuments}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Simulations</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.simulations}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">AI answers</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{businessPolicySummary.aiAnswers}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Value snapshot</p>
+            <p>Total quote value: {businessPolicySummary.totalQuoteValue.toFixed(2)}</p>
+            <p>Total billing value: {businessPolicySummary.totalBillingValue.toFixed(2)}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Learning</p>
+            <p>Suggestions: {businessPolicySummary.learningSuggestions}</p>
+            <p>Active policies: {businessPolicySummary.activePolicies}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Catalog</p>
+            <p>Supplies: {businessPolicySummary.supplies}</p>
+            <p>Labor roles: {businessPolicySummary.laborRoles}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadJson('srg-business-history.json', BusinessPolicyWorkspaceService.getStore())} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter business history JSON</button>
+          <button type="button" onClick={() => { void navigate({ to: '/business-policy' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Business Policy Workspace</button>
+          <button type="button" onClick={() => { void navigate({ to: '/devis' }) }} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Ouvrir Devis Workspace</button>
+        </div>
+      </Section>
+
+      <Section title="Project Execution History" description="Creation, modification, validation, affectation, pointage, commande, reception, rapport, incident et cloture.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Projects</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.projects}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Work items</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.workItems}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Sites</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.sites}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Teams</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.teams}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Attendance</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.attendance}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Contracts</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{projectExecutionSummary.contracts}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Budgets</p>
+            <p>Total: {projectExecutionSummary.totalBudget.toFixed(2)}</p>
+            <p>Consumed: {projectExecutionSummary.consumedBudget.toFixed(2)}</p>
+            <p>Progress: {projectExecutionSummary.progress.toFixed(1)}%</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Risks and incidents</p>
+            <p>Delays: {projectExecutionSummary.delays}</p>
+            <p>Incidents: {projectExecutionSummary.incidents}</p>
+            <p>Open risks: {projectExecutionSummary.risks}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Observability</p>
+            <p>Timeline: {projectExecutionSummary.timeline}</p>
+            <p>Diagnostics: {projectExecutionSummary.diagnostics}</p>
+            <p>Reports: {projectExecutionSummary.reports}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadJson('srg-project-execution-history.json', ProjectExecutionWorkspaceService.getStore())} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter project execution JSON</button>
+          <button type="button" onClick={() => { void navigate({ to: '/project-execution' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Project Execution Workspace</button>
+        </div>
+      </Section>
+
+      <Section title="Procurement & Inventory History" description="Demandes achat, AO, fournisseurs, commandes, stocks, receptions, logistique et analyses IA.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Requests</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{procurementSummary.requests}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Tenders</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{procurementSummary.tenders}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Suppliers</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{procurementSummary.suppliers}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Orders</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{procurementSummary.orders}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Stock items</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{procurementSummary.stockItems}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Shipments</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{procurementSummary.logistics}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Financial snapshot</p>
+            <p>Request budget: {procurementSummary.requestBudget.toFixed(2)}</p>
+            <p>Order value: {procurementSummary.orderValue.toFixed(2)}</p>
+            <p>Stock value: {procurementSummary.stockValue.toFixed(2)}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Risk snapshot</p>
+            <p>Low stock: {procurementSummary.lowStock}</p>
+            <p>Incidents: {procurementSummary.incidents}</p>
+            <p>Non conformities: {procurementSummary.openNonConformities}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Observability</p>
+            <p>Timeline: {procurementSummary.timeline}</p>
+            <p>Diagnostics: {procurementSummary.diagnostics}</p>
+            <p>AI insights: {procurementSummary.aiInsights}</p>
+          </div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Top suppliers</p>
+            {procurementSummary.topSuppliers.slice(0, 8).map((item) => <p key={item.name}>{item.name} | {item.count}</p>)}
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Stock categories</p>
+            {procurementSummary.byCategory.slice(0, 8).map((item) => <p key={item.category}>{item.category} | {item.count}</p>)}
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadJson('srg-procurement-history.json', ProcurementInventoryWorkspaceService.getStore())} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter procurement JSON</button>
+          <button type="button" onClick={() => ProcurementInventoryWorkspaceService.exportOrdersCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter orders CSV</button>
+          <button type="button" onClick={() => ProcurementInventoryWorkspaceService.exportStockCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter stock CSV</button>
+          <button type="button" onClick={() => { void navigate({ to: '/procurement-inventory' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Procurement & Inventory Workspace</button>
+        </div>
+      </Section>
+
+      <Section title="Maintenance History" description="Equipements, interventions, planning, techniciens, pièces, checklists et analyses IA CMMS.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Equipements</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.equipments}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Interventions</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.workOrders}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Techniciens</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.technicians}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Pièces</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.spareParts}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Checklist</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.checklists}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">IA insights</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{maintenanceSummary.aiInsights}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Performance</p>
+            <p>Disponibilité: {maintenanceSummary.availability}%</p>
+            <p>MTBF: {maintenanceSummary.mtbf} h</p>
+            <p>MTTR: {maintenanceSummary.mttr} h</p>
+            <p>OEE: {maintenanceSummary.oee}%</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Risques</p>
+            <p>Pannes: {maintenanceSummary.failures}</p>
+            <p>Diagnostics: {maintenanceSummary.diagnostics}</p>
+            <p>Timeline: {maintenanceSummary.timeline}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Coûts</p>
+            <p>Total maintenance: {maintenanceSummary.totalMaintenanceCost.toFixed(2)}</p>
+            <p>Downtime: {maintenanceSummary.totalDowntimeMinutes} min</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadJson('srg-maintenance-history.json', MaintenanceWorkspaceService.getStore())} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter maintenance JSON</button>
+          <button type="button" onClick={() => MaintenanceWorkspaceService.exportWorkOrdersCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter interventions CSV</button>
+          <button type="button" onClick={() => MaintenanceWorkspaceService.exportSparePartsCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter pièces CSV</button>
+          <button type="button" onClick={() => { void navigate({ to: '/maintenance' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Maintenance Workspace</button>
+        </div>
+      </Section>
+
+      <Section title="Finance History" description="Comptabilite, tresorerie, clients, fournisseurs, budgets, controles et analyses financieres.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Comptes</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{financeSummary.accounts}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Ecritures</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{financeSummary.entries}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Factures clients</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{financeSummary.customerInvoices}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Factures fournisseurs</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{financeSummary.supplierInvoices}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Budgets</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{financeSummary.budgets}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Tresorerie</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{financeSummary.treasuryBalance.toFixed(2)}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Performance</p>
+            <p>Cash flow: {financeSummary.cashFlow.toFixed(2)}</p>
+            <p>EBITDA: {financeSummary.ebitda.toFixed(2)}</p>
+            <p>ROI: {financeSummary.roi.toFixed(2)}%</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Pilotage</p>
+            <p>Ecart budget: {financeSummary.budgetVariance.toFixed(2)}</p>
+            <p>Factures clients en retard: {financeSummary.customerOverdue}</p>
+            <p>Factures fournisseurs en retard: {financeSummary.supplierOverdue}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Observabilite</p>
+            <p>Timeline: {financeSummary.timeline}</p>
+            <p>Diagnostics: {financeSummary.diagnostics}</p>
+            <p>Journaux audit: {financeSummary.auditLogs}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => FinanceWorkspaceService.exportStore()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter finance JSON</button>
+          <button type="button" onClick={() => FinanceWorkspaceService.exportGeneralLedgerCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter grand livre CSV</button>
+          <button type="button" onClick={() => FinanceWorkspaceService.exportCustomerAgingCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter clients CSV</button>
+          <button type="button" onClick={() => FinanceWorkspaceService.exportSupplierAgingCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter fournisseurs CSV</button>
+          <button type="button" onClick={() => { void navigate({ to: '/finance' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Finance Workspace</button>
+        </div>
+      </Section>
+
+      <Section title="Human Resources History" description="Employes, organisation, contrats, paie, presences, conges, competences et recrutement.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Employes</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.employees}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Contrats</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.contracts}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Paies</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.payrollRecords}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Presences</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.attendanceRecords}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Conges</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.leaveRequests}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Evaluations</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{humanResourcesSummary.evaluations}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Workforce</p>
+            <p>Actifs: {humanResourcesSummary.activeEmployees}</p>
+            <p>Org units: {humanResourcesSummary.organizationUnits}</p>
+            <p>Skills: {humanResourcesSummary.skills}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Payroll & attendance</p>
+            <p>Payroll total: {humanResourcesSummary.payrollTotal.toFixed(2)}</p>
+            <p>Attendance hours: {humanResourcesSummary.attendanceHours.toFixed(2)}</p>
+            <p>Overtime hours: {humanResourcesSummary.overtimeHours.toFixed(2)}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Observabilite</p>
+            <p>Timeline: {humanResourcesSummary.timeline}</p>
+            <p>Diagnostics: {humanResourcesSummary.diagnostics}</p>
+            <p>Audit logs: {humanResourcesSummary.auditLogs}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => HumanResourcesWorkspaceService.exportStore()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter RH JSON</button>
+          <button type="button" onClick={() => HumanResourcesWorkspaceService.exportEmployeesCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter employes CSV</button>
+          <button type="button" onClick={() => HumanResourcesWorkspaceService.exportPayrollCsv()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter paie CSV</button>
+          <button type="button" onClick={() => { void navigate({ to: '/human-resources' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir HR Workspace</button>
         </div>
       </Section>
 
