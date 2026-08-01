@@ -32,6 +32,7 @@ import { Route as HistoryRouteImport } from './routes/history'
 import { Route as HrContractsRouteImport } from './routes/hr-contracts'
 import { Route as HumanResourcesRouteImport } from './routes/human-resources'
 import { Route as KnowledgeCenterRouteImport } from './routes/knowledge-center'
+import { Route as KnowledgeIntelligenceRouteImport } from './routes/knowledge-intelligence'
 import { Route as LeavesRouteImport } from './routes/leaves'
 import { Route as MaintenanceRouteImport } from './routes/maintenance'
 import { Route as ManagementControlRouteImport } from './routes/management-control'
@@ -168,6 +169,11 @@ const KnowledgeCenterRoute = KnowledgeCenterRouteImport.update({
   path: '/knowledge-center',
   getParentRoute: () => rootRouteImport,
 } as any)
+const KnowledgeIntelligenceRoute = KnowledgeIntelligenceRouteImport.update({
+  id: '/knowledge-intelligence',
+  path: '/knowledge-intelligence',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LeavesRoute = LeavesRouteImport.update({
   id: '/leaves',
   path: '/leaves',
@@ -293,6 +299,7 @@ export interface FileRoutesByFullPath {
   '/hr-contracts': typeof HrContractsRoute
   '/human-resources': typeof HumanResourcesRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
+  '/knowledge-intelligence': typeof KnowledgeIntelligenceRoute
   '/leaves': typeof LeavesRoute
   '/maintenance': typeof MaintenanceRoute
   '/management-control': typeof ManagementControlRoute
@@ -338,6 +345,7 @@ export interface FileRoutesByTo {
   '/hr-contracts': typeof HrContractsRoute
   '/human-resources': typeof HumanResourcesRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
+  '/knowledge-intelligence': typeof KnowledgeIntelligenceRoute
   '/leaves': typeof LeavesRoute
   '/maintenance': typeof MaintenanceRoute
   '/management-control': typeof ManagementControlRoute
@@ -384,6 +392,7 @@ export interface FileRoutesById {
   '/hr-contracts': typeof HrContractsRoute
   '/human-resources': typeof HumanResourcesRoute
   '/knowledge-center': typeof KnowledgeCenterRoute
+  '/knowledge-intelligence': typeof KnowledgeIntelligenceRoute
   '/leaves': typeof LeavesRoute
   '/maintenance': typeof MaintenanceRoute
   '/management-control': typeof ManagementControlRoute
@@ -431,6 +440,7 @@ export interface FileRouteTypes {
     | '/hr-contracts'
     | '/human-resources'
     | '/knowledge-center'
+    | '/knowledge-intelligence'
     | '/leaves'
     | '/maintenance'
     | '/management-control'
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/hr-contracts'
     | '/human-resources'
     | '/knowledge-center'
+    | '/knowledge-intelligence'
     | '/leaves'
     | '/maintenance'
     | '/management-control'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/hr-contracts'
     | '/human-resources'
     | '/knowledge-center'
+    | '/knowledge-intelligence'
     | '/leaves'
     | '/maintenance'
     | '/management-control'
@@ -567,6 +579,7 @@ export interface RootRouteChildren {
   HrContractsRoute: typeof HrContractsRoute
   HumanResourcesRoute: typeof HumanResourcesRoute
   KnowledgeCenterRoute: typeof KnowledgeCenterRoute
+  KnowledgeIntelligenceRoute: typeof KnowledgeIntelligenceRoute
   LeavesRoute: typeof LeavesRoute
   MaintenanceRoute: typeof MaintenanceRoute
   ManagementControlRoute: typeof ManagementControlRoute
@@ -752,6 +765,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof KnowledgeCenterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/knowledge-intelligence': {
+      id: '/knowledge-intelligence'
+      path: '/knowledge-intelligence'
+      fullPath: '/knowledge-intelligence'
+      preLoaderRoute: typeof KnowledgeIntelligenceRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/leaves': {
       id: '/leaves'
       path: '/leaves'
@@ -919,6 +939,7 @@ const rootRouteChildren: RootRouteChildren = {
   HrContractsRoute: HrContractsRoute,
   HumanResourcesRoute: HumanResourcesRoute,
   KnowledgeCenterRoute: KnowledgeCenterRoute,
+  KnowledgeIntelligenceRoute: KnowledgeIntelligenceRoute,
   LeavesRoute: LeavesRoute,
   MaintenanceRoute: MaintenanceRoute,
   ManagementControlRoute: ManagementControlRoute,

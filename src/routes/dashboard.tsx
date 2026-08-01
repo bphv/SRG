@@ -32,6 +32,7 @@ import { PromptReviewService } from '#/app/services/PromptReviewService'
 import { PromptSharingService } from '#/app/services/PromptSharingService'
 import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
 import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
+import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardPage,
@@ -131,6 +132,7 @@ function DashboardPage() {
   const humanResourcesSummary = HumanResourcesWorkspaceService.getSummary()
   const workflowSummary = WorkflowWorkspaceService.getDashboardSummary()
   const enterpriseInsightsSummary = EnterpriseInsightsWorkspaceService.getExecutiveDashboard()
+  const knowledgeIntelligenceSummary = KnowledgeIntelligenceWorkspaceService.getDashboardSummary()
 
   if (loading) {
     return (
@@ -363,12 +365,13 @@ function DashboardPage() {
       </Section>
 
       <Section title="Knowledge Workspace" description="Documents, collections, imports, indexation, favoris, top categories/tags et volume.">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Documents</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeSummary.documents}</p></div>
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Collections</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeSummary.collections}</p></div>
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Imports</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeSummary.imports}</p></div>
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Indexations</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeSummary.indexations}</p></div>
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Favoris</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeSummary.favorites}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Critiques</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeIntelligenceSummary.criticalDocuments}</p></div>
         </div>
         <div className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
@@ -413,6 +416,7 @@ function DashboardPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link to="/knowledge-center" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Knowledge Workspace</Link>
+          <Link to="/knowledge-intelligence" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir Knowledge Intelligence</Link>
         </div>
       </Section>
 

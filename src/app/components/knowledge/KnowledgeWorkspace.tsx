@@ -493,6 +493,7 @@ export default function KnowledgeWorkspace() {
             ['/reviews', 'Marketplace'],
             ['/history', 'History'],
             ['/dashboard', 'Dashboard'],
+            ['/knowledge-intelligence', 'Knowledge Intelligence'],
             ['/knowledge-center', 'Knowledge Center'],
           ].map(([href, label]) => (
             <Link

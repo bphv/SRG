@@ -22,6 +22,7 @@ import { HumanResourcesWorkspaceService } from '#/app/services/HumanResourcesWor
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
 import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
+import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
@@ -147,6 +148,8 @@ function HistoryPage() {
   const decisionHistory = EnterpriseInsightsWorkspaceService.getDecisionHistory()
   const recommendationHistory = EnterpriseInsightsWorkspaceService.getRecommendationsHistory()
   const comparisonHistory = EnterpriseInsightsWorkspaceService.getComparisonsHistory()
+  const knowledgeIntelligenceStore = KnowledgeIntelligenceWorkspaceService.getStore()
+  const knowledgeTimeline = KnowledgeIntelligenceWorkspaceService.getDocumentTimeline()
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -321,6 +324,28 @@ function HistoryPage() {
     { key: 'title', label: 'Title', sortable: true },
     { key: 'detail', label: 'Detail' },
     { key: 'source', label: 'Source' },
+    { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
+  ]
+
+  const knowledgeQuestionColumns: Array<DataTableColumn<(typeof knowledgeIntelligenceStore.questionHistory)[number]>> = [
+    { key: 'question', label: 'Question', sortable: true },
+    { key: 'confidence', label: 'Confidence', sortable: true, render: (row) => `${row.confidence}%` },
+    { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
+  ]
+
+  const knowledgeComparisonColumns: Array<DataTableColumn<(typeof knowledgeIntelligenceStore.comparisons)[number]>> = [
+    { key: 'leftTitle', label: 'Left', sortable: true },
+    { key: 'rightTitle', label: 'Right', sortable: true },
+    { key: 'added', label: 'Added', render: (row) => row.added.length },
+    { key: 'removed', label: 'Removed', render: (row) => row.removed.length },
+    { key: 'modified', label: 'Modified', render: (row) => row.modified.length },
+    { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
+  ]
+
+  const knowledgeTimelineColumns: Array<DataTableColumn<(typeof knowledgeTimeline)[number]>> = [
+    { key: 'type', label: 'Type', sortable: true },
+    { key: 'title', label: 'Title', sortable: true },
+    { key: 'detail', label: 'Detail' },
     { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
   ]
 
@@ -853,6 +878,64 @@ function HistoryPage() {
               <button type="button" onClick={() => EnterpriseInsightsWorkspaceService.exportDecisionHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Decision History</button>
               <button type="button" onClick={() => EnterpriseInsightsWorkspaceService.exportRecommendationsHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Recommendations History</button>
               <button type="button" onClick={() => EnterpriseInsightsWorkspaceService.exportComparisonsHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Comparisons History</button>
+            </div>
+          </div>
+        )}
+      </Section>
+
+      <Section title="Knowledge Intelligence History" description="Document Q&A, comparison and timeline history with exports.">
+        {knowledgeIntelligenceStore.questionHistory.length === 0 && knowledgeIntelligenceStore.comparisons.length === 0 && knowledgeTimeline.length === 0 ? (
+          <EmptyState
+            eyebrow="Knowledge Intelligence"
+            illustration={<span aria-hidden>◌</span>}
+            title="Aucun historique knowledge intelligence"
+            description="Exécutez des questions ou comparaisons depuis Knowledge Intelligence pour générer l'historique."
+          />
+        ) : (
+          <div className="space-y-4">
+            <DataTable
+              tableId="history-knowledge-intelligence-questions"
+              title="Knowledge Questions"
+              rows={knowledgeIntelligenceStore.questionHistory}
+              columns={knowledgeQuestionColumns}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-knowledge-intelligence-questions.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-knowledge-intelligence-questions-selected.json', rows) },
+              ]}
+            />
+            <DataTable
+              tableId="history-knowledge-intelligence-comparisons"
+              title="Knowledge Comparisons"
+              rows={knowledgeIntelligenceStore.comparisons}
+              columns={knowledgeComparisonColumns}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-knowledge-intelligence-comparisons.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-knowledge-intelligence-comparisons-selected.json', rows) },
+              ]}
+            />
+            <DataTable
+              tableId="history-knowledge-intelligence-timeline"
+              title="Knowledge Timeline"
+              rows={knowledgeTimeline}
+              columns={knowledgeTimelineColumns}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-knowledge-intelligence-timeline.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-knowledge-intelligence-timeline-selected.json', rows) },
+              ]}
+            />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => KnowledgeIntelligenceWorkspaceService.exportQuestionHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Questions</button>
+              <button type="button" onClick={() => KnowledgeIntelligenceWorkspaceService.exportComparisons()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Comparaisons</button>
+              <button type="button" onClick={() => KnowledgeIntelligenceWorkspaceService.exportTimeline()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Timeline</button>
             </div>
           </div>
         )}

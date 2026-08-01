@@ -11,6 +11,7 @@ import { HumanResourcesWorkspaceService } from '#/app/services/HumanResourcesWor
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
 import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
 import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
+import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
 
 export const Route = createFileRoute('/observability')({
   component: ObservabilityPage,
@@ -32,6 +33,7 @@ function ObservabilityPage() {
   const humanResourcesStore = HumanResourcesWorkspaceService.getStore()
   const workflowObservability = WorkflowWorkspaceService.getObservability()
   const enterpriseObservability = EnterpriseInsightsWorkspaceService.getObservability()
+  const knowledgeIntelligenceObservability = KnowledgeIntelligenceWorkspaceService.getObservability()
 
   return (
     <div className="space-y-6">
@@ -293,6 +295,29 @@ function ObservabilityPage() {
             <p className="font-semibold text-[var(--srg-text-title)]">Diagnostic timeline</p>
             <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
               {enterpriseObservability.diagnosticTimeline.slice(0, 12).map((item) => <p key={item.date}>{item.date} | risk {item.riskCount} | opp {item.opportunityCount} | rec {item.recommendationCount} | pred {item.predictionCount}</p>)}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Knowledge Intelligence Observability" description="Knowledge events, metrics snapshots, document queries and timeline diagnostics.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Knowledge events</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeIntelligenceObservability.knowledgeEvents.length}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Snapshots</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeIntelligenceObservability.knowledgeMetrics.snapshots}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Queries</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeIntelligenceObservability.documentQueries.total}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Timeline items</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{knowledgeIntelligenceObservability.knowledgeTimeline.length}</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 xl:grid-cols-2 text-sm">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Knowledge events</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {knowledgeIntelligenceObservability.knowledgeEvents.slice(0, 12).map((item) => <p key={item.id}>{item.type} | {item.title} | {item.detail}</p>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Knowledge timeline</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {knowledgeIntelligenceObservability.knowledgeTimeline.slice(0, 12).map((item) => <p key={item.id}>{item.type} | {item.title} | {new Date(item.createdAt).toLocaleString()}</p>)}
             </div>
           </div>
         </div>

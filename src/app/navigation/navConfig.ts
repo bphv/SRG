@@ -57,6 +57,13 @@ export const navItems: AppNavItem[] = [
     icon: '📚',
   },
   {
+    id: 'knowledge-intelligence',
+    title: 'Knowledge Intelligence',
+    description: 'Document reasoning, comparison, semantic Q&A, graph and observability for enterprise knowledge.',
+    path: '/knowledge-intelligence',
+    icon: '🧩',
+  },
+  {
     id: 'business-policy',
     title: 'Business Policy',
     description: 'Define enterprise policy, coefficients, supplies, labor and simulations.',
