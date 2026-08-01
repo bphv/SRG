@@ -7,6 +7,7 @@ import CollaborationActivityFeed from '#/app/components/collaboration/Collaborat
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { AgentWorkspaceService } from '#/app/services/AgentWorkspaceService'
+import { KnowledgeWorkspaceService } from '#/app/services/KnowledgeWorkspaceService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
@@ -126,6 +127,7 @@ function HistoryPage() {
   const comparedRecords = sortedRecords.filter((item) => selectedCompareIds.includes(item.id)).slice(0, 2)
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
   const agentSummary = AgentWorkspaceService.getSummary()
+  const knowledgeSummary = KnowledgeWorkspaceService.getSummary()
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -267,6 +269,35 @@ function HistoryPage() {
         <div className="mt-3 flex flex-wrap gap-2">
           <button type="button" onClick={() => AgentWorkspaceService.exportAgents()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter agents/workflows</button>
           <button type="button" onClick={() => { void navigate({ to: '/agents' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Agents Workspace</button>
+        </div>
+      </Section>
+
+      <Section title="Knowledge History" description="Imports, suppressions, indexations, recherches, consultations et exports.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Imports</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.importHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Suppressions</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.deletionHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Indexations</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.indexationHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Recherches</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.searchHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Consultations</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.consultationHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Exports</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.exportHistory.length}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-3 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Imports</p>
+            {knowledgeSummary.importHistory.slice(0, 6).map((item) => <p key={item.id}>{item.type} | {item.documentIds.length} docs | {new Date(item.createdAt).toLocaleString()}</p>)}
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Searches</p>
+            {knowledgeSummary.searchHistory.slice(0, 6).map((item) => <p key={item.id}>{item.query || 'empty'} | {item.resultCount} results | semantic UI {item.semanticUi ? 'yes' : 'no'}</p>)}
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Exports</p>
+            {knowledgeSummary.exportHistory.slice(0, 6).map((item) => <p key={item.id}>{item.format} | {item.documentIds.length} docs | {new Date(item.createdAt).toLocaleString()}</p>)}
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => WorkspaceExchangeService.downloadJson('srg-knowledge-history.json', knowledgeSummary)} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter history knowledge JSON</button>
+          <button type="button" onClick={() => { void navigate({ to: '/knowledge-center' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Knowledge Workspace</button>
         </div>
       </Section>
 

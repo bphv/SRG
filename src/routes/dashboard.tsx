@@ -19,6 +19,7 @@ import { PromptService } from '#/app/services/PromptService'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { AgentWorkspaceService } from '#/app/services/AgentWorkspaceService'
+import { KnowledgeWorkspaceService } from '#/app/services/KnowledgeWorkspaceService'
 import { PromptCollectionService } from '#/app/services/PromptCollectionService'
 import { PromptMarketplaceService } from '#/app/services/PromptMarketplaceService'
 import { PromptReviewService } from '#/app/services/PromptReviewService'
@@ -113,6 +114,7 @@ function DashboardPage() {
   const topCollections = [...collections].sort((left, right) => right.promptIds.length - left.promptIds.length).slice(0, 4)
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
   const agentSummary = AgentWorkspaceService.getSummary()
+  const knowledgeSummary = KnowledgeWorkspaceService.getSummary()
 
   if (loading) {
     return (
@@ -302,6 +304,39 @@ function DashboardPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link to="/agents" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Agents Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Knowledge Workspace" description="Documents, collections, imports, indexation, favoris, top categories/tags et volume.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Documents</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.documents}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Collections</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.collections}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Imports</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.imports}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Indexations</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.indexations}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Favoris</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{knowledgeSummary.favorites}</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top categories</p>
+            <div className="mt-3 space-y-2 text-sm">{knowledgeSummary.topCategories.map((item) => <div key={item.category} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.category} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top tags</p>
+            <div className="mt-3 space-y-2 text-sm">{knowledgeSummary.topTags.map((item) => <div key={item.tag} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.tag} • {item.count}</div>)}</div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Latest imports</p>
+            <div className="mt-3 space-y-2 text-sm">{knowledgeSummary.lastImports.slice(0, 6).map((item) => <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.type} • {item.documentIds.length} docs</div>)}</div>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Volume:</strong> {knowledgeSummary.volume}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Import graph:</strong> {knowledgeSummary.charts.imports.join(' / ') || 'n/a'}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Index graph:</strong> {knowledgeSummary.charts.indexations.join(' / ') || 'n/a'}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Search graph:</strong> {knowledgeSummary.charts.searches.join(' / ') || 'n/a'}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/knowledge-center" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Knowledge Workspace</Link>
         </div>
       </Section>
 
