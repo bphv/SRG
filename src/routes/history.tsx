@@ -6,6 +6,7 @@ import Section from '#/app/components/Section'
 import CollaborationActivityFeed from '#/app/components/collaboration/CollaborationActivityFeed'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
+import { AgentWorkspaceService } from '#/app/services/AgentWorkspaceService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
@@ -124,6 +125,7 @@ function HistoryPage() {
 
   const comparedRecords = sortedRecords.filter((item) => selectedCompareIds.includes(item.id)).slice(0, 2)
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
+  const agentSummary = AgentWorkspaceService.getSummary()
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -241,6 +243,30 @@ function HistoryPage() {
           <p>Lifecycle: running {conversationSummary.lifecycle.running} • completed {conversationSummary.lifecycle.completed} • cancelled {conversationSummary.lifecycle.cancelled} • failed {conversationSummary.lifecycle.failed}</p>
           <p>Progression streaming moyenne: {conversationSummary.lifecycle.avgStreamProgress}%</p>
           <p>Tokens chart: {conversationSummary.charts.tokens.join(' / ') || 'n/a'}</p>
+        </div>
+      </Section>
+
+      <Section title="AI Agents History" description="Historique des agents, workflows, automatisations, erreurs et executions.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Agents</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{agentSummary.agentHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Workflows</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{agentSummary.workflowHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Automatisations</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{agentSummary.automationHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Erreurs</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{agentSummary.errorHistory.length}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Executions</p><p className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">{agentSummary.executionHistory.length}</p></div>
+        </div>
+        <div className="mt-3 grid gap-3 lg:grid-cols-2 text-xs text-[var(--sea-ink-soft)]">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Workflow history</p>
+            {agentSummary.workflowHistory.slice(0, 6).map((workflow) => <p key={workflow.id}>{workflow.name} | {workflow.status} | {new Date(workflow.updatedAt).toLocaleString()}</p>)}
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4">
+            <p className="font-semibold text-[var(--sea-ink)]">Execution history</p>
+            {agentSummary.executionHistory.slice(0, 6).map((execution) => <p key={execution.id}>{execution.sourceType} | {execution.status} | {execution.latencyMs}ms | ${execution.cost.toFixed(6)}</p>)}
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <button type="button" onClick={() => AgentWorkspaceService.exportAgents()} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter agents/workflows</button>
+          <button type="button" onClick={() => { void navigate({ to: '/agents' }) }} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Agents Workspace</button>
         </div>
       </Section>
 

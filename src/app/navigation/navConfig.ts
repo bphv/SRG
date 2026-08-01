@@ -8,6 +8,13 @@ export type AppNavItem = {
 
 export const navItems: AppNavItem[] = [
   {
+    id: 'agents',
+    title: 'AI Agents',
+    description: 'No-code agent builder, workflows, automation, memory and observability.',
+    path: '/agents',
+    icon: '🤖',
+  },
+  {
     id: 'chat',
     title: 'AI Workspace',
     description: 'Daily conversation workspace with multi-provider chat and sessions.',

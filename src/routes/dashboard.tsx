@@ -18,6 +18,7 @@ import { ProjectService } from '#/app/services/ProjectService'
 import { PromptService } from '#/app/services/PromptService'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
+import { AgentWorkspaceService } from '#/app/services/AgentWorkspaceService'
 import { PromptCollectionService } from '#/app/services/PromptCollectionService'
 import { PromptMarketplaceService } from '#/app/services/PromptMarketplaceService'
 import { PromptReviewService } from '#/app/services/PromptReviewService'
@@ -111,6 +112,7 @@ function DashboardPage() {
   const reviewCount = reviewRecords.length
   const topCollections = [...collections].sort((left, right) => right.promptIds.length - left.promptIds.length).slice(0, 4)
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
+  const agentSummary = AgentWorkspaceService.getSummary()
 
   if (loading) {
     return (
@@ -281,6 +283,25 @@ function DashboardPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link to="/chat" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="AI Agents" description="Agents, automatisations, executions et observabilite.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Nombre d'agents</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{agentSummary.totalAgents}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Agents actifs</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{agentSummary.activeAgents}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Favoris</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{agentSummary.favoriteAgents}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Automatisations</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{agentSummary.automations}</p></div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Dernieres executions</p><p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{agentSummary.totalExecutions}</p></div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4 text-sm">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Cout:</strong> ${agentSummary.totalCost.toFixed(6)}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Credits/Tokens:</strong> {agentSummary.totalTokens}</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Temps moyen:</strong> {agentSummary.averageLatencyMs} ms</div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Failures:</strong> {agentSummary.failures}</div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/agents" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Agents Workspace</Link>
         </div>
       </Section>
 
