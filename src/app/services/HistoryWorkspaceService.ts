@@ -13,7 +13,7 @@ export type WorkspaceHistoryRecord = {
   tokensOutput: number
   costEstimate: number
   createdAt: string
-  requestKind: 'generation' | 'prompt-test' | 'collaboration'
+  requestKind: 'generation' | 'prompt-test' | 'collaboration' | 'workflow'
   projectId?: string
   projectName?: string
   templateId?: string
@@ -23,7 +23,7 @@ export type WorkspaceHistoryRecord = {
   latencyMs?: number
   providerSdkVersion?: string
   actorName?: string
-  entityType?: 'project' | 'prompt' | 'template'
+  entityType?: 'project' | 'prompt' | 'template' | 'workflow'
   entityId?: string
   eventType?:
     | 'creation'

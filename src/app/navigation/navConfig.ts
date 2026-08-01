@@ -239,6 +239,20 @@ export const navItems: AppNavItem[] = [
     icon: '✨',
   },
   {
+    id: 'workflow-automation',
+    title: 'Workflow Automation',
+    description: 'Enterprise workflow designer, automation library, simulation, logs and observability.',
+    path: '/workflow-automation',
+    icon: '🧭',
+  },
+  {
+    id: 'enterprise-insights',
+    title: 'Enterprise Insights',
+    description: 'Decision support workspace with executive analytics, recommendations, risks and opportunities.',
+    path: '/enterprise-insights',
+    icon: '🧠',
+  },
+  {
     id: 'providers',
     title: 'Providers',
     description: 'Configure AI providers and endpoints.',

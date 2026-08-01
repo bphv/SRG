@@ -20,6 +20,8 @@ import { MaintenanceWorkspaceService } from '#/app/services/MaintenanceWorkspace
 import { FinanceWorkspaceService } from '#/app/services/FinanceWorkspaceService'
 import { HumanResourcesWorkspaceService } from '#/app/services/HumanResourcesWorkspaceService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
+import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
+import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
@@ -132,6 +134,7 @@ function HistoryPage() {
   }, [filteredRecords, activeSortKey, activeSortOrder])
 
   const comparedRecords = sortedRecords.filter((item) => selectedCompareIds.includes(item.id)).slice(0, 2)
+  const workflowLogs = WorkflowWorkspaceService.listLogs()
   const conversationSummary = ConversationWorkspaceService.getGlobalSummary()
   const agentSummary = AgentWorkspaceService.getSummary()
   const knowledgeSummary = KnowledgeWorkspaceService.getSummary()
@@ -141,6 +144,9 @@ function HistoryPage() {
   const maintenanceSummary = MaintenanceWorkspaceService.getSummary()
   const financeSummary = FinanceWorkspaceService.getSummary()
   const humanResourcesSummary = HumanResourcesWorkspaceService.getSummary()
+  const decisionHistory = EnterpriseInsightsWorkspaceService.getDecisionHistory()
+  const recommendationHistory = EnterpriseInsightsWorkspaceService.getRecommendationsHistory()
+  const comparisonHistory = EnterpriseInsightsWorkspaceService.getComparisonsHistory()
 
   const refresh = () => {
     setRecords(HistoryWorkspaceService.getRecords())
@@ -298,6 +304,24 @@ function HistoryPage() {
         refresh()
       },
     },
+  ]
+
+  const workflowLogColumns: Array<DataTableColumn<(typeof workflowLogs)[number]>> = [
+    { key: 'workflowName', label: 'Workflow', sortable: true },
+    { key: 'module', label: 'Module', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+    { key: 'automationMode', label: 'Mode', sortable: true },
+    { key: 'latencyMs', label: 'Latency', sortable: true, render: (row) => `${row.latencyMs} ms` },
+    { key: 'startedAt', label: 'Started', sortable: true, render: (row) => new Date(row.startedAt).toLocaleString() },
+    { key: 'message', label: 'Message' },
+  ]
+
+  const enterpriseHistoryColumns: Array<DataTableColumn<(typeof decisionHistory)[number]>> = [
+    { key: 'type', label: 'Type', sortable: true },
+    { key: 'title', label: 'Title', sortable: true },
+    { key: 'detail', label: 'Detail' },
+    { key: 'source', label: 'Source' },
+    { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
   ]
 
   useEffect(() => {
@@ -745,6 +769,92 @@ function HistoryPage() {
             multiSelect
             bulkActions={bulkActions}
           />
+        )}
+      </Section>
+
+      <Section title="Workflow History" description="Historique workflow, filtres, recherche, export et timeline automation.">
+        {workflowLogs.length === 0 ? (
+          <EmptyState
+            eyebrow="Workflow"
+            illustration={<span aria-hidden>◌</span>}
+            title="Aucun log workflow"
+            description="Lancez une simulation depuis Workflow Automation pour initialiser l'historique."
+          />
+        ) : (
+          <DataTable
+            tableId="history-workflow-logs"
+            title="Workflow execution history"
+            rows={workflowLogs}
+            columns={workflowLogColumns}
+            searchable
+            pageSize={8}
+            exportFileName="srg-history-workflow-logs.csv"
+            multiSelect
+            bulkActions={[
+              {
+                label: 'Exporter sélection',
+                onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-workflow-history-selected.json', rows),
+              },
+            ]}
+          />
+        )}
+      </Section>
+
+      <Section title="Enterprise Decision History" description="Decision History, Recommendations History, Comparisons History and exports.">
+        {decisionHistory.length === 0 && recommendationHistory.length === 0 && comparisonHistory.length === 0 ? (
+          <EmptyState
+            eyebrow="Enterprise Insights"
+            illustration={<span aria-hidden>◌</span>}
+            title="Aucun historique décisionnel"
+            description="Déclenchez un refresh depuis Enterprise Insights pour générer décisions et recommandations."
+          />
+        ) : (
+          <div className="space-y-4">
+            <DataTable
+              tableId="history-enterprise-decisions"
+              title="Decision History"
+              rows={decisionHistory}
+              columns={enterpriseHistoryColumns}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-enterprise-decisions.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-enterprise-decisions-selected.json', rows) },
+              ]}
+            />
+            <DataTable
+              tableId="history-enterprise-recommendations"
+              title="Recommendations History"
+              rows={recommendationHistory}
+              columns={enterpriseHistoryColumns}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-enterprise-recommendations.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-enterprise-recommendations-selected.json', rows) },
+              ]}
+            />
+            <DataTable
+              tableId="history-enterprise-comparisons"
+              title="Comparisons History"
+              rows={comparisonHistory}
+              columns={enterpriseHistoryColumns}
+              searchable
+              pageSize={8}
+              exportFileName="srg-history-enterprise-comparisons.csv"
+              multiSelect
+              bulkActions={[
+                { label: 'Exporter sélection', onClick: (rows) => WorkspaceExchangeService.downloadJson('srg-history-enterprise-comparisons-selected.json', rows) },
+              ]}
+            />
+            <div className="flex flex-wrap gap-2">
+              <button type="button" onClick={() => EnterpriseInsightsWorkspaceService.exportDecisionHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Decision History</button>
+              <button type="button" onClick={() => EnterpriseInsightsWorkspaceService.exportRecommendationsHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Recommendations History</button>
+              <button type="button" onClick={() => EnterpriseInsightsWorkspaceService.exportComparisonsHistory()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter Comparisons History</button>
+            </div>
+          </div>
         )}
       </Section>
 

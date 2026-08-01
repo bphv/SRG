@@ -30,6 +30,8 @@ import { PromptCollectionService } from '#/app/services/PromptCollectionService'
 import { PromptMarketplaceService } from '#/app/services/PromptMarketplaceService'
 import { PromptReviewService } from '#/app/services/PromptReviewService'
 import { PromptSharingService } from '#/app/services/PromptSharingService'
+import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
+import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardPage,
@@ -127,6 +129,8 @@ function DashboardPage() {
   const maintenanceSummary = MaintenanceWorkspaceService.getSummary()
   const financeSummary = FinanceWorkspaceService.getSummary()
   const humanResourcesSummary = HumanResourcesWorkspaceService.getSummary()
+  const workflowSummary = WorkflowWorkspaceService.getDashboardSummary()
+  const enterpriseInsightsSummary = EnterpriseInsightsWorkspaceService.getExecutiveDashboard()
 
   if (loading) {
     return (
@@ -179,6 +183,28 @@ function DashboardPage() {
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-muted)]"><strong className="text-[var(--srg-text-title)]">Temps moyen:</strong> {kpis.averageGenerationTime}</div>
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-muted)]"><strong className="text-[var(--srg-text-title)]">Taux de succes:</strong> {kpis.successRate}</div>
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm text-[var(--srg-text-muted)]"><strong className="text-[var(--srg-text-title)]">Provider actif:</strong> {overview.activeProvider}</div>
+        </div>
+      </Section>
+
+      <Section title="Enterprise Intelligence" description="Executive summary, top risks, opportunities and recommendations.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Confidence</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseInsightsSummary.executiveSummary.confidence}%</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top recommendations</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseInsightsSummary.topRecommendations.length}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top risks</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseInsightsSummary.topRisks.length}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top opportunities</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseInsightsSummary.topOpportunities.length}</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 xl:grid-cols-2 text-sm">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Executive summary</p>
+            <p className="mt-2 text-[var(--srg-text-muted)]">{enterpriseInsightsSummary.executiveSummary.overview}</p>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top recommendation</p>
+            <p className="mt-2 text-[var(--srg-text-muted)]">{enterpriseInsightsSummary.topRecommendations[0]?.title ?? 'n/a'}</p>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/enterprise-insights" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Enterprise Insights</Link>
         </div>
       </Section>
 
@@ -316,6 +342,23 @@ function DashboardPage() {
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link to="/agents" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Ouvrir AI Agents Workspace</Link>
+        </div>
+      </Section>
+
+      <Section title="Workflow Automation" description="Workflows transverses, simulation et orchestration intelligente.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Workflows</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowSummary.totalWorkflows}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Actifs</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowSummary.active}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Terminés</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowSummary.completed}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Échoués</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowSummary.failed}</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Temps moyen</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowSummary.avgDurationMs} ms</p></div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Succès</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowSummary.successRate}%</p></div>
+        </div>
+        <div className="mt-4 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-xs text-[var(--srg-text-muted)]">
+          <p>Timeline: {workflowSummary.timeline.slice(0, 6).join(' | ') || 'n/a'}</p>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/workflow-automation" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Ouvrir Workflow Automation</Link>
         </div>
       </Section>
 

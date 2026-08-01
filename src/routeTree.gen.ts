@@ -21,6 +21,7 @@ import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DevisRouteImport } from './routes/devis'
 import { Route as EmployeesRouteImport } from './routes/employees'
+import { Route as EnterpriseInsightsRouteImport } from './routes/enterprise-insights'
 import { Route as EvaluationsRouteImport } from './routes/evaluations'
 import { Route as FinanceRouteImport } from './routes/finance'
 import { Route as FinanceBudgetsRouteImport } from './routes/finance-budgets'
@@ -50,6 +51,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as SkillsRouteImport } from './routes/skills'
 import { Route as TrainingsRouteImport } from './routes/trainings'
 import { Route as TreasuryRouteImport } from './routes/treasury'
+import { Route as WorkflowAutomationRouteImport } from './routes/workflow-automation'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -109,6 +111,11 @@ const DevisRoute = DevisRouteImport.update({
 const EmployeesRoute = EmployeesRouteImport.update({
   id: '/employees',
   path: '/employees',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EnterpriseInsightsRoute = EnterpriseInsightsRouteImport.update({
+  id: '/enterprise-insights',
+  path: '/enterprise-insights',
   getParentRoute: () => rootRouteImport,
 } as any)
 const EvaluationsRoute = EvaluationsRouteImport.update({
@@ -256,6 +263,11 @@ const TreasuryRoute = TreasuryRouteImport.update({
   path: '/treasury',
   getParentRoute: () => rootRouteImport,
 } as any)
+const WorkflowAutomationRoute = WorkflowAutomationRouteImport.update({
+  id: '/workflow-automation',
+  path: '/workflow-automation',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -270,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/devis': typeof DevisRoute
   '/employees': typeof EmployeesRoute
+  '/enterprise-insights': typeof EnterpriseInsightsRoute
   '/evaluations': typeof EvaluationsRoute
   '/finance': typeof FinanceRoute
   '/finance-budgets': typeof FinanceBudgetsRoute
@@ -299,6 +312,7 @@ export interface FileRoutesByFullPath {
   '/skills': typeof SkillsRoute
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
+  '/workflow-automation': typeof WorkflowAutomationRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -313,6 +327,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/devis': typeof DevisRoute
   '/employees': typeof EmployeesRoute
+  '/enterprise-insights': typeof EnterpriseInsightsRoute
   '/evaluations': typeof EvaluationsRoute
   '/finance': typeof FinanceRoute
   '/finance-budgets': typeof FinanceBudgetsRoute
@@ -342,6 +357,7 @@ export interface FileRoutesByTo {
   '/skills': typeof SkillsRoute
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
+  '/workflow-automation': typeof WorkflowAutomationRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -357,6 +373,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/devis': typeof DevisRoute
   '/employees': typeof EmployeesRoute
+  '/enterprise-insights': typeof EnterpriseInsightsRoute
   '/evaluations': typeof EvaluationsRoute
   '/finance': typeof FinanceRoute
   '/finance-budgets': typeof FinanceBudgetsRoute
@@ -386,6 +403,7 @@ export interface FileRoutesById {
   '/skills': typeof SkillsRoute
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
+  '/workflow-automation': typeof WorkflowAutomationRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -402,6 +420,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devis'
     | '/employees'
+    | '/enterprise-insights'
     | '/evaluations'
     | '/finance'
     | '/finance-budgets'
@@ -431,6 +450,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/trainings'
     | '/treasury'
+    | '/workflow-automation'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -445,6 +465,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devis'
     | '/employees'
+    | '/enterprise-insights'
     | '/evaluations'
     | '/finance'
     | '/finance-budgets'
@@ -474,6 +495,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/trainings'
     | '/treasury'
+    | '/workflow-automation'
   id:
     | '__root__'
     | '/'
@@ -488,6 +510,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/devis'
     | '/employees'
+    | '/enterprise-insights'
     | '/evaluations'
     | '/finance'
     | '/finance-budgets'
@@ -517,6 +540,7 @@ export interface FileRouteTypes {
     | '/skills'
     | '/trainings'
     | '/treasury'
+    | '/workflow-automation'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -532,6 +556,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   DevisRoute: typeof DevisRoute
   EmployeesRoute: typeof EmployeesRoute
+  EnterpriseInsightsRoute: typeof EnterpriseInsightsRoute
   EvaluationsRoute: typeof EvaluationsRoute
   FinanceRoute: typeof FinanceRoute
   FinanceBudgetsRoute: typeof FinanceBudgetsRoute
@@ -561,6 +586,7 @@ export interface RootRouteChildren {
   SkillsRoute: typeof SkillsRoute
   TrainingsRoute: typeof TrainingsRoute
   TreasuryRoute: typeof TreasuryRoute
+  WorkflowAutomationRoute: typeof WorkflowAutomationRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -647,6 +673,13 @@ declare module '@tanstack/react-router' {
       path: '/employees'
       fullPath: '/employees'
       preLoaderRoute: typeof EmployeesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/enterprise-insights': {
+      id: '/enterprise-insights'
+      path: '/enterprise-insights'
+      fullPath: '/enterprise-insights'
+      preLoaderRoute: typeof EnterpriseInsightsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/evaluations': {
@@ -852,6 +885,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TreasuryRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/workflow-automation': {
+      id: '/workflow-automation'
+      path: '/workflow-automation'
+      fullPath: '/workflow-automation'
+      preLoaderRoute: typeof WorkflowAutomationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -868,6 +908,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   DevisRoute: DevisRoute,
   EmployeesRoute: EmployeesRoute,
+  EnterpriseInsightsRoute: EnterpriseInsightsRoute,
   EvaluationsRoute: EvaluationsRoute,
   FinanceRoute: FinanceRoute,
   FinanceBudgetsRoute: FinanceBudgetsRoute,
@@ -897,6 +938,7 @@ const rootRouteChildren: RootRouteChildren = {
   SkillsRoute: SkillsRoute,
   TrainingsRoute: TrainingsRoute,
   TreasuryRoute: TreasuryRoute,
+  WorkflowAutomationRoute: WorkflowAutomationRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

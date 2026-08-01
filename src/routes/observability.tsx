@@ -9,6 +9,8 @@ import { ProjectExecutionWorkspaceService } from '#/app/services/ProjectExecutio
 import { FinanceWorkspaceService } from '#/app/services/FinanceWorkspaceService'
 import { HumanResourcesWorkspaceService } from '#/app/services/HumanResourcesWorkspaceService'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
+import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
+import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
 
 export const Route = createFileRoute('/observability')({
   component: ObservabilityPage,
@@ -28,6 +30,8 @@ function ObservabilityPage() {
   const financeStore = FinanceWorkspaceService.getStore()
   const humanResources = HumanResourcesWorkspaceService.getSummary()
   const humanResourcesStore = HumanResourcesWorkspaceService.getStore()
+  const workflowObservability = WorkflowWorkspaceService.getObservability()
+  const enterpriseObservability = EnterpriseInsightsWorkspaceService.getObservability()
 
   return (
     <div className="space-y-6">
@@ -230,6 +234,65 @@ function ObservabilityPage() {
             <p className="font-semibold text-[var(--srg-text-title)]">Audit trail</p>
             <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
               {humanResourcesStore.auditLogs.slice(0, 12).map((item) => <p key={item.id}>{item.action} | {item.entity} | {new Date(item.createdAt).toLocaleString()}</p>)}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Workflow Automation Observability" description="Events, distribution, latency and reliability for transverse workflow automation.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Events</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowObservability.metrics.events}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Latency avg</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowObservability.metrics.latencyAvg} ms</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Latency p95</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowObservability.metrics.latencyP95} ms</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Success</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowObservability.metrics.success}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Failures</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{workflowObservability.metrics.failures}</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 xl:grid-cols-2 text-sm">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Execution graph</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {workflowObservability.executionGraph.length === 0
+                ? <p>n/a</p>
+                : workflowObservability.executionGraph.slice(0, 12).map((item) => <p key={item.id}>{item.label} | {item.module} | {item.status} | {item.latencyMs} ms</p>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Diagnostics</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {workflowObservability.diagnostics.length === 0
+                ? <p>n/a</p>
+                : workflowObservability.diagnostics.slice(0, 12).map((item) => <p key={item.id}>{item.status} | {item.message} | {item.latencyMs} ms</p>)}
+            </div>
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Enterprise Decision Observability" description="Decision events, insight metrics, recommendation metrics, prediction metrics and diagnostic timeline.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Decision events</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseObservability.insightMetrics.events}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Insight refreshes</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseObservability.insightMetrics.refreshes}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Recommendations</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseObservability.recommendationMetrics.totalRecommendations}</p></div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Predictions</p><p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{enterpriseObservability.predictionMetrics.totalPredictions}</p></div>
+        </div>
+        <div className="mt-4 grid gap-4 xl:grid-cols-3 text-sm">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Decision events</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {enterpriseObservability.decisionEvents.slice(0, 12).map((item) => <p key={item.id}>{item.type} | {item.view} | {item.severity} | {item.title}</p>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Recommendation metrics</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              <p>High priority recommendations: {enterpriseObservability.insightMetrics.highPriorityRecommendations}</p>
+              <p>Average confidence: {enterpriseObservability.recommendationMetrics.avgConfidence}%</p>
+              <p>Avg predictions/day: {enterpriseObservability.predictionMetrics.avgPredictionsPerDay}</p>
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5">
+            <p className="font-semibold text-[var(--srg-text-title)]">Diagnostic timeline</p>
+            <div className="mt-3 space-y-2 text-xs text-[var(--srg-text-muted)]">
+              {enterpriseObservability.diagnosticTimeline.slice(0, 12).map((item) => <p key={item.date}>{item.date} | risk {item.riskCount} | opp {item.opportunityCount} | rec {item.recommendationCount} | pred {item.predictionCount}</p>)}
             </div>
           </div>
         </div>
