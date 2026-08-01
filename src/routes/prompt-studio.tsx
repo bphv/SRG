@@ -1,5 +1,6 @@
+import type { ChangeEvent } from 'react'
 import { useMemo, useState } from 'react'
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
 import PromptActionsMenu from '#/app/components/PromptActionsMenu'
@@ -21,6 +22,12 @@ import { usePrompts } from '#/app/hooks/usePrompts'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { runPromptTest } from '#/app/services/PromptTestService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
+import { PromptCollectionService } from '#/app/services/PromptCollectionService'
+import { PromptImportExportService } from '#/app/services/PromptImportExportService'
+import { PromptMarketplaceService } from '#/app/services/PromptMarketplaceService'
+import { PromptPublishingService } from '#/app/services/PromptPublishingService'
+import { PromptReviewService } from '#/app/services/PromptReviewService'
+import { PromptSharingService } from '#/app/services/PromptSharingService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
 
 export const Route = createFileRoute('/prompt-studio')({
@@ -53,9 +60,26 @@ function PromptStudioPage() {
   const [testStatus, setTestStatus] = useState<'idle' | 'running' | 'success' | 'error'>('idle')
   const [versionCompareIds, setVersionCompareIds] = useState<string[]>([])
   const [publishVisibility, setPublishVisibility] = useState<'internal' | 'public'>('internal')
-  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const [exportFormat, setExportFormat] = useState<'json' | 'markdown' | 'txt' | 'pdf'>('json')
+  const [reviewStars, setReviewStars] = useState(5)
+  const [reviewComment, setReviewComment] = useState('')
+  const [marketplaceFilters, setMarketplaceFilters] = useState(() => PromptMarketplaceService.getFilters())
+  const [selectedCollectionId, setSelectedCollectionId] = useState('col-favorites')
+  const actorId = business.currentSession ? business.currentSession.userId : (business.snapshot.users[0]?.id ?? 'system')
   const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
   const availableUsers = business.snapshot.users.map((item) => ({ id: item.id, username: item.username }))
+
+  const marketplaceRecords = useMemo(() => {
+    const seeded = PromptMarketplaceService.hydrateFromPrompts(actorName)
+    return PromptMarketplaceService.applyFilters(seeded, marketplaceFilters)
+  }, [actorName, prompts.length, marketplaceFilters])
+
+  const marketplaceRecord = selectedPrompt ? marketplaceRecords.find((item) => item.promptId === selectedPrompt.id) : undefined
+  const collections = PromptCollectionService.list()
+  const selectedCollection = collections.find((item) => item.id === selectedCollectionId)
+  const shares = selectedPrompt ? PromptSharingService.list(selectedPrompt.id) : []
+  const reviews = marketplaceRecord ? PromptReviewService.list(marketplaceRecord.id) : []
+  const publishingRecord = selectedPrompt ? PromptPublishingService.get(selectedPrompt.id) : undefined
 
   const visiblePrompts = useMemo(
     () =>
@@ -145,7 +169,26 @@ function PromptStudioPage() {
       return
     }
 
-    WorkspaceExchangeService.downloadJson(`${selectedPrompt.name}-prompt.json`, selectedPrompt)
+    PromptImportExportService.exportPrompt(selectedPrompt, exportFormat)
+  }
+
+  const handleImportPrompt = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    const projectId = selectedProject?.id ?? projects[0]?.id
+    if (!projectId) {
+      event.target.value = ''
+      return
+    }
+
+    const created = await PromptImportExportService.importFromFile(file, projectId)
+    if (created) {
+      selectPrompt(created.id)
+    }
+    event.target.value = ''
   }
 
   return (
@@ -292,8 +335,26 @@ function PromptStudioPage() {
                   <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Publication</p>
                   <p className="text-sm text-[var(--sea-ink-soft)]">Publiez le prompt et exportez sa definition.</p>
                 </div>
-                <button type="button" onClick={exportPrompt} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter</button>
+                <div className="flex flex-wrap gap-2">
+                  <select
+                    value={exportFormat}
+                    onChange={(event) => setExportFormat(event.target.value as 'json' | 'markdown' | 'txt' | 'pdf')}
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
+                  >
+                    <option value="json">JSON</option>
+                    <option value="markdown">Markdown</option>
+                    <option value="txt">TXT</option>
+                    <option value="pdf">PDF</option>
+                  </select>
+                  <button type="button" onClick={exportPrompt} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter</button>
+                </div>
               </div>
+              <div className="mt-3">
+                <input type="file" accept=".json,.md,.markdown,.txt,.yml,.yaml" onChange={(event) => { void handleImportPrompt(event) }} className="text-sm" />
+              </div>
+              {publishingRecord ? (
+                <p className="mt-3 text-sm text-[var(--sea-ink-soft)]">Workflow: {publishingRecord.stage} • version {publishingRecord.version}</p>
+              ) : null}
               <div className="mt-4 flex flex-wrap gap-3">
                 <select value={publishVisibility} onChange={(event) => setPublishVisibility(event.target.value as 'internal' | 'public')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
                   <option value="internal">Interne</option>
@@ -312,12 +373,60 @@ function PromptStudioPage() {
                       actorName,
                       projectId: selectedPrompt.projectId,
                     })
+
+                    const status = publishVisibility === 'public' ? 'published' : 'approved'
+                    PromptPublishingService.transition({
+                      promptId: selectedPrompt.id,
+                      next: status,
+                      actorName,
+                      notes: publishVisibility === 'public' ? 'Published to marketplace' : 'Approved for internal sharing',
+                      bump: 'patch',
+                    })
+
+                    if (marketplaceRecord) {
+                      PromptMarketplaceService.setVisibility(marketplaceRecord.id, publishVisibility === 'public' ? 'public' : 'organization')
+                      PromptMarketplaceService.setStatus(marketplaceRecord.id, status)
+                    }
                   }}
                   className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
                 >
                   Publier + Workflow
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const share = PromptSharingService.createShare({
+                      promptId: selectedPrompt.id,
+                      promptName: selectedPrompt.name,
+                      scope: publishVisibility === 'public' ? 'public_copy' : 'organization',
+                      permission: 'read_only',
+                      createdBy: actorName,
+                    })
+                    WorkspaceExchangeService.downloadText(`${selectedPrompt.name}-share-link.txt`, share.url)
+                  }}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
+                >
+                  Partager
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    void PromptImportExportService.copyToClipboard(selectedPrompt)
+                  }}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
+                >
+                  Copier
+                </button>
               </div>
+              {shares.length > 0 ? (
+                <div className="mt-4 space-y-2">
+                  {shares.slice(0, 3).map((share) => (
+                    <div key={share.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-xs text-[var(--sea-ink-soft)]">
+                      {share.scope} • {share.permission} • {share.url}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
             </div>
 
             <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
@@ -344,6 +453,146 @@ function PromptStudioPage() {
             </div>
           </div>
         ) : null}
+
+        {selectedPrompt ? (
+          <div className="mt-6 grid gap-6 xl:grid-cols-2">
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Collections</p>
+              <div className="mt-3 flex gap-2">
+                <select
+                  value={selectedCollectionId}
+                  onChange={(event) => setSelectedCollectionId(event.target.value)}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
+                >
+                  {collections.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.name}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (selectedCollection) {
+                      PromptCollectionService.addPrompt(selectedCollection.id, selectedPrompt.id)
+                    }
+                  }}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold"
+                >
+                  Ajouter
+                </button>
+              </div>
+              {selectedCollection ? (
+                <p className="mt-3 text-xs text-[var(--sea-ink-soft)]">{selectedCollection.promptIds.length} prompts dans {selectedCollection.name}</p>
+              ) : null}
+            </div>
+
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Reviews Marketplace</p>
+              <div className="mt-2 flex justify-end">
+                <Link to="/reviews" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">Ouvrir la file de modération</Link>
+              </div>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <select
+                  value={reviewStars}
+                  onChange={(event) => setReviewStars(Number(event.target.value))}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm"
+                >
+                  <option value={5}>5</option>
+                  <option value={4}>4</option>
+                  <option value={3}>3</option>
+                  <option value={2}>2</option>
+                  <option value={1}>1</option>
+                </select>
+                <input
+                  value={reviewComment}
+                  onChange={(event) => setReviewComment(event.target.value)}
+                  placeholder="Ajouter un commentaire"
+                  className="flex-1 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (!marketplaceRecord || !reviewComment.trim()) {
+                      return
+                    }
+
+                    PromptReviewService.add({
+                      marketplaceId: marketplaceRecord.id,
+                      promptId: selectedPrompt.id,
+                      authorId: actorId,
+                      authorName: actorName,
+                      stars: reviewStars,
+                      comment: reviewComment.trim(),
+                    })
+                    setReviewComment('')
+                  }}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold"
+                >
+                  Noter
+                </button>
+              </div>
+              {reviews.length > 0 ? (
+                <div className="mt-3 space-y-2">
+                  {reviews.slice(0, 3).map((item) => (
+                    <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-xs text-[var(--sea-ink-soft)]">
+                      {item.authorName} • {item.stars}/5 • {item.comment}
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-6 rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Marketplace Search</p>
+            <div className="flex flex-wrap gap-2">
+              <input
+                value={marketplaceFilters.text}
+                onChange={(event) => {
+                  const next = { ...marketplaceFilters, text: event.target.value }
+                  setMarketplaceFilters(next)
+                  PromptMarketplaceService.persistFilters(next)
+                }}
+                placeholder="Recherche prompt marketplace"
+                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
+              />
+              <select
+                value={marketplaceFilters.sortBy}
+                onChange={(event) => {
+                  const next = {
+                    ...marketplaceFilters,
+                    sortBy: event.target.value as 'trending' | 'downloads' | 'rating' | 'recent' | 'price',
+                  }
+                  setMarketplaceFilters(next)
+                  PromptMarketplaceService.persistFilters(next)
+                }}
+                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
+              >
+                <option value="trending">Trending</option>
+                <option value="downloads">Downloads</option>
+                <option value="rating">Rating</option>
+                <option value="recent">Recent</option>
+                <option value="price">Price</option>
+              </select>
+            </div>
+          </div>
+          <div className="grid gap-3 xl:grid-cols-2">
+            {marketplaceRecords.slice(0, 6).map((item) => (
+              <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-sm">
+                <p className="font-semibold text-[var(--sea-ink)]">{item.title}</p>
+                <p className="mt-1 text-[var(--sea-ink-soft)]">
+                  {item.category} • {item.authorName} • {item.status}
+                </p>
+                <p className="mt-1 text-xs text-[var(--sea-ink-soft)]">
+                  {item.downloads} downloads • {item.averageRating}/5 • {item.visibility}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
 
         {comparedVersions.length === 2 ? (
           <div className="mt-6 grid gap-4 xl:grid-cols-2">

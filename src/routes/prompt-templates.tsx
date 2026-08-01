@@ -63,7 +63,7 @@ function PromptTemplatesPage() {
   const business = useBusiness()
   const { prompts, createPrompt, updatePrompt, favoritePrompt, duplicatePrompt, archivePrompt, deletePrompt, loading } = usePrompts()
   const preferences = WorkspacePreferencesService.getPreferences()
-  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const actorId = business.currentSession ? business.currentSession.userId : (business.snapshot.users[0]?.id ?? 'system')
   const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
   const availableUsers = business.snapshot.users.map((item) => ({ id: item.id, username: item.username }))
 

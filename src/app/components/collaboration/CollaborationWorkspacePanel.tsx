@@ -43,7 +43,7 @@ export default function CollaborationWorkspacePanel({
   const [versionComment, setVersionComment] = useState('')
   const [versionSummary, setVersionSummary] = useState('')
   const [commentBody, setCommentBody] = useState(CollaborationWorkspaceService.loadDraft(`comment:${entityType}:${entityId}`))
-  const [replyBodyById, setReplyBodyById] = useState<Record<string, string>>({})
+  const [replyBodyById, setReplyBodyById] = useState<Partial<Record<string, string>>>({})
   const [compareIds, setCompareIds] = useState<string[]>([])
 
   const collaborators = useMemo(
@@ -171,7 +171,16 @@ export default function CollaborationWorkspacePanel({
                 <div key={item.id} className="grid gap-2 rounded-2xl border border-[var(--line)] bg-[var(--surface)] p-3 md:grid-cols-[1fr_180px_120px_120px_auto_auto] md:items-center">
                   <p className="font-semibold text-[var(--sea-ink)]">{item.username}</p>
                   <p className="text-[var(--sea-ink-soft)]">{item.status}</p>
-                  <button type="button" onClick={() => CollaborationWorkspaceService.acceptInvitation(item.id, actorId, actorName) || doRefresh()} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs">Accept</button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      CollaborationWorkspaceService.acceptInvitation(item.id, actorId, actorName)
+                      doRefresh()
+                    }}
+                    className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-3 py-2 text-xs"
+                  >
+                    Accept
+                  </button>
                   <select value={item.role} onChange={(event) => { CollaborationWorkspaceService.changeCollaboratorRole(item.id, event.target.value as CollaborationRole, actorId, actorName); doRefresh() }} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] px-2 py-2 text-xs">
                     {roleOptions.map((role) => (
                       <option key={role} value={role}>{role}</option>

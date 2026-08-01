@@ -49,7 +49,7 @@ function ProjectsPage() {
   const [pendingProjectId, setPendingProjectId] = useState<string | null>(null)
   const [renameValue, setRenameValue] = useState('')
   const [shareLink, setShareLink] = useState('')
-  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const actorId = business.currentSession ? business.currentSession.userId : (business.snapshot.users[0]?.id ?? 'system')
   const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
   const availableUsers = business.snapshot.users.map((item) => ({ id: item.id, username: item.username }))
 

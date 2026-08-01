@@ -23,6 +23,7 @@ import { Route as ProjectsRouteImport } from './routes/projects'
 import { Route as PromptStudioRouteImport } from './routes/prompt-studio'
 import { Route as PromptTemplatesRouteImport } from './routes/prompt-templates'
 import { Route as ProvidersRouteImport } from './routes/providers'
+import { Route as ReviewsRouteImport } from './routes/reviews'
 import { Route as SettingsRouteImport } from './routes/settings'
 
 const IndexRoute = IndexRouteImport.update({
@@ -95,6 +96,11 @@ const ProvidersRoute = ProvidersRouteImport.update({
   path: '/providers',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsRoute = ReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SettingsRoute = SettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesByTo {
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRoutesById {
@@ -151,6 +159,7 @@ export interface FileRoutesById {
   '/prompt-studio': typeof PromptStudioRoute
   '/prompt-templates': typeof PromptTemplatesRoute
   '/providers': typeof ProvidersRoute
+  '/reviews': typeof ReviewsRoute
   '/settings': typeof SettingsRoute
 }
 export interface FileRouteTypes {
@@ -170,6 +179,7 @@ export interface FileRouteTypes {
     | '/prompt-studio'
     | '/prompt-templates'
     | '/providers'
+    | '/reviews'
     | '/settings'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -187,6 +197,7 @@ export interface FileRouteTypes {
     | '/prompt-studio'
     | '/prompt-templates'
     | '/providers'
+    | '/reviews'
     | '/settings'
   id:
     | '__root__'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/prompt-studio'
     | '/prompt-templates'
     | '/providers'
+    | '/reviews'
     | '/settings'
   fileRoutesById: FileRoutesById
 }
@@ -222,6 +234,7 @@ export interface RootRouteChildren {
   PromptStudioRoute: typeof PromptStudioRoute
   PromptTemplatesRoute: typeof PromptTemplatesRoute
   ProvidersRoute: typeof ProvidersRoute
+  ReviewsRoute: typeof ReviewsRoute
   SettingsRoute: typeof SettingsRoute
 }
 
@@ -325,6 +338,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProvidersRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reviews': {
+      id: '/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof ReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/settings': {
       id: '/settings'
       path: '/settings'
@@ -350,17 +370,9 @@ const rootRouteChildren: RootRouteChildren = {
   PromptStudioRoute: PromptStudioRoute,
   PromptTemplatesRoute: PromptTemplatesRoute,
   ProvidersRoute: ProvidersRoute,
+  ReviewsRoute: ReviewsRoute,
   SettingsRoute: SettingsRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { createStart } from '@tanstack/react-start'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-  }
-}

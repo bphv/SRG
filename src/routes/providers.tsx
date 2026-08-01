@@ -19,7 +19,7 @@ function ProvidersPage() {
   const [search, setSearch] = useState('')
   const [healthFilter, setHealthFilter] = useState<'all' | 'healthy' | 'degraded' | 'offline'>('all')
   const [favoriteProvider, setFavoriteProvider] = useState(preferences.favoriteProvider)
-  const actorId = business.currentSession?.userId ?? business.snapshot.users[0]?.id ?? 'system'
+  const actorId = business.currentSession ? business.currentSession.userId : (business.snapshot.users[0]?.id ?? 'system')
   const actorName = business.snapshot.users.find((item) => item.id === actorId)?.username ?? 'System'
 
   useEffect(() => {

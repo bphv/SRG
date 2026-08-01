@@ -17,6 +17,10 @@ import { useDashboard } from '#/app/hooks/useDashboard'
 import { ProjectService } from '#/app/services/ProjectService'
 import { PromptService } from '#/app/services/PromptService'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
+import { PromptCollectionService } from '#/app/services/PromptCollectionService'
+import { PromptMarketplaceService } from '#/app/services/PromptMarketplaceService'
+import { PromptReviewService } from '#/app/services/PromptReviewService'
+import { PromptSharingService } from '#/app/services/PromptSharingService'
 
 export const Route = createFileRoute('/dashboard')({
   component: DashboardPage,
@@ -67,6 +71,44 @@ function DashboardPage() {
         .map((item) => item.username),
     ),
   ).slice(0, 8)
+  const marketplaceRecords = PromptMarketplaceService.applyFilters(
+    PromptMarketplaceService.hydrateFromPrompts('System'),
+    PromptMarketplaceService.getFilters(),
+  )
+  const topMarketplace = [...marketplaceRecords].slice(0, 4)
+  const publishedCount = marketplaceRecords.filter((item) => item.status === 'published').length
+  const shareRecords = PromptSharingService.list()
+  const reviewRecords = PromptReviewService.list()
+  const collections = PromptCollectionService.list()
+
+  const topDownloads = [...marketplaceRecords].sort((left, right) => right.downloads - left.downloads).slice(0, 4)
+  const topReviews = [...marketplaceRecords].sort((left, right) => right.averageRating - left.averageRating || right.reviewCount - left.reviewCount).slice(0, 4)
+  const topTrending = [...marketplaceRecords]
+    .sort((left, right) => right.downloads + right.views + right.copies + right.favorites - (left.downloads + left.views + left.copies + left.favorites))
+    .slice(0, 4)
+  const topShared = Array.from(
+    shareRecords.reduce((acc, share) => acc.set(share.promptId, (acc.get(share.promptId) ?? 0) + 1), new Map<string, number>()).entries(),
+  )
+    .map(([promptId, count]) => ({ promptId, count, prompt: marketplaceRecords.find((item) => item.promptId === promptId) }))
+    .sort((left, right) => right.count - left.count)
+    .slice(0, 4)
+  const topAuthors = Array.from(
+    marketplaceRecords.reduce((acc, item) => acc.set(item.authorName, (acc.get(item.authorName) ?? 0) + 1), new Map<string, number>()).entries(),
+  )
+    .map(([authorName, count]) => ({ authorName, count }))
+    .sort((left, right) => right.count - left.count)
+    .slice(0, 4)
+  const topCategories = Array.from(
+    marketplaceRecords.reduce((acc, item) => acc.set(item.category, (acc.get(item.category) ?? 0) + 1), new Map<string, number>()).entries(),
+  )
+    .map(([category, count]) => ({ category, count }))
+    .sort((left, right) => right.count - left.count)
+    .slice(0, 4)
+  const bestRated = [...marketplaceRecords].sort((left, right) => right.averageRating - left.averageRating || right.reviewCount - left.reviewCount).at(0)
+  const mostShared = topShared.at(0)?.prompt
+  const shareCount = shareRecords.length
+  const reviewCount = reviewRecords.length
+  const topCollections = [...collections].sort((left, right) => right.promptIds.length - left.promptIds.length).slice(0, 4)
 
   if (loading) {
     return (
@@ -119,6 +161,89 @@ function DashboardPage() {
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Temps moyen:</strong> {kpis.averageGenerationTime}</div>
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Taux de succes:</strong> {kpis.successRate}</div>
           <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm text-[var(--sea-ink-soft)]"><strong className="text-[var(--sea-ink)]">Provider actif:</strong> {overview.activeProvider}</div>
+        </div>
+      </Section>
+
+      <Section title="Marketplace" description="Publication, partage et qualité des prompts publiés.">
+        <div className="grid gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Prompts publiés</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{publishedCount}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Liens de partage</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{shareCount}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Reviews</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--sea-ink)]">{reviewCount}</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {topMarketplace.map((item) => (
+            <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-sm">
+              <p className="font-semibold text-[var(--sea-ink)]">{item.title}</p>
+              <p className="mt-1 text-[var(--sea-ink-soft)]">{item.authorName} • {item.status}</p>
+              <p className="mt-1 text-xs text-[var(--sea-ink-soft)]">{item.downloads} downloads • {item.averageRating}/5</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top téléchargements</p>
+            <div className="mt-3 space-y-2 text-sm">
+              {topDownloads.map((item) => <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.title} • {item.downloads}</div>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top reviews</p>
+            <div className="mt-3 space-y-2 text-sm">
+              {topReviews.map((item) => <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.title} • {item.averageRating}/5</div>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top collections</p>
+            <div className="mt-3 space-y-2 text-sm">
+              {topCollections.map((item) => <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.name} • {item.promptIds.length}</div>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top auteurs</p>
+            <div className="mt-3 space-y-2 text-sm">
+              {topAuthors.map((item) => <div key={item.authorName} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.authorName} • {item.count}</div>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Top catégories</p>
+            <div className="mt-3 space-y-2 text-sm">
+              {topCategories.map((item) => <div key={item.category} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.category} • {item.count}</div>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Prompts Trending</p>
+            <div className="mt-3 space-y-2 text-sm">
+              {topTrending.map((item) => <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">{item.title} • {item.downloads + item.views + item.copies + item.favorites}</div>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Meilleur partagé</p>
+            <div className="mt-3 space-y-2 text-sm">
+              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
+                {mostShared ? `${mostShared.title} • ${topShared[0]?.count ?? 0}` : 'Aucun partage'}
+              </div>
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--lagoon-deep)]">Mieux noté</p>
+            <div className="mt-3 space-y-2 text-sm">
+              <div className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-3">
+                {bestRated ? `${bestRated.title} • ${bestRated.averageRating}/5` : 'Aucune note'}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/reviews" className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-2 text-sm font-semibold text-white">Ouvrir la file de modération</Link>
         </div>
       </Section>
 
