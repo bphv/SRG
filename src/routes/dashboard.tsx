@@ -135,6 +135,13 @@ function DashboardPage() {
   const enterpriseInsightsSummary = EnterpriseInsightsWorkspaceService.getExecutiveDashboard()
   const knowledgeIntelligenceSummary = KnowledgeIntelligenceWorkspaceService.getDashboardSummary()
   const strategicAdvisorSummary = StrategicAdvisorWorkspaceService.getExecutiveDashboard()
+  const lastUpdated = `${overview.date} • ${overview.time}`
+  const topAlerts = [...notifications].slice(0, 4)
+  const topRisks = health.filter((item) => item.status !== 'online').slice(0, 4)
+  const topOpportunities = [
+    ...latestProjects.map((item) => ({ id: item.id, title: item.title, meta: item.meta })),
+    ...latestPrompts.map((item) => ({ id: item.id, title: item.title, meta: item.meta })),
+  ].slice(0, 4)
 
   if (loading) {
     return (
@@ -150,6 +157,63 @@ function DashboardPage() {
       <PageHeader title="Dashboard" description="Your SRG command center." />
 
       <OverviewCard overview={overview} />
+
+      <Section title="Executive Summary" description="Vue consolidée des alertes, risques, opportunités et accès directs aux modules visibles.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Statut global</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">Operational</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Dernière mise à jour</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{lastUpdated}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top alerts</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{topAlerts.length}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top risks</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{topRisks.length}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top opportunities</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{topOpportunities.length}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Recent activity</p>
+            <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{recentActivity.length}</p>
+          </div>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-3 text-sm">
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top alerts</p>
+            <div className="mt-3 space-y-2 text-[var(--srg-text-muted)]">
+              {topAlerts.length === 0 ? <p>Aucune alerte.</p> : topAlerts.map((item) => <p key={item.id}>{item.title} • {item.meta}</p>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top risks</p>
+            <div className="mt-3 space-y-2 text-[var(--srg-text-muted)]">
+              {topRisks.length === 0 ? <p>Etat global stable.</p> : topRisks.map((item) => <p key={item.id}>{item.title} • {item.status} • {item.description}</p>)}
+            </div>
+          </div>
+          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5 shadow-[var(--srg-shadow-md)]">
+            <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Top opportunities</p>
+            <div className="mt-3 space-y-2 text-[var(--srg-text-muted)]">
+              {topOpportunities.map((item) => <p key={item.id}>{item.title} • {item.meta}</p>)}
+            </div>
+          </div>
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/enterprise-insights" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Voir Enterprise Insights</Link>
+          <Link to="/strategic-advisor" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Strategic Advisor</Link>
+          <Link to="/knowledge-intelligence" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Knowledge Intelligence</Link>
+          <Link to="/workflow-automation" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Workflow Automation</Link>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir History</Link>
+          <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Observability</Link>
+        </div>
+      </Section>
 
       <CollaborationGlobalSearch projects={allProjects} prompts={allPrompts} templates={allTemplates} users={allUsers} />
 

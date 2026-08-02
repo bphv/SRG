@@ -10,11 +10,7 @@ import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeI
 import { StrategicAdvisorWorkspaceService } from '#/app/services/StrategicAdvisorWorkspaceService'
 import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
 import { ProjectExecutionWorkspaceService } from '#/app/services/ProjectExecutionWorkspaceService'
-import type {
-  KnowledgeComparisonResult,
-  KnowledgeIntelligenceDocument,
-  KnowledgeQuestionResult,
-} from '#/app/services/KnowledgeIntelligenceWorkspaceService'
+import type { KnowledgeComparisonResult, KnowledgeIntelligenceDocument, KnowledgeQuestionResult } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
 
 export const Route = createFileRoute('/knowledge-intelligence')({
   component: KnowledgeIntelligencePage,

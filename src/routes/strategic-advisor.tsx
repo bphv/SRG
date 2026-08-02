@@ -114,7 +114,6 @@ function StrategicAdvisorPage() {
     })
     setTick((current) => current + 1)
   }
-
   const toggleFavoriteSearch = () => {
     const normalized = search.trim()
     if (!normalized) return
