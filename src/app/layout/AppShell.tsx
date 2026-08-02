@@ -5,6 +5,7 @@ import SearchBar from '#/app/components/SearchBar'
 import ProviderBadge from '#/app/components/ProviderBadge'
 import StatusBadge from '#/app/components/StatusBadge'
 import TenantSwitcher from '#/app/components/TenantSwitcher'
+import { useAskSrgRuntimeContext } from '#/app/contexts/AskSrgRuntimeContext'
 import { useTenantContext } from '#/app/contexts/TenantContext'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { useTheme } from '#/app/hooks/useTheme'
@@ -20,6 +21,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const notifications = useNotifications()
   const theme = useTheme()
   const tenant = useTenantContext()
+  const askSrgRuntime = useAskSrgRuntimeContext()
   const [shellSearch, setShellSearch] = useState('')
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => WorkspacePreferencesService.getPreferences().sidebarOpen)
   const [sidebarWidth, setSidebarWidth] = useState(() => WorkspacePreferencesService.getPreferences().sidebarWidth)
@@ -132,6 +134,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     command.run()
     setIsCommandPaletteOpen(false)
   }
+
+  const runtimeBadges = [
+    { label: 'Ask SRG Ready', status: 'Prepared' },
+    { label: 'Tenant Ready', status: 'Prepared' },
+    { label: 'Memory Ready', status: 'Placeholder' },
+  ]
 
   return (
     <div className="srg-workspace min-h-screen bg-[var(--srg-bg)] text-[var(--srg-text-body)]">
@@ -253,7 +261,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               </h2>
               {shellSearch ? <p className="mt-2 text-sm text-[var(--srg-text-muted)]">Recherche active: {shellSearch}</p> : null}
               <div className="mt-4 flex flex-wrap gap-2">
-                {tenant.readinessBadges.map((badge) => (
+                {runtimeBadges.map((badge) => (
                   <span
                     key={badge.label}
                     className="inline-flex items-center gap-2 rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 text-xs font-semibold text-[var(--srg-text-body)]"
@@ -270,9 +278,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   <p className="mt-1">{tenant.workspaceName} · {tenant.tenantId}</p>
                 </div>
                 <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3 text-xs text-[var(--srg-text-muted)]">
-                  <p className="font-semibold text-[var(--srg-text-body)]">Ask SRG Context</p>
-                  <p className="mt-1">User: {tenant.activeUser}</p>
-                  <p className="mt-1">Language: {tenant.language} · Timezone: {tenant.timezone}</p>
+                  <p className="font-semibold text-[var(--srg-text-body)]">Workspace Context</p>
+                  <p className="mt-1">Workspace courant: {askSrgRuntime.session.workspace}</p>
+                  <p className="mt-1">Entreprise: {tenant.activeEnterprise}</p>
+                  <p className="mt-1">Utilisateur: {askSrgRuntime.session.userId}</p>
+                  <p className="mt-1">Langue: {askSrgRuntime.session.language}</p>
+                  <p className="mt-1">Module actif: {activePage.title}</p>
                 </div>
                 <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3 text-xs text-[var(--srg-text-muted)]">
                   <p className="font-semibold text-[var(--srg-text-body)]">Consulted modules</p>

@@ -9,6 +9,7 @@ import DataTable from '#/app/components/ui/DataTable'
 import type { DataTableColumn } from '#/app/components/ui/DataTable'
 import { Tabs } from '#/app/components/ui/Tabs'
 import { Field, FieldGroup, FormSection, FormToolbar, SmartInputField, ValidationMessage } from '#/app/components/ui/FormPrimitives'
+import { useAskSrgRuntimeContext } from '#/app/contexts/AskSrgRuntimeContext'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { DashboardService } from '#/app/services/DashboardService'
 import { notificationService } from '#/app/services/NotificationService'
@@ -58,6 +59,12 @@ type AskContextSuggestionRow = {
   detail: string
   suggestion: string
   status: string
+}
+
+type AskRuntimeSessionRow = {
+  item: string
+  value: string
+  note: string
 }
 
 const HOME_MODULES: HomeModuleCard[] = [
@@ -221,6 +228,7 @@ export const Route = createFileRoute('/')({ component: HomePage })
 
 function HomePage() {
   const notifications = useNotifications()
+  const askSrgRuntime = useAskSrgRuntimeContext()
   const navigate = useNavigate()
   const metrics = DashboardService.getMetrics()
   const [query, setQuery] = useState('')
@@ -228,7 +236,7 @@ function HomePage() {
   const [showNotificationCenter, setShowNotificationCenter] = useState(false)
   const [askSearch, setAskSearch] = useState(() => getStoredAskString('search', ''))
   const [askInput, setAskInput] = useState(() => getStoredAskString('input', ''))
-  const [responseLanguage, setResponseLanguage] = useState(() => getStoredAskString('responseLanguage', 'Français'))
+  const [responseLanguage, setResponseLanguage] = useState(() => askSrgRuntime.session.language || getStoredAskString('responseLanguage', 'Français'))
   const [documentsLanguage, setDocumentsLanguage] = useState(() => getStoredAskString('documentsLanguage', 'Auto Detection'))
   const [translationMode, setTranslationMode] = useState(() => getStoredAskString('translationMode', 'Placeholder'))
   const [selectedSuggestion, setSelectedSuggestion] = useState('')
@@ -273,15 +281,16 @@ function HomePage() {
   const askMemoryRows = useMemo<AskMemoryRow[]>(() => {
     const preferences = WorkspacePreferencesService.getPreferences()
     const recentSearchesValue = preferences.recentSearches.slice(0, 4).join(' | ') || 'Placeholder'
-    const favoritesValue = preferences.commandFavorites.slice(0, 4).join(' | ') || 'Placeholder'
+    const favoritesValue = askSrgRuntime.session.favoriteCommands.join(' | ') || 'Placeholder'
+    const recentDocumentsValue = askSrgRuntime.session.recentDocuments.join(' | ') || 'Placeholder'
 
     return [
-      { item: 'Conversations', value: 'Placeholder · 12 conversations', note: 'Historique conversationnel prêt en surface UI.' },
-      { item: 'Documents consultés', value: 'Placeholder · 28 documents', note: 'Index documentaire non branché à un moteur réel.' },
+      { item: 'Conversations', value: askSrgRuntime.session.conversationId, note: 'Conversation locale Ask SRG sans backend.' },
+      { item: 'Documents consultés', value: recentDocumentsValue, note: 'Liste locale recentDocuments du runtime context.' },
       { item: 'Recherches récentes', value: recentSearchesValue, note: 'Réutilise WorkspacePreferencesService.' },
-      { item: 'Favoris', value: favoritesValue, note: 'Favoris visibles sans orchestration backend.' },
+      { item: 'Favoris', value: favoritesValue, note: 'favoriteCommands locaux persistés dans WorkspacePreferencesService.' },
     ]
-  }, [askSearch])
+  }, [askSearch, askSrgRuntime.session.conversationId, askSrgRuntime.session.favoriteCommands, askSrgRuntime.session.recentDocuments])
 
   const askDocumentSourceRows = useMemo<AskDocumentSourceRow[]>(() => [
     { document: 'Contrat Razel 2022', confidence: 'Placeholder · 92%', date: '2026-08-02', author: 'Direction Achats', version: 'v3-placeholder' },
@@ -313,11 +322,11 @@ function HomePage() {
   ], [documentsLanguage, responseLanguage, translationMode])
 
   const voiceRows = useMemo<AskReadinessRow[]>(() => [
-    { item: 'Microphone', value: 'Placeholder', note: 'Activation vocale non branchée.' },
+    { item: 'Microphone', value: askSrgRuntime.session.voiceEnabled ? 'Placeholder · Enabled' : 'Placeholder · Disabled', note: 'voiceEnabled local sans moteur STT.' },
     { item: 'Reconnaissance vocale', value: 'Placeholder', note: 'Aucun moteur STT actif.' },
     { item: 'Synthèse vocale', value: 'Placeholder', note: 'Aucun moteur TTS actif.' },
     { item: 'Statut', value: 'Preparation Mode', note: 'Stack vocale réservée pour intégration future.' },
-  ], [])
+  ], [askSrgRuntime.session.voiceEnabled])
 
   const contextRows = useMemo<AskReadinessRow[]>(() => [
     { item: 'Entreprise active', value: 'SRG Industries Holding', note: 'Contexte enterprise affiché sans isolation runtime.' },
@@ -357,6 +366,18 @@ function HomePage() {
     ]
   }, [askDocumentSourceRows, consultedModule, askSearch])
 
+  const askRuntimeSessionRows = useMemo<AskRuntimeSessionRow[]>(() => [
+    { item: 'conversationId', value: askSrgRuntime.session.conversationId, note: 'Session locale placeholder.' },
+    { item: 'tenantId', value: askSrgRuntime.session.tenantId, note: 'Référence tenant locale placeholder.' },
+    { item: 'userId', value: askSrgRuntime.session.userId, note: 'Référence utilisateur locale placeholder.' },
+    { item: 'workspace', value: askSrgRuntime.session.workspace, note: 'Workspace courant local.' },
+    { item: 'language', value: askSrgRuntime.session.language, note: 'Langue locale de session.' },
+    { item: 'voiceEnabled', value: askSrgRuntime.session.voiceEnabled ? 'true' : 'false', note: 'Activation voix placeholder.' },
+    { item: 'favoriteCommands', value: askSrgRuntime.session.favoriteCommands.join(' | ') || 'Placeholder', note: 'Commandes favorites locales.' },
+    { item: 'recentCommands', value: askSrgRuntime.session.recentCommands.join(' | ') || 'Placeholder', note: 'Commandes récentes locales.' },
+    { item: 'recentDocuments', value: askSrgRuntime.session.recentDocuments.join(' | ') || 'Placeholder', note: 'Documents récents locaux.' },
+  ], [askSrgRuntime.session])
+
   const askReadinessColumns: Array<DataTableColumn<AskReadinessRow>> = [
     { key: 'item', label: 'Item', sortable: true },
     { key: 'value', label: 'Valeur', sortable: true },
@@ -382,6 +403,12 @@ function HomePage() {
     { key: 'detail', label: 'Détail' },
     { key: 'suggestion', label: 'Suggestion' },
     { key: 'status', label: 'Statut', sortable: true },
+  ]
+
+  const askRuntimeSessionColumns: Array<DataTableColumn<AskRuntimeSessionRow>> = [
+    { key: 'item', label: 'Champ', sortable: true },
+    { key: 'value', label: 'Valeur' },
+    { key: 'note', label: 'Note' },
   ]
 
   const publishAskNotification = (title: string, message: string) => {
@@ -495,6 +522,17 @@ function HomePage() {
           </Button>
         </div>
 
+        <div className="mt-4">
+          <DataTable
+            tableId="home-ask-srg-runtime-session"
+            title="Ask SRG Runtime Session"
+            rows={askRuntimeSessionRows}
+            columns={askRuntimeSessionColumns}
+            pageSize={10}
+            exportFileName="srg-ask-runtime-session.csv"
+          />
+        </div>
+
         {showNotificationCenter ? (
           <div id="home-ask-notification-center" className="mt-4">
             <NotificationCenter
@@ -538,10 +576,34 @@ function HomePage() {
                 </Field>
               </FieldGroup>
               <FormToolbar autosaveLabel="UI readiness only">
-                <Button variant="secondary" onClick={() => publishAskNotification('Ask SRG microphone', 'Microphone en mode placeholder.')}>Microphone</Button>
-                <Button variant="secondary" onClick={() => publishAskNotification('Ask SRG documents', 'Pièce jointe en mode placeholder.')}>Joindre un document</Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    askSrgRuntime.setVoiceEnabled(!askSrgRuntime.session.voiceEnabled)
+                    publishAskNotification('Ask SRG microphone', `Microphone en mode placeholder (${!askSrgRuntime.session.voiceEnabled ? 'enabled' : 'disabled'}).`)
+                  }}
+                >
+                  Microphone
+                </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => {
+                    askSrgRuntime.pushRecentDocument('Document placeholder')
+                    publishAskNotification('Ask SRG documents', 'Pièce jointe en mode placeholder.')
+                  }}
+                >
+                  Joindre un document
+                </Button>
                 <Button variant="secondary" onClick={() => publishAskNotification('Ask SRG sharing', 'Partage en mode placeholder.')}>Partager</Button>
-                <Button onClick={() => publishAskNotification('Ask SRG conversation', 'Conversation envoyée en mode préparation sans IA réelle.')}>Envoyer</Button>
+                <Button
+                  onClick={() => {
+                    const command = askInput.trim() || selectedSuggestion || 'Ask SRG placeholder command'
+                    askSrgRuntime.pushRecentCommand(command)
+                    publishAskNotification('Ask SRG conversation', 'Conversation envoyée en mode préparation sans IA réelle.')
+                  }}
+                >
+                  Envoyer
+                </Button>
               </FormToolbar>
             </div>
           </FormSection>
@@ -643,7 +705,16 @@ function HomePage() {
           <FormSection title="Quick Commands" description="Commandes rapides Ask SRG (placeholder uniquement).">
             <div className="grid gap-2 sm:grid-cols-2">
               {ASK_SRG_QUICK_COMMANDS.map((command) => (
-                <Button key={command} variant="secondary" onClick={() => publishAskNotification('Ask SRG quick command', `${command} exécutée en mode placeholder.`)} aria-label={`Commande rapide ${command}`}>
+                <Button
+                  key={command}
+                  variant="secondary"
+                  onClick={() => {
+                    askSrgRuntime.pushRecentCommand(command)
+                    askSrgRuntime.toggleFavoriteCommand(command)
+                    publishAskNotification('Ask SRG quick command', `${command} exécutée en mode placeholder.`)
+                  }}
+                  aria-label={`Commande rapide ${command}`}
+                >
                   {command}
                 </Button>
               ))}
@@ -655,7 +726,14 @@ function HomePage() {
           <FormSection title="Language" description="Configuration multilingue en mode préparation.">
             <FieldGroup columns={2}>
               <Field label="Langue de réponse" hint="Configuration locale uniquement.">
-                <select value={responseLanguage} onChange={(event) => setResponseLanguage(event.target.value)} aria-label="Langue de réponse Ask SRG">
+                <select
+                  value={responseLanguage}
+                  onChange={(event) => {
+                    setResponseLanguage(event.target.value)
+                    askSrgRuntime.updateSession({ language: event.target.value, workspace: 'Ask SRG Home' })
+                  }}
+                  aria-label="Langue de réponse Ask SRG"
+                >
                   {ASK_LANGUAGE_OPTIONS.map((language) => <option key={language} value={language}>{language}</option>)}
                 </select>
               </Field>
