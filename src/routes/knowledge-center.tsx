@@ -9,7 +9,7 @@ export const Route = createFileRoute('/knowledge-center')({
 function KnowledgeCenterPage() {
   return (
     <div className="space-y-6">
-      <PageHeader title="Knowledge Workspace & RAG Center" description="Shared document memory with import, indexing, advanced search, RAG context and observability." />
+      <PageHeader title="Enterprise Archive Center" description="Préparation documentaire enterprise avec archives, collections, prévisualisation et readiness UI avant moteurs OCR ou RAG." />
       <KnowledgeWorkspace />
     </div>
   )

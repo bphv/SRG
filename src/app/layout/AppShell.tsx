@@ -4,6 +4,8 @@ import { navItems } from '#/app/navigation/navConfig'
 import SearchBar from '#/app/components/SearchBar'
 import ProviderBadge from '#/app/components/ProviderBadge'
 import StatusBadge from '#/app/components/StatusBadge'
+import TenantSwitcher from '#/app/components/TenantSwitcher'
+import { useTenantContext } from '#/app/contexts/TenantContext'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { useTheme } from '#/app/hooks/useTheme'
 import { useBreadcrumb } from '#/app/hooks/useBreadcrumb'
@@ -17,6 +19,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const breadcrumbs = useBreadcrumb()
   const notifications = useNotifications()
   const theme = useTheme()
+  const tenant = useTenantContext()
   const [shellSearch, setShellSearch] = useState('')
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => WorkspacePreferencesService.getPreferences().sidebarOpen)
   const [sidebarWidth, setSidebarWidth] = useState(() => WorkspacePreferencesService.getPreferences().sidebarWidth)
@@ -158,6 +161,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             >
               Ctrl + K
             </button>
+            <div className="hidden xl:block">
+              <TenantSwitcher />
+            </div>
             <select
               value={selectedProvider}
               onChange={(event) => setSelectedProvider(event.target.value)}
@@ -178,12 +184,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               aria-controls="notification-center-panel"
             >
               Notifications ({notifications.notifications.filter((item) => !item.read).length})
-            </button>
-            <button
-              type="button"
-              className="rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-body)] transition hover:bg-[var(--srg-hover)]"
-            >
-              JD
             </button>
             <button
               type="button"
@@ -252,6 +252,35 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 {activePage.description}
               </h2>
               {shellSearch ? <p className="mt-2 text-sm text-[var(--srg-text-muted)]">Recherche active: {shellSearch}</p> : null}
+              <div className="mt-4 flex flex-wrap gap-2">
+                {tenant.readinessBadges.map((badge) => (
+                  <span
+                    key={badge.label}
+                    className="inline-flex items-center gap-2 rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 text-xs font-semibold text-[var(--srg-text-body)]"
+                  >
+                    <span className="h-2 w-2 rounded-full bg-[var(--srg-color-primary-500)]" />
+                    {badge.label}: {badge.status}
+                  </span>
+                ))}
+              </div>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3 text-xs text-[var(--srg-text-muted)]">
+                  <p className="font-semibold text-[var(--srg-text-body)]">Active enterprise</p>
+                  <p className="mt-1">{tenant.activeEnterprise}</p>
+                  <p className="mt-1">{tenant.workspaceName} · {tenant.tenantId}</p>
+                </div>
+                <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3 text-xs text-[var(--srg-text-muted)]">
+                  <p className="font-semibold text-[var(--srg-text-body)]">Ask SRG Context</p>
+                  <p className="mt-1">User: {tenant.activeUser}</p>
+                  <p className="mt-1">Language: {tenant.language} · Timezone: {tenant.timezone}</p>
+                </div>
+                <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3 text-xs text-[var(--srg-text-muted)]">
+                  <p className="font-semibold text-[var(--srg-text-body)]">Consulted modules</p>
+                  <p className="mt-1">{tenant.consultedModules.join(' · ')}</p>
+                  <p className="mt-1">Conversations: {tenant.conversations}</p>
+                  <p className="mt-1">Documents: {tenant.documents}</p>
+                </div>
+              </div>
             </div>
             <div className="flex flex-wrap items-center gap-2">
               {!isSidebarOpen ? (

@@ -142,6 +142,12 @@ function DashboardPage() {
     ...latestProjects.map((item) => ({ id: item.id, title: item.title, meta: item.meta })),
     ...latestPrompts.map((item) => ({ id: item.id, title: item.title, meta: item.meta })),
   ].slice(0, 4)
+  const enterpriseReadiness = [
+    { label: 'API status', value: 'UI Preview Only', helper: 'Future backend hookup ready from Settings.' },
+    { label: 'Tenant mode', value: 'Prepared', helper: 'Visual isolation labels are ready.' },
+    { label: 'Connectors', value: '23 Coming Soon', helper: 'ERP, CRM, cloud storage, BI, communication and industrial systems staged.' },
+    { label: 'Security', value: 'Placeholder', helper: 'OAuth, JWT, permissions and audit logs reserved.' },
+  ]
 
   if (loading) {
     return (
@@ -212,6 +218,23 @@ function DashboardPage() {
           <Link to="/workflow-automation" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Workflow Automation</Link>
           <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir History</Link>
           <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Observability</Link>
+        </div>
+      </Section>
+
+      <Section title="Enterprise Readiness" description="Préparation visuelle multi-entreprises sans backend ni API active.">
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {enterpriseReadiness.map((item) => (
+            <div key={item.label} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{item.label}</p>
+              <p className="mt-2 text-3xl font-semibold text-[var(--srg-text-title)]">{item.value}</p>
+              <p className="mt-3 text-sm text-[var(--srg-text-muted)]">{item.helper}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-4 flex flex-wrap gap-2">
+          <Link to="/settings" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Configurer l’enterprise</Link>
+          <Link to="/administration" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Administration</Link>
+          <Link to="/profile" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir Profile</Link>
         </div>
       </Section>
 

@@ -1,10 +1,18 @@
 import { useMemo, useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import EmptyState from '#/app/components/EmptyState'
+import NotificationCenter from '#/app/components/NotificationCenter'
+import SearchBar from '#/app/components/SearchBar'
 import Section from '#/app/components/Section'
+import DataTable from '#/app/components/ui/DataTable'
+import type { DataTableColumn } from '#/app/components/ui/DataTable'
+import Button from '#/app/components/ui/Button'
+import { Field, FieldGroup, FormSection, FormToolbar, SmartInputField, ValidationMessage } from '#/app/components/ui/FormPrimitives'
 import { useBusiness } from '#/app/hooks/useBusiness'
+import { useNotifications } from '#/app/hooks/useNotifications'
 import { useKnowledgeWorkspace } from '#/app/hooks/useKnowledgeWorkspace'
 import { KnowledgeWorkspaceService } from '#/app/services/KnowledgeWorkspaceService'
+import { notificationService } from '#/app/services/NotificationService'
 import type { KnowledgeDocumentRecord, KnowledgeExportType, KnowledgeImportType, KnowledgeEnterpriseSearchFilters } from '#/app/services/KnowledgeWorkspaceService'
 
 function sparkline(values: number[]): string {
@@ -18,8 +26,75 @@ function byId(list: KnowledgeDocumentRecord[], id: string | null): KnowledgeDocu
   return list.find((item) => item.id === id)
 }
 
+type ArchiveStatusRow = {
+  item: string
+  value: string
+  note: string
+}
+
+type ArchiveCollectionRow = {
+  collection: string
+  coverage: string
+  state: string
+  note: string
+}
+
+type ArchiveSourceRow = {
+  source: string
+  state: string
+  note: string
+}
+
+type ArchiveReadinessRow = {
+  capability: string
+  state: string
+  note: string
+}
+
+const ARCHIVE_COLLECTIONS = [
+  'Rapports',
+  'Contrats',
+  'Devis',
+  'Proformas',
+  'Factures',
+  'Plans',
+  'Photos',
+  'Vidéos',
+  'Emails',
+  'Procédures',
+  'Normes',
+  'Qualité',
+  'Maintenance',
+  'RH',
+  'Finance',
+  'Projets',
+]
+
+const ARCHIVE_SOURCES = [
+  'ZIP',
+  'PDF',
+  'Word',
+  'Excel',
+  'PowerPoint',
+  'Images',
+  'Vidéos',
+  'Audio',
+  'Plans CAO',
+  'Emails',
+  'CSV',
+  'JSON',
+  'XML',
+]
+
+const SMART_QUESTIONS = [
+  'Combien de moteurs ABB 45 kW avons-nous reçus en 2022 ?',
+  'Quels contrats concernent Razel ?',
+  'Quels rapports parlent du groupe électrogène de Douala ?',
+]
+
 export default function KnowledgeWorkspace() {
   const business = useBusiness()
+  const notifications = useNotifications()
   const {
     store,
     summary,
@@ -66,12 +141,88 @@ export default function KnowledgeWorkspace() {
   const [reportTitle, setReportTitle] = useState('EDI enterprise report')
   const [aiQuestion, setAiQuestion] = useState('Quels sont les moteurs ABB installes sur le chantier Razel en 2022 avec references et montants ?')
   const [aiPreview, setAiPreview] = useState('')
+  const [archiveSearch, setArchiveSearch] = useState('')
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false)
 
   const selected = useMemo(() => byId(store.documents, selectedDocumentId) ?? documents.at(0), [store.documents, documents, selectedDocumentId])
   const checkedDocuments = useMemo(() => selectedByIds(selectedDocumentIds), [selectedDocumentIds, selectedByIds])
   const importHistory = summary.importHistory.slice(0, 10)
   const searchHistory = summary.searchHistory.slice(0, 10)
   const exportHistory = summary.exportHistory.slice(0, 10)
+  const archiveQuery = archiveSearch.trim().toLowerCase()
+
+  const archiveStatusRows = useMemo<ArchiveStatusRow[]>(() => [
+    { item: 'Nombre de documents', value: String(summary.documents), note: 'Documents visibles dans le centre d’archives.' },
+    { item: 'Nombre d’archives', value: String(summary.edi.decompressions), note: 'Archives préparées côté interface.' },
+    { item: 'Volume', value: String(summary.volume), note: 'Volume agrégé affiché sans moteur documentaire.' },
+    { item: 'Période couverte', value: '2019 -> 2026', note: 'Placeholder de couverture temporelle.' },
+    { item: 'Dernière indexation', value: 'Placeholder · 2026-08-02 09:30', note: 'Aucune indexation réelle lancée.' },
+    { item: 'Dernière synchronisation', value: 'Placeholder · 2026-08-02 10:05', note: 'Aucune synchronisation backend active.' },
+  ], [summary.documents, summary.edi.decompressions, summary.volume])
+
+  const archiveCollections = useMemo<ArchiveCollectionRow[]>(() => (
+    ARCHIVE_COLLECTIONS.map((collection, index) => ({
+      collection,
+      coverage: index % 2 === 0 ? 'Enterprise archive' : 'Cross-workspace archive',
+      state: 'Prepared',
+      note: 'Collection visuelle prête pour classification future.',
+    }))
+  ), [])
+
+  const archiveSources = useMemo<ArchiveSourceRow[]>(() => (
+    ARCHIVE_SOURCES.map((source) => ({
+      source,
+      state: 'Supported in UI',
+      note: 'Prévisualisation et métadonnées uniquement.',
+    }))
+  ), [])
+
+  const archiveReadiness = useMemo<ArchiveReadinessRow[]>(() => [
+    { capability: 'OCR Ready', state: 'Placeholder', note: 'Aucun OCR exécuté dans cette préparation.' },
+    { capability: 'RAG Ready', state: 'Placeholder', note: 'Aucun moteur RAG ajouté.' },
+    { capability: 'Search Ready', state: 'Prepared', note: 'SearchBar et préférences workspace réutilisés.' },
+    { capability: 'Metadata Ready', state: 'Prepared', note: 'Résumé, source, date, auteur, type et tags visibles.' },
+    { capability: 'Index Ready', state: 'Placeholder', note: 'Dernière indexation affichée sans pipeline réel.' },
+  ], [])
+
+  const filteredArchiveStatus = useMemo(
+    () => archiveStatusRows.filter((row) => !archiveQuery || `${row.item} ${row.value} ${row.note}`.toLowerCase().includes(archiveQuery)),
+    [archiveQuery, archiveStatusRows],
+  )
+  const filteredArchiveCollections = useMemo(
+    () => archiveCollections.filter((row) => !archiveQuery || `${row.collection} ${row.coverage} ${row.state} ${row.note}`.toLowerCase().includes(archiveQuery)),
+    [archiveCollections, archiveQuery],
+  )
+  const filteredArchiveSources = useMemo(
+    () => archiveSources.filter((row) => !archiveQuery || `${row.source} ${row.state} ${row.note}`.toLowerCase().includes(archiveQuery)),
+    [archiveQuery, archiveSources],
+  )
+  const filteredArchiveReadiness = useMemo(
+    () => archiveReadiness.filter((row) => !archiveQuery || `${row.capability} ${row.state} ${row.note}`.toLowerCase().includes(archiveQuery)),
+    [archiveQuery, archiveReadiness],
+  )
+
+  const archiveStatusColumns: Array<DataTableColumn<ArchiveStatusRow>> = [
+    { key: 'item', label: 'Statut', sortable: true },
+    { key: 'value', label: 'Valeur', sortable: true },
+    { key: 'note', label: 'Note' },
+  ]
+  const archiveCollectionColumns: Array<DataTableColumn<ArchiveCollectionRow>> = [
+    { key: 'collection', label: 'Collection', sortable: true },
+    { key: 'coverage', label: 'Coverage', sortable: true },
+    { key: 'state', label: 'State', sortable: true },
+    { key: 'note', label: 'Note' },
+  ]
+  const archiveSourceColumns: Array<DataTableColumn<ArchiveSourceRow>> = [
+    { key: 'source', label: 'Source', sortable: true },
+    { key: 'state', label: 'State', sortable: true },
+    { key: 'note', label: 'Note' },
+  ]
+  const archiveReadinessColumns: Array<DataTableColumn<ArchiveReadinessRow>> = [
+    { key: 'capability', label: 'Capability', sortable: true },
+    { key: 'state', label: 'State', sortable: true },
+    { key: 'note', label: 'Note' },
+  ]
 
   const updateEnterpriseFilters = (patch: Partial<KnowledgeEnterpriseSearchFilters>) => {
     setEnterpriseFilters({ ...enterpriseFilters, ...patch })
@@ -118,8 +269,146 @@ export default function KnowledgeWorkspace() {
     refresh()
   }
 
+  const previewArchiveExport = (format: 'pdf' | 'excel' | 'csv') => {
+    notificationService.publish({
+      title: 'Archive export prepared',
+      message: `Le format ${format.toUpperCase()} est prêt côté interface pour le centre d’archives.`,
+      level: 'info',
+      priority: 'low',
+      category: 'system',
+      read: false,
+      channels: ['email'],
+    })
+  }
+
   return (
     <div className="space-y-6">
+      <Section title="Enterprise Archive Center" description="Préparation UI/UX de l’intelligence documentaire enterprise sans OCR, sans RAG et sans moteur supplémentaire.">
+        <div className="flex flex-wrap gap-2">
+          <Button variant="secondary" onClick={() => setShowNotificationCenter((current) => !current)} aria-expanded={showNotificationCenter} aria-controls="archive-notification-center">
+            Notifications
+          </Button>
+          <Link to="/dashboard" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] no-underline">Dashboard</Link>
+          <Link to="/enterprise-insights" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] no-underline">Enterprise Insights</Link>
+          <Link to="/knowledge-intelligence" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] no-underline">Knowledge Intelligence</Link>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] no-underline">History</Link>
+          <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] no-underline">Observability</Link>
+          <Link to="/settings" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] no-underline">Settings</Link>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          {archiveStatusRows.map((row) => (
+            <article key={row.item} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{row.item}</p>
+              <p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{row.value}</p>
+            </article>
+          ))}
+        </div>
+      </Section>
+
+      {showNotificationCenter ? (
+        <Section title="Notification Center" description="Prévisualisation des retours de préparation documentaire.">
+          <div id="archive-notification-center">
+            <NotificationCenter
+              notifications={notifications.notifications}
+              onClose={() => setShowNotificationCenter(false)}
+              onDismiss={notifications.dismiss}
+              onClear={notifications.clear}
+              onMarkRead={notifications.markRead}
+              onMarkAllRead={notifications.markAllRead}
+            />
+          </div>
+        </Section>
+      ) : null}
+
+      <Section title="Archive Search" description="Recherche transverse sur les sources, collections, statuts et readiness du centre d’archives.">
+        <SearchBar
+          value={archiveSearch}
+          onSearch={setArchiveSearch}
+          onValueChange={setArchiveSearch}
+          placeholder="Rechercher une source, une collection ou un statut d’archive"
+          instant
+          persistKey="knowledge-archive-center"
+        />
+      </Section>
+
+      <Section title="Archive Status" description="Vue d’ensemble des archives enterprise, de leur volume et de leur couverture.">
+        <DataTable tableId="knowledge-archive-status" title="Archive status" rows={filteredArchiveStatus} columns={archiveStatusColumns} pageSize={8} exportFileName="srg-archive-status.csv" />
+      </Section>
+
+      <Section title="Archive Sources" description="Types de sources documentaires prévus dans le centre d’archives enterprise.">
+        <DataTable tableId="knowledge-archive-sources" title="Archive sources" rows={filteredArchiveSources} columns={archiveSourceColumns} pageSize={14} exportFileName="srg-archive-sources.csv" />
+      </Section>
+
+      <Section title="Archive Collections" description="Collections documentaires prêtes pour la future intelligence d’archives.">
+        <DataTable tableId="knowledge-archive-collections" title="Archive collections" rows={filteredArchiveCollections} columns={archiveCollectionColumns} pageSize={10} exportFileName="srg-archive-collections.csv" />
+      </Section>
+
+      <Section title="Smart Questions" description="Exemples de questions métier affichés sans IA ni moteur supplémentaire.">
+        <FormSection title="Exemples de questions" description="Préparation de l’expérience utilisateur uniquement.">
+          <FieldGroup columns={1}>
+            {SMART_QUESTIONS.map((question) => (
+              <Field key={question} label="Question exemple" hint="Affichage uniquement, aucune exécution.">
+                <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm text-[var(--srg-text-title)]">{question}</div>
+              </Field>
+            ))}
+          </FieldGroup>
+          <ValidationMessage variant="hint">Ces questions servent de repères d’usage pour un futur moteur documentaire.</ValidationMessage>
+        </FormSection>
+      </Section>
+
+      <Section title="Document Preview" description="Panneau de prévisualisation documentaire avec résumé, métadonnées et provenance.">
+        {selected ? (
+          <div className="grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+            <article className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Résumé</p>
+              <h3 className="mt-2 text-xl font-semibold text-[var(--srg-text-title)]">{selected.title}</h3>
+              <p className="mt-3 text-sm text-[var(--srg-text-muted)]">{selected.index.metadata.summary || selected.description}</p>
+              <div className="mt-4 flex flex-wrap gap-2">
+                {selected.tags.slice(0, 8).map((tag) => (
+                  <span key={tag} className="rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">{tag}</span>
+                ))}
+              </div>
+            </article>
+            <article className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Métadonnées</p>
+              <div className="mt-3 grid gap-2 text-sm text-[var(--srg-text-muted)]">
+                <p><strong className="text-[var(--srg-text-title)]">Source:</strong> {selected.source}</p>
+                <p><strong className="text-[var(--srg-text-title)]">Date:</strong> {selected.index.metadata.date || selected.updatedAt}</p>
+                <p><strong className="text-[var(--srg-text-title)]">Auteur:</strong> {selected.index.metadata.author}</p>
+                <p><strong className="text-[var(--srg-text-title)]">Type:</strong> {selected.documentType}</p>
+                <p><strong className="text-[var(--srg-text-title)]">Tags:</strong> {selected.tags.join(', ') || 'n/a'}</p>
+              </div>
+            </article>
+          </div>
+        ) : (
+          <EmptyState eyebrow="Archive" illustration={<span aria-hidden>⌕</span>} title="Aucun document sélectionné" description="Sélectionnez un document pour afficher son résumé et ses métadonnées." />
+        )}
+      </Section>
+
+      <Section title="Ready For OCR / RAG" description="Placeholders de préparation avant l’arrivée de moteurs documentaires réels.">
+        <DataTable tableId="knowledge-archive-readiness" title="Archive readiness" rows={filteredArchiveReadiness} columns={archiveReadinessColumns} pageSize={8} exportFileName="srg-archive-readiness.csv" />
+      </Section>
+
+      <Section title="Exports" description="Formats d’export prévus pour le centre d’archives.">
+        <FormSection title="Exports preview" description="Préparation UI sans génération documentaire supplémentaire.">
+          <FieldGroup columns={3}>
+            <SmartInputField id="archive-export-title" label="Titre du rapport" value={reportTitle} onValueChange={setReportTitle} placeholder="Titre d’export" autosaveLabel="UI preview only" />
+            <Field label="PDF" hint="Placeholder export action.">
+              <Button variant="secondary" onClick={() => previewArchiveExport('pdf')}>Préparer PDF</Button>
+            </Field>
+            <Field label="Excel" hint="Placeholder export action.">
+              <Button variant="secondary" onClick={() => previewArchiveExport('excel')}>Préparer Excel</Button>
+            </Field>
+            <Field label="CSV" hint="Placeholder export action.">
+              <Button variant="secondary" onClick={() => previewArchiveExport('csv')}>Préparer CSV</Button>
+            </Field>
+          </FieldGroup>
+          <FormToolbar autosaveLabel="Notification preview only">
+            <Button onClick={() => previewArchiveExport('pdf')}>Simuler un export</Button>
+          </FormToolbar>
+        </FormSection>
+      </Section>
+
       <Section title="Knowledge Workspace" description="Shared documentation memory for all SRG workspaces.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4"><p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">Documents</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{summary.documents}</p></div>
