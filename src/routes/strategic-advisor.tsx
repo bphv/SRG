@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import NotificationCenter from '#/app/components/NotificationCenter'
@@ -95,10 +95,9 @@ function StrategicAdvisorPage() {
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  })
+  }, [])
 
   useEffect(() => {
-    if (tick !== 0) return
     refreshAdvisor()
   }, [])
 
@@ -251,6 +250,20 @@ function StrategicAdvisorPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Strategic Advisor" description="Enterprise strategic advisor for prioritization, recommendation, planning, simulation and action orchestration." />
+
+      <Section title="Quick Actions" description="Create, modify, export, share, history, favorites and search shortcuts.">
+        <div className="flex flex-wrap gap-2">
+          <Link to="/generate" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Créer</Link>
+          <Link to="/projects" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Modifier</Link>
+          <Button variant="secondary" onClick={() => StrategicAdvisorWorkspaceService.exportActionPlans()}>Exporter</Button>
+          <Button variant="secondary" onClick={() => navigator.clipboard.writeText(window.location.href)}>Partager</Button>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Historique</Link>
+          <Button variant="secondary" onClick={toggleFavoriteSearch}>Favoris</Button>
+          <Button variant="secondary" onClick={() => searchHostRef.current?.querySelector('input')?.focus()}>Recherche</Button>
+          <Button variant="secondary" onClick={() => setShowNotificationCenter((value) => !value)}>Notifications</Button>
+          <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Observability</Link>
+        </div>
+      </Section>
 
       <Section title="Executive Dashboard" description="Top priorities, decisions, timeline, risks, opportunities and strategic actions.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">

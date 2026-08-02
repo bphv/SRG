@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import SearchBar from '#/app/components/SearchBar'
@@ -111,6 +111,18 @@ function KnowledgeIntelligencePage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Knowledge Intelligence" description="Enterprise document intelligence and reasoning with graph, comparison, timeline and observability." />
+
+      <Section title="Quick Actions" description="Create, modify, export, share, history and search shortcuts.">
+        <div className="flex flex-wrap gap-2">
+          <Link to="/generate" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Créer</Link>
+          <Link to="/knowledge-center" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Modifier</Link>
+          <Button variant="secondary" size="sm" onClick={() => KnowledgeIntelligenceWorkspaceService.exportQuestionHistory()}>Exporter</Button>
+          <Button variant="secondary" size="sm" onClick={() => navigator.clipboard.writeText(window.location.href)}>Partager</Button>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Historique</Link>
+          <Button variant="secondary" size="sm" onClick={() => setSearch('')}>Recherche</Button>
+          <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Observability</Link>
+        </div>
+      </Section>
 
       <Section title="Executive Summary" description="Knowledge-wide health, criticality, freshness and workflow linkage.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">

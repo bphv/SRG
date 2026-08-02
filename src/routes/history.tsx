@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
@@ -377,6 +377,19 @@ function HistoryPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="History" description="Filtrez, comparez, exportez et relancez vos executions SRG." />
+
+      <Section title="Quick Actions" description="Create, modify, export, share, history, favorites and search shortcuts.">
+        <div className="flex flex-wrap gap-2">
+          <Link to="/generate" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Créer</Link>
+          <Link to="/projects" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Modifier</Link>
+          <button type="button" onClick={exportFiltered} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter</button>
+          <button type="button" onClick={() => navigator.clipboard.writeText(window.location.href)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Partager</button>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Historique</Link>
+          <button type="button" onClick={() => WorkspacePreferencesService.pushRecentSearch(search)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Favoris</button>
+          <button type="button" onClick={() => searchHostRef.current?.querySelector('input')?.focus()} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Recherche</button>
+          <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Observability</Link>
+        </div>
+      </Section>
 
       <Section title="Filtres" description="Date, projet, provider, modele et statut.">
         <FormSection title="Recherche avancée" description="Filtres persistés, historique de recherche et raccourcis clavier (Ctrl+K, Ctrl+Shift+E, Ctrl+Shift+Backspace).">

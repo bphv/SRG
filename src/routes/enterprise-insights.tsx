@@ -1,6 +1,7 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
+import NotificationCenter from '#/app/components/NotificationCenter'
 import PageHeader from '#/app/components/PageHeader'
 import SearchBar from '#/app/components/SearchBar'
 import Section from '#/app/components/Section'
@@ -17,9 +18,7 @@ import {
 } from '#/app/components/ui/FormPrimitives'
 import Button from '#/app/components/ui/Button'
 import { useNotifications } from '#/app/hooks/useNotifications'
-import {
-  EnterpriseInsightsWorkspaceService,
-} from '#/app/services/EnterpriseInsightsWorkspaceService'
+import { EnterpriseInsightsWorkspaceService } from '#/app/services/EnterpriseInsightsWorkspaceService'
 import type {
   AssistantAnswer,
   DecisionHistoryItem,
@@ -56,6 +55,7 @@ function EnterpriseInsightsPage() {
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all')
   const [assistantQuestion, setAssistantQuestion] = useState('')
   const [assistantAnswer, setAssistantAnswer] = useState<AssistantAnswer | null>(null)
+  const [showNotificationCenter, setShowNotificationCenter] = useState(false)
 
   const insightsViews = useMemo(() => EnterpriseInsightsWorkspaceService.getInsightsViews(), [tick])
   const executive = useMemo(() => EnterpriseInsightsWorkspaceService.getExecutiveDashboard(), [tick])
@@ -82,10 +82,9 @@ function EnterpriseInsightsPage() {
 
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  })
+  }, [])
 
   useEffect(() => {
-    if (tick !== 0) return
     refreshInsights()
   }, [])
 
@@ -188,6 +187,33 @@ function EnterpriseInsightsPage() {
         description="Enterprise intelligence and decision support: analyze, compare, explain, recommend, justify and predict."
       />
 
+      <Section title="Quick Actions" description="Create, modify, export, share, history, favorites and search shortcuts.">
+        <div className="flex flex-wrap gap-2">
+          <Link to="/generate" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Créer</Link>
+          <Link to="/projects" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Modifier</Link>
+          <Button variant="secondary" onClick={() => EnterpriseInsightsWorkspaceService.exportDecisionHistory()}>Exporter</Button>
+          <Button variant="secondary" onClick={() => navigator.clipboard.writeText(window.location.href)}>Partager</Button>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Historique</Link>
+          <Button variant="secondary" onClick={toggleFavoriteSearch}>Favoris</Button>
+          <Button variant="secondary" onClick={() => searchHostRef.current?.querySelector('input')?.focus()}>Recherche</Button>
+          <Button variant="secondary" onClick={() => setShowNotificationCenter((value) => !value)}>Notifications</Button>
+          <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Observability</Link>
+        </div>
+      </Section>
+
+      {showNotificationCenter ? (
+        <Section title="Notification Center" description="Centralized notifications across decision recommendations and risk events.">
+          <NotificationCenter
+            notifications={notifications.notifications}
+            onClose={() => setShowNotificationCenter(false)}
+            onDismiss={notifications.dismiss}
+            onClear={notifications.clear}
+            onMarkRead={notifications.markRead}
+            onMarkAllRead={notifications.markAllRead}
+          />
+        </Section>
+      ) : null}
+
       <Section title="Executive Summary" description="Top KPIs, risks, opportunities, recommendations and timeline.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
           {executive.topKpis.map((item) => (
@@ -284,6 +310,7 @@ function EnterpriseInsightsPage() {
           </FieldGroup>
           <FormToolbar autosaveLabel="WorkspacePreferencesService">
             <Button variant="secondary" size="sm" onClick={toggleFavoriteSearch}>Toggle Favorite Query</Button>
+            <Button variant="secondary" size="sm" onClick={() => setShowNotificationCenter((value) => !value)}>Notifications</Button>
             {searchFavorites.map((item) => (
               <button
                 key={item}
