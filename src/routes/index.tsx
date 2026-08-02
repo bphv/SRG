@@ -67,6 +67,24 @@ type AskRuntimeSessionRow = {
   note: string
 }
 
+type AskSrgSkillRegistryRow = {
+  id: string
+  name: string
+  category: string
+  description: string
+  icon: string
+  status: string
+  supportedWorkspaces: string
+  suggestedPrompts: string
+}
+
+type AskSrgSkillSimpleRow = {
+  skillId: string
+  name: string
+  category: string
+  status: string
+}
+
 const HOME_MODULES: HomeModuleCard[] = [
   { id: 'dashboard', title: 'Dashboard', description: 'Command center for activity, health and KPI steering.', path: '/dashboard', icon: '📊', category: 'platform', accent: 'from-[rgba(79,184,178,0.22)] to-[rgba(47,106,74,0.12)]' },
   { id: 'knowledge-intelligence', title: 'Knowledge Intelligence', description: 'Document reasoning, semantic search, graph and comparisons.', path: '/knowledge-intelligence', icon: '🧩', category: 'intelligence', accent: 'from-[rgba(79,184,178,0.18)] to-[rgba(23,58,64,0.08)]' },
@@ -242,6 +260,7 @@ function HomePage() {
   const [selectedSuggestion, setSelectedSuggestion] = useState('')
   const [activeSkillCategory, setActiveSkillCategory] = useState(() => getStoredAskString('activeSkillCategory', 'Documents'))
   const [consultedModule, setConsultedModule] = useState(() => getStoredAskString('consultedModule', 'Dashboard'))
+  const [skillsSearch, setSkillsSearch] = useState(() => getStoredAskString('skillsSearch', ''))
 
   useEffect(() => {
     WorkspacePreferencesService.setFilters('home-ask-srg', {
@@ -252,8 +271,9 @@ function HomePage() {
       translationMode,
       activeSkillCategory,
       consultedModule,
+      skillsSearch,
     })
-  }, [activeSkillCategory, askInput, askSearch, consultedModule, documentsLanguage, responseLanguage, translationMode])
+  }, [activeSkillCategory, askInput, askSearch, consultedModule, documentsLanguage, responseLanguage, skillsSearch, translationMode])
 
   const featuredModules = useMemo(() => {
     const search = query.trim().toLowerCase()
@@ -378,6 +398,71 @@ function HomePage() {
     { item: 'recentDocuments', value: askSrgRuntime.session.recentDocuments.join(' | ') || 'Placeholder', note: 'Documents récents locaux.' },
   ], [askSrgRuntime.session])
 
+  const filteredSkillsRegistry = useMemo(() => {
+    const normalized = skillsSearch.trim().toLowerCase()
+    return askSrgRuntime.skillsRegistry.filter((skill) => {
+      if (activeSkillCategory !== 'all' && skill.category !== activeSkillCategory) {
+        return false
+      }
+      if (!normalized) {
+        return true
+      }
+      return `${skill.id} ${skill.name} ${skill.category} ${skill.description} ${skill.status} ${skill.supportedWorkspaces.join(' ')}`
+        .toLowerCase()
+        .includes(normalized)
+    })
+  }, [activeSkillCategory, askSrgRuntime.skillsRegistry, skillsSearch])
+
+  const skillsRegistryRows = useMemo<AskSrgSkillRegistryRow[]>(() => (
+    filteredSkillsRegistry.map((skill) => ({
+      id: skill.id,
+      name: skill.name,
+      category: skill.category,
+      description: skill.description,
+      icon: skill.icon,
+      status: skill.status,
+      supportedWorkspaces: skill.supportedWorkspaces.join(' | '),
+      suggestedPrompts: skill.suggestedPrompts.join(' | '),
+    }))
+  ), [filteredSkillsRegistry])
+
+  const recentSkillRows = useMemo<AskSrgSkillSimpleRow[]>(() => (
+    askSrgRuntime.recentSkills
+      .map((id) => askSrgRuntime.skillsRegistry.find((skill) => skill.id === id))
+      .filter((skill): skill is NonNullable<typeof skill> => Boolean(skill))
+      .map((skill) => ({
+        skillId: skill.id,
+        name: skill.name,
+        category: skill.category,
+        status: skill.status,
+      }))
+  ), [askSrgRuntime.recentSkills, askSrgRuntime.skillsRegistry])
+
+  const favoriteSkillRows = useMemo<AskSrgSkillSimpleRow[]>(() => (
+    askSrgRuntime.favoriteSkills
+      .map((id) => askSrgRuntime.skillsRegistry.find((skill) => skill.id === id))
+      .filter((skill): skill is NonNullable<typeof skill> => Boolean(skill))
+      .map((skill) => ({
+        skillId: skill.id,
+        name: skill.name,
+        category: skill.category,
+        status: skill.status,
+      }))
+  ), [askSrgRuntime.favoriteSkills, askSrgRuntime.skillsRegistry])
+
+  const skillsCategoryRows = useMemo(
+    () => askSrgRuntime.skillsCategories.map((category) => ({
+      category,
+      count: String(askSrgRuntime.skillsRegistry.filter((skill) => skill.category === category).length),
+    })),
+    [askSrgRuntime.skillsCategories, askSrgRuntime.skillsRegistry],
+  )
+
+  const suggestedPromptRows = useMemo(
+    () => askSrgRuntime.suggestedPrompts.map((prompt) => ({ prompt })),
+    [askSrgRuntime.suggestedPrompts],
+  )
+
   const askReadinessColumns: Array<DataTableColumn<AskReadinessRow>> = [
     { key: 'item', label: 'Item', sortable: true },
     { key: 'value', label: 'Valeur', sortable: true },
@@ -409,6 +494,30 @@ function HomePage() {
     { key: 'item', label: 'Champ', sortable: true },
     { key: 'value', label: 'Valeur' },
     { key: 'note', label: 'Note' },
+  ]
+
+  const skillsRegistryColumns: Array<DataTableColumn<AskSrgSkillRegistryRow>> = [
+    { key: 'icon', label: 'Icon' },
+    { key: 'name', label: 'Skill', sortable: true },
+    { key: 'category', label: 'Category', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+    { key: 'supportedWorkspaces', label: 'Workspaces' },
+    { key: 'suggestedPrompts', label: 'Suggested prompts' },
+  ]
+
+  const skillSimpleColumns: Array<DataTableColumn<AskSrgSkillSimpleRow>> = [
+    { key: 'name', label: 'Skill', sortable: true },
+    { key: 'category', label: 'Category', sortable: true },
+    { key: 'status', label: 'Status', sortable: true },
+  ]
+
+  const skillsCategoryColumns: Array<DataTableColumn<{ category: string; count: string }>> = [
+    { key: 'category', label: 'Category', sortable: true },
+    { key: 'count', label: 'Skills', sortable: true },
+  ]
+
+  const suggestedPromptColumns: Array<DataTableColumn<{ prompt: string }>> = [
+    { key: 'prompt', label: 'Suggested prompt', sortable: true },
   ]
 
   const publishAskNotification = (title: string, message: string) => {
@@ -631,6 +740,148 @@ function HomePage() {
               ))}
             </ul>
           </FormSection>
+        </div>
+
+        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+          <FormSection title="Skills Categories" description="Catégories locales du Skills Runtime Ask SRG.">
+            <FieldGroup columns={2}>
+              <Field label="Catégorie active" hint="Filtre des skills registry.">
+                <select
+                  value={activeSkillCategory}
+                  onChange={(event) => setActiveSkillCategory(event.target.value)}
+                  aria-label="Catégorie active des compétences Ask SRG"
+                >
+                  <option value="all">Toutes catégories</option>
+                  {askSrgRuntime.skillsCategories.map((category) => <option key={category} value={category}>{category}</option>)}
+                </select>
+              </Field>
+              <Field label="Recherche skills" hint="Réutilise SearchBar + WorkspacePreferencesService.">
+                <SearchBar
+                  value={skillsSearch}
+                  onSearch={setSkillsSearch}
+                  onValueChange={setSkillsSearch}
+                  placeholder="Rechercher un skill Ask SRG"
+                  persistKey="home-ask-srg-skills"
+                  instant
+                />
+              </Field>
+            </FieldGroup>
+            <ValidationMessage variant="hint">Toutes les catégories sont des placeholders locaux sans backend ni IA.</ValidationMessage>
+          </FormSection>
+
+          <DataTable
+            tableId="home-ask-srg-skills-categories"
+            title="Skills categories"
+            rows={skillsCategoryRows}
+            columns={skillsCategoryColumns}
+            pageSize={12}
+            exportFileName="srg-ask-skills-categories.csv"
+          />
+        </div>
+
+        <div className="mt-4">
+          <DataTable
+            tableId="home-ask-srg-skills-registry"
+            title="Skills registry"
+            rows={skillsRegistryRows}
+            columns={skillsRegistryColumns}
+            pageSize={10}
+            exportFileName="srg-ask-skills-registry.csv"
+          />
+        </div>
+
+        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+          <DataTable
+            tableId="home-ask-srg-suggested-prompts"
+            title="Suggested prompts"
+            rows={suggestedPromptRows}
+            columns={suggestedPromptColumns}
+            pageSize={8}
+            exportFileName="srg-ask-suggested-prompts.csv"
+          />
+
+          <FormSection title="Skills Actions" description="Actions locales de Skills Runtime sans moteur IA.">
+            <FieldGroup columns={2}>
+              <Field label="Skill récent" hint="Marque une compétence comme utilisée récemment.">
+                <select
+                  defaultValue=""
+                  onChange={(event) => {
+                    const skillId = event.target.value
+                    if (!skillId) return
+                    askSrgRuntime.useSkill(skillId)
+                    notificationService.publish({
+                      title: 'Ask SRG skill used',
+                      message: `${skillId} ajouté aux compétences récentes.`,
+                      level: 'info',
+                      priority: 'low',
+                      category: 'system',
+                      read: false,
+                      channels: ['email'],
+                    })
+                  }}
+                  aria-label="Sélectionner un skill récent"
+                >
+                  <option value="">Choisir une compétence</option>
+                  {askSrgRuntime.skillsRegistry.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
+                </select>
+              </Field>
+              <Field label="Favori" hint="Ajoute ou retire une compétence des favoris.">
+                <select
+                  defaultValue=""
+                  onChange={(event) => {
+                    const skillId = event.target.value
+                    if (!skillId) return
+                    askSrgRuntime.toggleFavoriteSkill(skillId)
+                    notificationService.publish({
+                      title: 'Ask SRG favorite toggled',
+                      message: `${skillId} mis à jour dans les favoris.`,
+                      level: 'info',
+                      priority: 'low',
+                      category: 'system',
+                      read: false,
+                      channels: ['email'],
+                    })
+                  }}
+                  aria-label="Sélectionner un skill favori"
+                >
+                  <option value="">Choisir une compétence</option>
+                  {askSrgRuntime.skillsRegistry.map((skill) => <option key={skill.id} value={skill.id}>{skill.name}</option>)}
+                </select>
+              </Field>
+            </FieldGroup>
+            <FormToolbar autosaveLabel="WorkspacePreferencesService">
+              <Button
+                variant="secondary"
+                disabled={filteredSkillsRegistry.length === 0}
+                onClick={() => {
+                  const firstSkill = filteredSkillsRegistry[0]
+                  askSrgRuntime.useSkill(firstSkill.id)
+                  publishAskNotification('Ask SRG skills', `${firstSkill.name} ajouté aux compétences récentes.`)
+                }}
+              >
+                Utiliser la première compétence filtrée
+              </Button>
+            </FormToolbar>
+          </FormSection>
+        </div>
+
+        <div className="mt-4 grid gap-4 xl:grid-cols-2">
+          <DataTable
+            tableId="home-ask-srg-recent-skills"
+            title="Recent skills"
+            rows={recentSkillRows}
+            columns={skillSimpleColumns}
+            pageSize={8}
+            exportFileName="srg-ask-recent-skills.csv"
+          />
+          <DataTable
+            tableId="home-ask-srg-favorite-skills"
+            title="Favorite skills"
+            rows={favoriteSkillRows}
+            columns={skillSimpleColumns}
+            pageSize={8}
+            exportFileName="srg-ask-favorite-skills.csv"
+          />
         </div>
 
         <div className="mt-4 grid gap-4 xl:grid-cols-2">
