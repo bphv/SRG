@@ -268,16 +268,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          <div className="flex flex-wrap items-center gap-2 text-xs text-[var(--srg-text-muted)]">
-            {breadcrumbs.map((crumb, index) => (
-              <span key={crumb.path} className="inline-flex items-center gap-2">
-                {index > 0 ? <span aria-hidden>›</span> : null}
-                <Link to={crumb.path} className="text-[var(--srg-text-muted)] hover:text-[var(--srg-text-title)]">
-                  {crumb.title}
-                </Link>
-              </span>
-            ))}
-          </div>
+          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-[var(--srg-text-muted)]">
+            {breadcrumbs.map((crumb, index) => {
+              const isLast = index === breadcrumbs.length - 1
+              return (
+                <span key={crumb.path} className="inline-flex items-center gap-2">
+                  {index > 0 ? <span aria-hidden>›</span> : null}
+                  <Link to={crumb.path} className="text-[var(--srg-text-muted)] hover:text-[var(--srg-text-title)]" aria-current={isLast ? 'page' : undefined}>
+                    {crumb.title}
+                  </Link>
+                </span>
+              )
+            })}
+          </nav>
 
           {children}
         </main>

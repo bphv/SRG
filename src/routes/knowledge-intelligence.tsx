@@ -7,6 +7,9 @@ import DataTable from '#/app/components/ui/DataTable'
 import type { DataTableColumn } from '#/app/components/ui/DataTable'
 import Button from '#/app/components/ui/Button'
 import { KnowledgeIntelligenceWorkspaceService } from '#/app/services/KnowledgeIntelligenceWorkspaceService'
+import { StrategicAdvisorWorkspaceService } from '#/app/services/StrategicAdvisorWorkspaceService'
+import { WorkflowWorkspaceService } from '#/app/services/WorkflowWorkspaceService'
+import { ProjectExecutionWorkspaceService } from '#/app/services/ProjectExecutionWorkspaceService'
 import type {
   KnowledgeComparisonResult,
   KnowledgeIntelligenceDocument,
@@ -31,6 +34,9 @@ function KnowledgeIntelligencePage() {
   const graph = useMemo(() => KnowledgeIntelligenceWorkspaceService.buildDocumentGraph(), [tick])
   const observability = useMemo(() => KnowledgeIntelligenceWorkspaceService.getObservability(), [tick])
   const store = useMemo(() => KnowledgeIntelligenceWorkspaceService.getStore(), [tick])
+  const strategic = useMemo(() => StrategicAdvisorWorkspaceService.getExecutiveDashboard(), [tick])
+  const workflow = useMemo(() => WorkflowWorkspaceService.getDashboardSummary(), [tick])
+  const projects = useMemo(() => ProjectExecutionWorkspaceService.getSummary(), [tick])
 
   const filteredDocuments = useMemo(() => {
     const query = search.trim().toLowerCase()
@@ -120,7 +126,37 @@ function KnowledgeIntelligencePage() {
           <Button variant="secondary" size="sm" onClick={() => navigator.clipboard.writeText(window.location.href)}>Partager</Button>
           <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Historique</Link>
           <Button variant="secondary" size="sm" onClick={() => setSearch('')}>Recherche</Button>
+          <Link to="/strategic-advisor" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Strategic Advisor</Link>
+          <Link to="/workflow-automation" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Workflow</Link>
           <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Observability</Link>
+        </div>
+      </Section>
+
+      <Section title="Elements associes" description="Documents, workflows, projets, equipements et historique relies aux analyses en cours.">
+        <div className="grid gap-3 md:grid-cols-3 text-sm">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Knowledge</p>
+            <p className="text-[var(--srg-text-muted)]">Documents: {summary.totalDocuments}</p>
+            <p className="text-[var(--srg-text-muted)]">Critiques: {summary.criticalDocuments}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Strategic</p>
+            <p className="text-[var(--srg-text-muted)]">Priorites: {strategic.topPriorities.length}</p>
+            <p className="text-[var(--srg-text-muted)]">Risques: {strategic.strategicRisks.length}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Workflow/Projects</p>
+            <p className="text-[var(--srg-text-muted)]">Workflows: {workflow.totalWorkflows}</p>
+            <p className="text-[var(--srg-text-muted)]">Projets: {projects.projects}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link to="/knowledge-center" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le document associe</Link>
+          <Link to="/workflow-automation" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le workflow associe</Link>
+          <Link to="/project-execution" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le projet associe</Link>
+          <Link to="/procurement-inventory" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le fournisseur associe</Link>
+          <Link to="/maintenance" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir l'equipement associe</Link>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir les historiques associes</Link>
         </div>
       </Section>
 

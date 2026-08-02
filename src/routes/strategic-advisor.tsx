@@ -261,7 +261,38 @@ function StrategicAdvisorPage() {
           <Button variant="secondary" onClick={toggleFavoriteSearch}>Favoris</Button>
           <Button variant="secondary" onClick={() => searchHostRef.current?.querySelector('input')?.focus()}>Recherche</Button>
           <Button variant="secondary" onClick={() => setShowNotificationCenter((value) => !value)}>Notifications</Button>
+          <Link to="/enterprise-insights" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Enterprise Insights</Link>
+          <Link to="/knowledge-intelligence" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Knowledge</Link>
+          <Link to="/workflow-automation" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Workflow</Link>
           <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Observability</Link>
+        </div>
+      </Section>
+
+      <Section title="Elements associes" description="Navigation contextuelle vers documents, workflows, projets, fournisseurs, equipements et historiques.">
+        <div className="grid gap-3 md:grid-cols-3 text-sm">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Strategic</p>
+            <p className="text-[var(--srg-text-muted)]">Plans: {dashboard.plansCount}</p>
+            <p className="text-[var(--srg-text-muted)]">Recommendations: {dashboard.recommendationsCount}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Knowledge</p>
+            <p className="text-[var(--srg-text-muted)]">Critical docs: {strategicViews.knowledge.criticalDocuments}</p>
+            <p className="text-[var(--srg-text-muted)]">Expired docs: {strategicViews.knowledge.expiredDocuments}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Operations</p>
+            <p className="text-[var(--srg-text-muted)]">Suppliers incidents: {strategicViews.procurement.incidents}</p>
+            <p className="text-[var(--srg-text-muted)]">Maintenance failures: {strategicViews.maintenance.failures}</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link to="/knowledge-center" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le document associe</Link>
+          <Link to="/workflow-automation" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le workflow associe</Link>
+          <Link to="/project-execution" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le projet associe</Link>
+          <Link to="/procurement-inventory" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir le fournisseur associe</Link>
+          <Link to="/maintenance" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir l'equipement associe</Link>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Ouvrir les historiques associes</Link>
         </div>
       </Section>
 

@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import PageHeader from '#/app/components/PageHeader'
@@ -226,6 +226,40 @@ function WorkflowAutomationPage() {
         title="Workflow Automation"
         description="Enterprise workflow designer, library, execution logs and observability."
       />
+
+      <Section title="Elements associes" description="Workflow ↔ tous les workspaces via navigation contextuelle.">
+        <div className="grid gap-3 md:grid-cols-3 text-sm">
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Workflows</p>
+            <p className="text-[var(--srg-text-muted)]">Total: {summary.totalWorkflows}</p>
+            <p className="text-[var(--srg-text-muted)]">Actifs: {summary.active}</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Execution</p>
+            <p className="text-[var(--srg-text-muted)]">Succes: {summary.successRate}%</p>
+            <p className="text-[var(--srg-text-muted)]">Echecs: {summary.failureRate}%</p>
+          </div>
+          <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Observability</p>
+            <p className="text-[var(--srg-text-muted)]">Events: {observability.metrics.events}</p>
+            <p className="text-[var(--srg-text-muted)]">Latency avg: {observability.metrics.latencyAvg} ms</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap gap-2">
+          <Link to="/dashboard" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Dashboard</Link>
+          <Link to="/history" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans History</Link>
+          <Link to="/observability" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Observability</Link>
+          <Link to="/knowledge-intelligence" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Knowledge</Link>
+          <Link to="/project-execution" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Projects</Link>
+          <Link to="/finance" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Finance</Link>
+          <Link to="/maintenance" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Maintenance</Link>
+          <Link to="/procurement-inventory" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Procurement</Link>
+          <Link to="/human-resources" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans RH</Link>
+          <Link to="/chat" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans CRM</Link>
+          <Link to="/enterprise-insights" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Enterprise Insights</Link>
+          <Link to="/strategic-advisor" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Voir dans Strategic Advisor</Link>
+        </div>
+      </Section>
 
       <Section title="Workflow Dashboard" description="Active, completed, failed, latency and distribution.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
