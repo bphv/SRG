@@ -223,7 +223,12 @@ const ASK_SRG_ACTION_EXAMPLES = [
 const ASK_SRG_QUICK_COMMANDS = ['/rapport', '/devis', '/maintenance', '/finance', '/rh', '/projet', '/archive', '/workflow', '/export', '/search']
 
 function getStoredAskString(key: string, fallback: string) {
-  const record = WorkspacePreferencesService.getPreferences().filters['home-ask-srg']
+  const isBrowser = typeof window !== 'undefined' && typeof window.location !== 'undefined' && typeof window.location.search === 'string'
+  if (!isBrowser) {
+    return fallback
+  }
+
+  const record = WorkspacePreferencesService.getPreferences().filters['home-ask-srg'] ?? {}
   const value = record[key]
   return typeof value === 'string' ? value : fallback
 }

@@ -31,7 +31,15 @@ export default function DataTable<TRow extends Record<string, unknown>>({
   multiSelect?: boolean
   bulkActions?: Array<{ label: string; onClick: (rows: TRow[]) => void }>
 }) {
-  const stored = WorkspacePreferencesService.getPreferences()
+  const isBrowser = typeof window !== 'undefined' && typeof window.location !== 'undefined' && typeof window.location.search === 'string'
+  const stored = isBrowser
+    ? WorkspacePreferencesService.getPreferences()
+    : {
+        filters: {} as Record<string, Record<string, string | boolean | number | undefined>>,
+        tablePages: {} as Record<string, number>,
+        tableSizes: {} as Record<string, number>,
+        visibleColumns: {} as Record<string, string[]>,
+      }
   const fallbackColumnKeys = useMemo(() => columns.map((column) => String(column.key)), [columns])
   const storedColumns = tableId ? stored.visibleColumns[tableId] : undefined
   const initialColumns = storedColumns && storedColumns.length > 0
@@ -40,7 +48,7 @@ export default function DataTable<TRow extends Record<string, unknown>>({
 
   const [search, setSearch] = useState(() => {
     if (!tableId) return ''
-    const persisted = stored.filters[tableId].search
+    const persisted = stored.filters[tableId]?.search
     return typeof persisted === 'string' ? persisted : ''
   })
   const [page, setPage] = useState(() => (tableId ? stored.tablePages[tableId] ?? 1 : 1))
@@ -52,12 +60,12 @@ export default function DataTable<TRow extends Record<string, unknown>>({
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
 
   useEffect(() => {
-    if (!tableId) return
+    if (!isBrowser || !tableId) return
     WorkspacePreferencesService.setFilters(tableId, { search })
     WorkspacePreferencesService.setTablePage(tableId, page)
     WorkspacePreferencesService.setTableSize(tableId, pageSizeState)
     WorkspacePreferencesService.setVisibleColumns(tableId, visibleColumnKeys)
-  }, [tableId, search, page, pageSizeState, visibleColumnKeys])
+  }, [isBrowser, tableId, search, page, pageSizeState, visibleColumnKeys])
 
   const visibleColumns = useMemo(() => {
     const source = visibleColumnKeys.length > 0 ? visibleColumnKeys : fallbackColumnKeys

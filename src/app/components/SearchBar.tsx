@@ -32,7 +32,7 @@ export default function SearchBar({
 
   useEffect(() => {
     if (!persistKey) return
-    const stored = WorkspacePreferencesService.getPreferences().filters[persistKey].query
+    const stored = WorkspacePreferencesService.getPreferences().filters[persistKey]?.query
     if (typeof stored === 'string' && value === undefined) {
       setInternalValue(stored)
     }
