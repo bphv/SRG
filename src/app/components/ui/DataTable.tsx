@@ -48,7 +48,8 @@ export default function DataTable<TRow extends Record<string, unknown>>({
 
   const [search, setSearch] = useState(() => {
     if (!tableId) return ''
-    const persisted = stored.filters[tableId]?.search
+    const persistedFilters = stored.filters[tableId] ?? {}
+    const persisted = persistedFilters.search
     return typeof persisted === 'string' ? persisted : ''
   })
   const [page, setPage] = useState(() => (tableId ? stored.tablePages[tableId] ?? 1 : 1))

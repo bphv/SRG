@@ -4,11 +4,12 @@ import Button from '#/app/components/ui/Button'
 import NotificationCenter from '#/app/components/NotificationCenter'
 import PageHeader from '#/app/components/PageHeader'
 import SearchBar from '#/app/components/SearchBar'
+import SmartInputBar from '#/app/components/SmartInputBar'
 import Section from '#/app/components/Section'
 import DataTable from '#/app/components/ui/DataTable'
 import type { DataTableColumn } from '#/app/components/ui/DataTable'
 import { Tabs } from '#/app/components/ui/Tabs'
-import { Field, FieldGroup, FormSection, FormToolbar, SmartInputField, ValidationMessage } from '#/app/components/ui/FormPrimitives'
+import { Field, FieldGroup, FormSection, FormToolbar, ValidationMessage } from '#/app/components/ui/FormPrimitives'
 import { useAskSrgRuntimeContext } from '#/app/contexts/AskSrgRuntimeContext'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { DashboardService } from '#/app/services/DashboardService'
@@ -262,7 +263,6 @@ function HomePage() {
   const [responseLanguage, setResponseLanguage] = useState(() => askSrgRuntime.session.language || getStoredAskString('responseLanguage', 'Français'))
   const [documentsLanguage, setDocumentsLanguage] = useState(() => getStoredAskString('documentsLanguage', 'Auto Detection'))
   const [translationMode, setTranslationMode] = useState(() => getStoredAskString('translationMode', 'Placeholder'))
-  const [selectedSuggestion, setSelectedSuggestion] = useState('')
   const [activeSkillCategory, setActiveSkillCategory] = useState(() => getStoredAskString('activeSkillCategory', 'Documents'))
   const [consultedModule, setConsultedModule] = useState(() => getStoredAskString('consultedModule', 'Dashboard'))
   const [skillsSearch, setSkillsSearch] = useState(() => getStoredAskString('skillsSearch', ''))
@@ -666,59 +666,27 @@ function HomePage() {
               <p className="text-sm text-[var(--srg-text-muted)]">Conversation placeholder: Ask SRG affichera ici les échanges, les sources et les contextes enterprise.</p>
             </div>
             <div className="mt-4">
-              <FieldGroup columns={2}>
-                <SmartInputField
-                  id="home-ask-srg-input"
-                  label="Champ de saisie"
-                  value={askInput}
-                  onValueChange={setAskInput}
-                  placeholder="Posez une question à Ask SRG"
-                  autosaveLabel="WorkspacePreferencesService"
-                />
-                <Field label="Suggestions rapides" hint="Sélection d’un prompt préconfiguré.">
-                  <select
-                    value={selectedSuggestion}
-                    onChange={(event) => {
-                      setSelectedSuggestion(event.target.value)
-                      setAskInput(event.target.value)
-                    }}
-                    aria-label="Suggestions Ask SRG"
-                  >
-                    <option value="">Choisir une suggestion</option>
-                    {ASK_SRG_SUGGESTIONS.map((suggestion) => <option key={suggestion} value={suggestion}>{suggestion}</option>)}
-                  </select>
-                </Field>
-              </FieldGroup>
-              <FormToolbar autosaveLabel="UI readiness only">
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    askSrgRuntime.setVoiceEnabled(!askSrgRuntime.session.voiceEnabled)
-                    publishAskNotification('Ask SRG microphone', `Microphone en mode placeholder (${!askSrgRuntime.session.voiceEnabled ? 'enabled' : 'disabled'}).`)
-                  }}
-                >
-                  Microphone
-                </Button>
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    askSrgRuntime.pushRecentDocument('Document placeholder')
-                    publishAskNotification('Ask SRG documents', 'Pièce jointe en mode placeholder.')
-                  }}
-                >
-                  Joindre un document
-                </Button>
-                <Button variant="secondary" onClick={() => publishAskNotification('Ask SRG sharing', 'Partage en mode placeholder.')}>Partager</Button>
-                <Button
-                  onClick={() => {
-                    const command = askInput.trim() || selectedSuggestion || 'Ask SRG placeholder command'
-                    askSrgRuntime.pushRecentCommand(command)
-                    publishAskNotification('Ask SRG conversation', 'Conversation envoyée en mode préparation sans IA réelle.')
-                  }}
-                >
-                  Envoyer
-                </Button>
-              </FormToolbar>
+              <SmartInputBar
+                value={askInput}
+                onValueChange={setAskInput}
+                onSubmit={(value) => {
+                  const command = value.trim() || 'Ask SRG placeholder command'
+                  askSrgRuntime.pushRecentCommand(command)
+                  publishAskNotification('Ask SRG conversation', 'Conversation envoyée en mode préparation sans IA réelle.')
+                }}
+                placeholder="Posez une question à Ask SRG"
+                persistKey="home-ask-srg-inputbar"
+                mode="conversation"
+                submitLabel="Envoyer"
+                showDropzone
+                enableNotifications
+                microphoneEnabled={askSrgRuntime.session.voiceEnabled}
+                onMicrophoneToggle={(enabled) => {
+                  askSrgRuntime.setVoiceEnabled(enabled)
+                  publishAskNotification('Ask SRG microphone', `Microphone en mode placeholder (${enabled ? 'enabled' : 'disabled'}).`)
+                }}
+                suggestions={ASK_SRG_SUGGESTIONS}
+              />
             </div>
           </FormSection>
 

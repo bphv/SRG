@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import SmartInputBar from '#/app/components/SmartInputBar'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 export default function SearchBar({
@@ -32,7 +33,8 @@ export default function SearchBar({
 
   useEffect(() => {
     if (!persistKey) return
-    const stored = WorkspacePreferencesService.getPreferences().filters[persistKey]?.query
+    const persistedFilters = WorkspacePreferencesService.getPreferences().filters[persistKey] ?? {}
+    const stored = persistedFilters.query
     if (typeof stored === 'string' && value === undefined) {
       setInternalValue(stored)
     }
@@ -48,54 +50,22 @@ export default function SearchBar({
     }
   }
 
-  const suggestions = internalValue.trim()
-    ? recentSearches.filter((item) => item.toLowerCase().includes(internalValue.trim().toLowerCase())).slice(0, 8)
-    : recentSearches.slice(0, 8)
-
-  const datalistId = persistKey ? `${persistKey}-search-history` : `${placeholder.replace(/\s+/g, '-').toLowerCase()}-search-history`
-
   return (
-    <div className="srg-workspace flex items-center gap-2 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-2 shadow-[var(--srg-shadow-sm)]" role="search">
-      <input
-        aria-label={placeholder}
-        value={internalValue}
-        list={datalistId}
-        onChange={(event) => {
-          setInternalValue(event.target.value)
-          onValueChange?.(event.target.value)
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter') {
-            submitSearch(internalValue)
-          }
-        }}
-        placeholder={placeholder}
-        className="w-full border-0 bg-transparent px-2 text-sm text-[var(--srg-text-body)] outline-none placeholder:text-[var(--srg-text-muted)]"
-      />
-      <datalist id={datalistId}>
-        {suggestions.map((item) => <option key={item} value={item} />)}
-      </datalist>
-      {internalValue ? (
-        <button
-          type="button"
-          onClick={() => {
-            setInternalValue('')
-            onValueChange?.('')
-            submitSearch('')
-          }}
-          className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-2 py-2 text-xs font-semibold text-[var(--srg-text-muted)] transition hover:bg-[var(--srg-hover)]"
-          aria-label="Clear search"
-        >
-          Clear
-        </button>
-      ) : null}
-      <button
-        type="button"
-        onClick={() => submitSearch(internalValue)}
-        className="rounded-2xl border border-transparent bg-[var(--srg-color-primary-500)] px-3 py-2 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
-      >
-        Search
-      </button>
-    </div>
+    <SmartInputBar
+      value={internalValue}
+      onValueChange={(nextValue) => {
+        setInternalValue(nextValue)
+        onValueChange?.(nextValue)
+      }}
+      onSubmit={submitSearch}
+      placeholder={placeholder}
+      persistKey={persistKey}
+      instant={instant}
+      mode="search"
+      compact
+      submitLabel="Search"
+      suggestions={recentSearches}
+      persistState={false}
+    />
   )
 }

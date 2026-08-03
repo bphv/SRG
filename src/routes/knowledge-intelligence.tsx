@@ -2,6 +2,7 @@ import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import SearchBar from '#/app/components/SearchBar'
+import SmartInputBar from '#/app/components/SmartInputBar'
 import Section from '#/app/components/Section'
 import DataTable from '#/app/components/ui/DataTable'
 import type { DataTableColumn } from '#/app/components/ui/DataTable'
@@ -84,18 +85,6 @@ function KnowledgeIntelligencePage() {
 
   const refresh = () => {
     KnowledgeIntelligenceWorkspaceService.refreshAndEmit()
-    setTick((current) => current + 1)
-  }
-
-  const runQuestion = () => {
-    const text = question.trim()
-    if (!text) {
-      setAnswer(null)
-      return
-    }
-
-    const result = KnowledgeIntelligenceWorkspaceService.askDocumentsQuestion(text)
-    setAnswer(result)
     setTick((current) => current + 1)
   }
 
@@ -212,15 +201,26 @@ function KnowledgeIntelligencePage() {
 
       <Section title="Document Q&A" description="Semantic questions with source snippets, confidence and traceability.">
         <div className="grid gap-3 text-sm">
-          <input
+          <SmartInputBar
             value={question}
-            onChange={(event) => setQuestion(event.target.value)}
+            onValueChange={setQuestion}
+            onSubmit={(value) => {
+              setQuestion(value)
+              const text = value.trim()
+              if (!text) {
+                setAnswer(null)
+                return
+              }
+              const result = KnowledgeIntelligenceWorkspaceService.askDocumentsQuestion(text)
+              setAnswer(result)
+              setTick((current) => current + 1)
+            }}
             placeholder="Ask a knowledge question"
-            className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2"
+            submitLabel="Run Question"
+            mode="conversation"
+            compact
+            persistKey="knowledge-intelligence-question"
           />
-          <div className="flex flex-wrap gap-2">
-            <Button size="sm" onClick={runQuestion}>Run Question</Button>
-          </div>
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 text-sm text-[var(--srg-text-muted)]">
             {answer ? (
               <>
