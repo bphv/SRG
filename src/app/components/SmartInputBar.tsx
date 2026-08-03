@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Button from '#/app/components/ui/Button'
 import { notificationService } from '#/app/services/NotificationService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
@@ -77,6 +77,12 @@ export default function SmartInputBar({
   persistState = true,
   enableNotifications = false,
 }: SmartInputBarProps) {
+  const onSubmitRef = useRef(onSubmit)
+
+  useEffect(() => {
+    onSubmitRef.current = onSubmit
+  }, [onSubmit])
+
   const isControlled = value !== undefined
   const storedRecord = useMemo(() => getStoredRecord(persistKey), [persistKey])
 
@@ -116,8 +122,8 @@ export default function SmartInputBar({
 
   useEffect(() => {
     if (!instant) return
-    onSubmit?.(internalValue)
-  }, [instant, internalValue, onSubmit])
+    onSubmitRef.current?.(internalValue)
+  }, [instant, internalValue])
 
   useEffect(() => {
     if (!persistState || !persistKey) return

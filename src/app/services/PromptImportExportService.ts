@@ -127,8 +127,8 @@ async function buildNativePdf(prompt: Prompt): Promise<Uint8Array> {
 
 function downloadPdfBytes(fileName: string, bytes: Uint8Array): void {
   if (typeof window === 'undefined') return
-  const normalizedBytes = Uint8Array.from(bytes)
-  const blob = new Blob([normalizedBytes], { type: 'application/pdf' })
+  const safeBytes = bytes.slice()
+  const blob = new Blob([safeBytes], { type: 'application/pdf' })
   const url = window.URL.createObjectURL(blob)
   const anchor = document.createElement('a')
   anchor.href = url

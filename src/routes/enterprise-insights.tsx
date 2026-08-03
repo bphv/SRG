@@ -50,6 +50,7 @@ function EnterpriseInsightsPage() {
   const searchHostRef = useRef<HTMLDivElement | null>(null)
 
   const [tick, setTick] = useState(0)
+  const [isClientReady, setIsClientReady] = useState(false)
   const [search, setSearch] = useState('')
   const [viewFilter, setViewFilter] = useState<InsightView | 'all'>('all')
   const [priorityFilter, setPriorityFilter] = useState<'all' | 'high' | 'medium' | 'low'>('all')
@@ -60,12 +61,24 @@ function EnterpriseInsightsPage() {
   const insightsViews = useMemo(() => EnterpriseInsightsWorkspaceService.getInsightsViews(), [tick])
   const executive = useMemo(() => EnterpriseInsightsWorkspaceService.getExecutiveDashboard(), [tick])
   const recommendations = useMemo(() => EnterpriseInsightsWorkspaceService.buildRecommendations(), [tick])
-  const decisionHistory = useMemo(() => EnterpriseInsightsWorkspaceService.getDecisionHistory(), [tick])
-  const recommendationsHistory = useMemo(() => EnterpriseInsightsWorkspaceService.getRecommendationsHistory(), [tick])
-  const comparisonsHistory = useMemo(() => EnterpriseInsightsWorkspaceService.getComparisonsHistory(), [tick])
-  const observability = useMemo(() => EnterpriseInsightsWorkspaceService.getObservability(), [tick])
+  const decisionHistory = useMemo<DecisionHistoryItem[]>(() => (isClientReady ? EnterpriseInsightsWorkspaceService.getDecisionHistory() : []), [tick, isClientReady])
+  const recommendationsHistory = useMemo<DecisionHistoryItem[]>(() => (isClientReady ? EnterpriseInsightsWorkspaceService.getRecommendationsHistory() : []), [tick, isClientReady])
+  const comparisonsHistory = useMemo<DecisionHistoryItem[]>(() => (isClientReady ? EnterpriseInsightsWorkspaceService.getComparisonsHistory() : []), [tick, isClientReady])
+  const observability = useMemo<ReturnType<typeof EnterpriseInsightsWorkspaceService.getObservability>>(() => (isClientReady
+    ? EnterpriseInsightsWorkspaceService.getObservability()
+    : {
+        decisionEvents: [],
+        insightMetrics: { refreshes: 0, events: 0, highPriorityRecommendations: 0 },
+        recommendationMetrics: { totalRecommendations: 0, avgConfidence: 0 },
+        predictionMetrics: { totalPredictions: 0, avgPredictionsPerDay: 0 },
+        diagnosticTimeline: [],
+      }), [tick, isClientReady])
   const assistantAnswers = useMemo(() => EnterpriseInsightsWorkspaceService.getAssistantAnswers(), [tick])
   const searchFavorites = useMemo(() => EnterpriseInsightsWorkspaceService.getSearchFavorites(), [tick])
+
+  useEffect(() => {
+    setIsClientReady(true)
+  }, [])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
