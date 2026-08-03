@@ -20,6 +20,7 @@ export default function DataTable<TRow extends Record<string, unknown>>({
   exportFileName = 'srg-table-export.csv',
   multiSelect = false,
   bulkActions = [],
+  loading = false,
 }: {
   tableId?: string
   title?: string
@@ -30,6 +31,7 @@ export default function DataTable<TRow extends Record<string, unknown>>({
   exportFileName?: string
   multiSelect?: boolean
   bulkActions?: Array<{ label: string; onClick: (rows: TRow[]) => void }>
+  loading?: boolean
 }) {
   const isBrowser = typeof window !== 'undefined' && typeof window.location !== 'undefined' && typeof window.location.search === 'string'
   const stored = isBrowser
@@ -160,8 +162,8 @@ export default function DataTable<TRow extends Record<string, unknown>>({
   }, [paged, selectedRows])
 
   return (
-    <section className="srg-state-block">
-      <header className="mb-3 flex flex-wrap items-center justify-between gap-2">
+    <section className="srg-state-block srg-premium-panel">
+      <header className="mb-3 flex flex-wrap items-center justify-between gap-2 border-b border-[var(--srg-border)] pb-3">
         {title ? <h3 className="srg-h4">{title}</h3> : <span />}
         <div className="flex flex-wrap gap-2">
           {searchable ? (
@@ -247,7 +249,7 @@ export default function DataTable<TRow extends Record<string, unknown>>({
         </div>
       ) : null}
 
-      <div className="srg-table-wrap">
+      <div className="srg-table-wrap overflow-x-auto">
         <table className="srg-table">
           <thead>
             <tr>
@@ -269,9 +271,25 @@ export default function DataTable<TRow extends Record<string, unknown>>({
             </tr>
           </thead>
           <tbody>
-            {paged.length === 0 ? (
+            {loading ? (
+              Array.from({ length: Math.min(pageSizeState, 6) }).map((_, index) => (
+                <tr key={`skeleton-${index}`}>
+                  {multiSelect ? <td><span className="sr-only">loading</span></td> : null}
+                  {visibleColumns.map((column) => (
+                    <td key={`${String(column.key)}-${index}`}>
+                      <div className="srg-skeleton h-4 w-full rounded-md" aria-hidden="true" />
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : paged.length === 0 ? (
               <tr>
-                <td colSpan={visibleColumns.length + (multiSelect ? 1 : 0)} className="text-center text-sm text-[var(--srg-text-muted)]">No rows</td>
+                <td colSpan={visibleColumns.length + (multiSelect ? 1 : 0)} className="py-8 text-center text-sm text-[var(--srg-text-muted)]">
+                  <div className="mx-auto max-w-sm rounded-2xl border border-dashed border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+                    <p className="font-semibold text-[var(--srg-text-title)]">No data available</p>
+                    <p className="mt-1 text-xs text-[var(--srg-text-muted)]">Adjust filters or load a different workspace snapshot.</p>
+                  </div>
+                </td>
               </tr>
             ) : paged.map((row, rowIndex) => (
               <tr key={rowIndex}>
@@ -296,11 +314,11 @@ export default function DataTable<TRow extends Record<string, unknown>>({
         </table>
       </div>
 
-      <footer className="mt-3 flex items-center justify-between text-xs text-[var(--srg-text-muted)]">
+      <footer className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--srg-text-muted)]">
         <span>{sorted.length} row(s)</span>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 rounded-xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-1">
           <Button variant="secondary" size="sm" onClick={() => setPage((current) => Math.max(1, current - 1))} disabled={safePage <= 1}>Prev</Button>
-          <span>Page {safePage}/{totalPages}</span>
+          <span className="px-2">Page {safePage}/{totalPages}</span>
           <Button variant="secondary" size="sm" onClick={() => setPage((current) => Math.min(totalPages, current + 1))} disabled={safePage >= totalPages}>Next</Button>
         </div>
       </footer>

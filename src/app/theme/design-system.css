@@ -1,4 +1,37 @@
 :root {
+  /* Premium SRG identity */
+  --srg-primary-navy: #0f2740;
+  --srg-primary-blue: #1e5aa7;
+  --srg-azure: #2f89f4;
+  --srg-emerald: #2f8f53;
+  --srg-gold: #c98312;
+  --srg-white: #ffffff;
+  --srg-slate: #2a383f;
+
+  /* Required design tokens */
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-muted: rgba(244, 248, 252, 0.85);
+  --surface-glass: rgba(255, 255, 255, 0.62);
+  --card: rgba(255, 255, 255, 0.92);
+  --panel: rgba(250, 252, 255, 0.95);
+  --danger: #d9463b;
+  --warning: #c98312;
+  --success: #2f8f53;
+  --info: #2f89f4;
+
+  --shadow-soft: 0 8px 24px rgba(15, 39, 64, 0.08);
+  --shadow-medium: 0 16px 38px rgba(15, 39, 64, 0.13);
+  --shadow-large: 0 26px 58px rgba(15, 39, 64, 0.18);
+
+  --radius-sm: 0.625rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.25rem;
+  --radius-xl: 1.75rem;
+
+  --fast: 140ms cubic-bezier(0.2, 0.7, 0, 1);
+  --normal: 220ms cubic-bezier(0.2, 0.7, 0, 1);
+  --slow: 360ms cubic-bezier(0.2, 0.7, 0, 1);
+
   /* Official SRG palette */
   --srg-color-primary-50: #eef6f7;
   --srg-color-primary-100: #d6ebee;
@@ -91,8 +124,8 @@
 
   /* Semantic tokens */
   --srg-bg: var(--srg-color-neutral-50);
-  --srg-surface: rgba(255, 255, 255, 0.76);
-  --srg-surface-strong: rgba(255, 255, 255, 0.92);
+  --srg-surface: var(--surface);
+  --srg-surface-strong: var(--card);
   --srg-border: rgba(23, 58, 64, 0.14);
   --srg-disabled: #9eb2bc;
   --srg-hover: rgba(47, 143, 151, 0.08);
@@ -109,14 +142,14 @@
   --srg-font-code: "IBM Plex Mono", "Cascadia Mono", "Fira Code", Consolas, monospace;
 
   --srg-radius-xs: 0.5rem;
-  --srg-radius-sm: 0.75rem;
-  --srg-radius-md: 1rem;
-  --srg-radius-lg: 1.5rem;
-  --srg-radius-xl: 2rem;
+  --srg-radius-sm: var(--radius-sm);
+  --srg-radius-md: var(--radius-md);
+  --srg-radius-lg: var(--radius-lg);
+  --srg-radius-xl: var(--radius-xl);
 
-  --srg-shadow-sm: 0 4px 12px rgba(23, 58, 64, 0.08);
-  --srg-shadow-md: 0 12px 30px rgba(23, 58, 64, 0.1);
-  --srg-shadow-lg: 0 20px 45px rgba(23, 58, 64, 0.14);
+  --srg-shadow-sm: var(--shadow-soft);
+  --srg-shadow-md: var(--shadow-medium);
+  --srg-shadow-lg: var(--shadow-large);
 
   --srg-space-1: 0.25rem;
   --srg-space-2: 0.5rem;
@@ -126,14 +159,20 @@
   --srg-space-6: 1.5rem;
   --srg-space-8: 2rem;
 
-  --srg-transition-fast: 160ms ease;
-  --srg-transition-base: 220ms ease;
+  --srg-transition-fast: var(--fast);
+  --srg-transition-base: var(--normal);
 }
 
 :root[data-theme="dark"] {
   --srg-bg: #0a1418;
-  --srg-surface: rgba(16, 30, 34, 0.82);
-  --srg-surface-strong: rgba(15, 27, 31, 0.94);
+  --surface: rgba(14, 26, 37, 0.78);
+  --surface-muted: rgba(17, 31, 45, 0.88);
+  --surface-glass: rgba(16, 27, 39, 0.58);
+  --card: rgba(15, 28, 41, 0.92);
+  --panel: rgba(18, 32, 47, 0.95);
+
+  --srg-surface: var(--surface);
+  --srg-surface-strong: var(--card);
   --srg-border: rgba(141, 229, 219, 0.2);
   --srg-disabled: #55727a;
   --srg-hover: rgba(96, 215, 207, 0.12);
@@ -249,7 +288,58 @@
   padding: 1rem;
 }
 
+
+/* Premium card harmonization across dashboards/workspaces */
+.srg-premium-card,
+.srg-premium-panel {
+  border: 1px solid var(--srg-border);
+  border-radius: var(--srg-radius-lg);
+  background: linear-gradient(160deg, var(--card), var(--surface-muted));
+  box-shadow: var(--srg-shadow-sm);
+  transition: transform var(--normal), box-shadow var(--normal), border-color var(--normal), background-color var(--normal);
+}
+
+.srg-premium-panel {
+  border-radius: var(--srg-radius-xl);
+  background: linear-gradient(165deg, var(--panel), var(--surface-muted));
+}
+
+.srg-premium-card:hover,
+.srg-premium-panel:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--srg-shadow-md);
+  border-color: color-mix(in oklab, var(--srg-primary-blue) 30%, var(--srg-border));
+}
+
+.srg-glass-header {
+  border-bottom: 1px solid var(--srg-border);
+  background: color-mix(in oklab, var(--surface-glass) 86%, white 14%);
+  backdrop-filter: blur(16px) saturate(140%);
+  box-shadow: 0 8px 24px rgba(15, 39, 64, 0.08);
+}
+
+.srg-badge-success { background: color-mix(in oklab, var(--success) 18%, transparent); color: color-mix(in oklab, var(--success) 78%, black 22%); }
+.srg-badge-warning { background: color-mix(in oklab, var(--warning) 18%, transparent); color: color-mix(in oklab, var(--warning) 75%, black 25%); }
+.srg-badge-danger { background: color-mix(in oklab, var(--danger) 18%, transparent); color: color-mix(in oklab, var(--danger) 74%, black 26%); }
+.srg-badge-info { background: color-mix(in oklab, var(--info) 18%, transparent); color: color-mix(in oklab, var(--info) 76%, black 24%); }
 .srg-kpi > .srg-kpi-label {
+
+.srg-badge-ai,
+.srg-badge-enterprise,
+.srg-badge-tenant,
+.srg-badge-premium,
+.srg-badge-ready,
+.srg-badge-experimental {
+  background: color-mix(in oklab, var(--srg-primary-blue) 10%, transparent);
+  color: var(--srg-primary-navy);
+}
+
+.srg-badge-ai { border-color: color-mix(in oklab, var(--srg-azure) 36%, var(--srg-border)); }
+.srg-badge-enterprise { border-color: color-mix(in oklab, var(--srg-primary-navy) 35%, var(--srg-border)); }
+.srg-badge-tenant { border-color: color-mix(in oklab, var(--srg-primary-blue) 35%, var(--srg-border)); }
+.srg-badge-premium { border-color: color-mix(in oklab, var(--srg-gold) 42%, var(--srg-border)); }
+.srg-badge-ready { border-color: color-mix(in oklab, var(--srg-emerald) 38%, var(--srg-border)); }
+.srg-badge-experimental { border-color: color-mix(in oklab, var(--srg-warning) 32%, var(--srg-border)); }
   color: var(--srg-color-primary-600);
   text-transform: uppercase;
   letter-spacing: 0.2em;
@@ -349,6 +439,72 @@
 
 .srg-fade-up {
   animation: srg-fade-up 220ms ease;
+}
+
+@keyframes srg-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.srg-slide-up {
+  animation: srg-slide-up var(--normal);
+}
+
+.srg-progress {
+  appearance: none;
+  border: 0;
+  background: color-mix(in oklab, var(--srg-border) 80%, transparent);
+}
+
+.srg-progress::-webkit-progress-bar {
+  background: color-mix(in oklab, var(--srg-border) 80%, transparent);
+  border-radius: 999px;
+}
+
+.srg-progress::-webkit-progress-value {
+  background: linear-gradient(90deg, var(--srg-primary-blue), var(--srg-azure));
+  border-radius: 999px;
+}
+
+.srg-progress::-moz-progress-bar {
+  background: linear-gradient(90deg, var(--srg-primary-blue), var(--srg-azure));
+  border-radius: 999px;
+}
+
+/* Premium data table details */
+.srg-table-wrap {
+  box-shadow: var(--srg-shadow-sm);
+}
+
+.srg-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--panel) 90%, white 10%), color-mix(in oklab, var(--surface-muted) 95%, white 5%));
+}
+
+.srg-table tbody tr {
+  transition: background-color var(--fast), transform var(--fast);
+}
+
+.srg-table tbody tr:hover {
+  transform: translateX(1px);
+}
+
+/* Shared card treatment for existing rounded cards */
+.srg-workspace :where(article, section, aside, div)[class*="rounded-3xl"][class*="border"] {
+  transition: transform var(--normal), border-color var(--normal), box-shadow var(--normal);
+}
+
+.srg-workspace :where(article, section, aside, div)[class*="rounded-3xl"][class*="border"]:hover {
+  box-shadow: var(--srg-shadow-sm);
+  border-color: color-mix(in oklab, var(--srg-primary-blue) 28%, var(--srg-border));
 }
 
 /* Responsive helpers */

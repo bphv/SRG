@@ -11,7 +11,7 @@ export function FormSection({
   children: ReactNode
 }) {
   return (
-    <section className="rounded-[var(--srg-radius-lg)] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 shadow-[var(--srg-shadow-sm)]">
+    <section className="srg-premium-card rounded-[var(--srg-radius-lg)] p-4">
       <header className="mb-3">
         <h3 className="srg-h4">{title}</h3>
         {description ? <p className="srg-body mt-1 text-sm">{description}</p> : null}
@@ -30,7 +30,7 @@ export function FieldGroup({ children, columns = 2 }: { children: ReactNode; col
         ? 'md:grid-cols-2 xl:grid-cols-3'
         : 'md:grid-cols-2 xl:grid-cols-4'
 
-  return <div className={`grid gap-3 ${colClass}`}>{children}</div>
+  return <div className={`grid gap-4 ${colClass}`}>{children}</div>
 }
 
 export function Field({
@@ -47,7 +47,7 @@ export function Field({
   children: ReactNode
 }) {
   return (
-    <label className="grid gap-1.5 text-sm">
+    <label className="grid gap-2 text-sm">
       <span className="font-semibold text-[var(--srg-text-label)]">
         {label}
         {required ? <span className="ml-1 text-[var(--srg-color-danger-500)]">*</span> : null}
@@ -84,7 +84,7 @@ export function FormToolbar({
   autosaveLabel?: string
 }) {
   return (
-    <div className="mt-4 flex flex-wrap items-center gap-2">
+    <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-2">
       {children}
       {autosaveLabel ? <span className="srg-badge srg-badge-info">Autosave: {autosaveLabel}</span> : null}
     </div>
@@ -174,7 +174,7 @@ export function CollapsibleFormSection({
   }, [open, storageKey])
 
   return (
-    <section className="rounded-[var(--srg-radius-lg)] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 shadow-[var(--srg-shadow-sm)]">
+    <section className="srg-premium-card rounded-[var(--srg-radius-lg)] p-4">
       <button
         type="button"
         className="flex w-full items-center justify-between gap-3 rounded-xl px-1 py-1 text-left"
@@ -212,9 +212,12 @@ export function FormProgress({
         <span className="font-semibold text-[var(--srg-text-label)]">{label}</span>
         <span className="text-[var(--srg-text-muted)]">{percent}%</span>
       </div>
-      <div className="h-2 overflow-hidden rounded-full bg-[var(--srg-border)]">
-        <div className="h-full rounded-full bg-[var(--srg-color-primary-500)] transition-[width] duration-200" style={{ width: `${percent}%` }} />
-      </div>
+      <progress
+        value={clamped}
+        max={safeTotal}
+        className="srg-progress h-2 w-full overflow-hidden rounded-full"
+        aria-label={`${label}: ${percent}%`}
+      />
     </div>
   )
 }

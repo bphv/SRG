@@ -10,7 +10,7 @@ export default function PageHeader({
   actions?: ReactNode
 }) {
   return (
-    <div className="srg-fade-up mb-6 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-6 shadow-[var(--srg-shadow-md)]">
+    <div className="srg-fade-up srg-premium-panel mb-6 p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="srg-label mb-2">

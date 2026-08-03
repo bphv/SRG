@@ -1180,7 +1180,7 @@ function HomePage() {
           </div>
         </div>
         <div className="mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-[var(--srg-border)] pt-5 text-xs text-[var(--srg-text-muted)]">
-          <span>SRG Studio Enterprise Home</span>
+          <span>SRG Enterprise Intelligence Platform Home</span>
           <span>Version showcase 0.47 • UI/UX readiness</span>
         </div>
       </footer>

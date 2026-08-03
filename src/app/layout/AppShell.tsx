@@ -24,7 +24,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const askSrgRuntime = useAskSrgRuntimeContext()
   const [shellSearch, setShellSearch] = useState('')
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => WorkspacePreferencesService.getPreferences().sidebarOpen)
-  const [sidebarWidth, setSidebarWidth] = useState(() => WorkspacePreferencesService.getPreferences().sidebarWidth)
   const [selectedProvider, setSelectedProvider] = useState(() => WorkspacePreferencesService.getPreferences().favoriteProvider)
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false)
   const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
@@ -104,10 +103,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   }, [isSidebarOpen])
 
   useEffect(() => {
-    WorkspacePreferencesService.setSidebarWidth(sidebarWidth)
-  }, [sidebarWidth])
-
-  useEffect(() => {
     WorkspacePreferencesService.setFavoriteProvider(selectedProvider)
   }, [selectedProvider])
 
@@ -143,16 +138,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="srg-workspace min-h-screen bg-[var(--srg-bg)] text-[var(--srg-text-body)]">
-      <div className="border-b border-[var(--srg-border)] bg-[var(--header-bg)]/95 backdrop-blur-lg backdrop-saturate-150">
+      <div className="srg-glass-header">
         <div className="page-wrap flex flex-wrap items-center gap-3 py-4">
           <Link to="/" className="flex items-center gap-3 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold shadow-[var(--srg-shadow-sm)] transition hover:bg-[var(--srg-hover)] no-underline">
             <span className="inline-flex h-9 w-9 items-center justify-center rounded-2xl bg-[var(--srg-color-primary-500)] text-base text-white">SRG</span>
-            <span>SRG Studio</span>
+            <span>SRG Enterprise Intelligence Platform</span>
           </Link>
 
           <div className="ml-auto flex flex-wrap items-center gap-3">
             <SearchBar
-              placeholder="Search SRG…"
+              placeholder="Search Enterprise Intelligence"
               value={shellSearch}
               onSearch={(value) => {
                 setShellSearch(value)
@@ -204,10 +199,9 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </div>
 
-      <div className="page-wrap grid gap-6 py-6 lg:grid-cols-[minmax(240px,auto)_minmax(0,1fr)]">
+      <div className="page-wrap grid gap-6 py-6 lg:grid-cols-[320px_minmax(0,1fr)]">
         <aside
-          className={`${isSidebarOpen ? 'block' : 'hidden'} rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)] lg:block`}
-          style={{ width: `${sidebarWidth}px` }}
+          className={`${isSidebarOpen ? 'block' : 'hidden'} srg-premium-panel p-5 lg:block`}
         >
           <div className="mb-6 space-y-3">
             <div className="flex items-center justify-between gap-3">
@@ -219,17 +213,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               >
                 Masquer
               </button>
-            </div>
-            <div className="hidden items-center gap-2 text-xs text-[var(--srg-text-muted)] lg:flex">
-              <span>Width</span>
-              <input
-                type="range"
-                min={240}
-                max={420}
-                value={sidebarWidth}
-                onChange={(event) => setSidebarWidth(Number(event.target.value))}
-                aria-label="Sidebar width"
-              />
             </div>
             <p className="text-sm text-[var(--srg-text-muted)]">
               Explore the SRG workspace and settings.
@@ -264,7 +247,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                 {runtimeBadges.map((badge) => (
                   <span
                     key={badge.label}
-                    className="inline-flex items-center gap-2 rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 text-xs font-semibold text-[var(--srg-text-body)]"
+                    className={`srg-badge ${badge.label.includes('Ask SRG') ? 'srg-badge-ai' : badge.label.includes('Tenant') ? 'srg-badge-tenant' : 'srg-badge-ready'}`}
                   >
                     <span className="h-2 w-2 rounded-full bg-[var(--srg-color-primary-500)]" />
                     {badge.label}: {badge.status}
@@ -410,8 +393,8 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       <footer className="page-wrap border-t border-[var(--srg-border)] py-10 text-sm text-[var(--srg-text-muted)]">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p>SRG Studio — official shell for the SRG application.</p>
-          <p>Built for expansion, routing, and responsive workflows.</p>
+          <p>SRG Enterprise Intelligence Platform</p>
+          <p>Executive-ready workspace for enterprise orchestration.</p>
         </div>
       </footer>
     </div>

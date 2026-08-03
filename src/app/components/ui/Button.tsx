@@ -5,6 +5,10 @@ type ButtonSize = 'sm' | 'md' | 'lg'
 
 type ButtonProps = {
   variant?: ButtonVariant
+  outline?: boolean
+  iconOnly?: boolean
+  floating?: boolean
+  split?: boolean
   size?: ButtonSize
   leftIcon?: ReactNode
   rightIcon?: ReactNode
@@ -29,6 +33,10 @@ const sizeClass: Record<ButtonSize, string> = {
 
 export default function Button({
   variant = 'primary',
+  outline = false,
+  iconOnly = false,
+  floating = false,
+  split = false,
   size = 'md',
   leftIcon,
   rightIcon,
@@ -37,13 +45,23 @@ export default function Button({
   children,
   ...props
 }: ButtonProps) {
+  const outlineClass = outline
+    ? 'bg-transparent border-[var(--srg-border)] text-[var(--srg-text-body)] hover:bg-[var(--srg-hover)]'
+    : variantClass[variant]
+
+  const iconOnlyClass = iconOnly
+    ? 'px-0 py-0 h-10 w-10 rounded-xl'
+    : sizeClass[size]
+
   return (
     <button
       {...props}
       className={[
         'inline-flex items-center justify-center gap-2 border font-semibold shadow-[var(--srg-shadow-sm)] transition disabled:cursor-not-allowed disabled:opacity-50',
-        variantClass[variant],
-        sizeClass[size],
+        outlineClass,
+        iconOnlyClass,
+        floating ? 'fixed bottom-6 right-6 z-40 h-14 w-14 rounded-full shadow-[var(--srg-shadow-lg)]' : '',
+        split ? 'rounded-l-xl rounded-r-xl pr-2' : '',
         block ? 'w-full' : '',
         className ?? '',
       ].join(' ').trim()}

@@ -66,7 +66,7 @@ export default function NotificationCenter({
 
   return (
     <div
-      className="w-full max-w-md rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-lg)]"
+      className="srg-premium-panel w-full max-w-md p-5"
       role="dialog"
       aria-modal="true"
       aria-labelledby="notification-center-title"
@@ -194,7 +194,7 @@ export default function NotificationCenter({
         {filteredNotifications.map((item) => (
           <article
             key={item.id}
-            className={`rounded-3xl border p-4 text-sm ${item.read ? 'border-[var(--srg-border)] bg-[var(--srg-surface-strong)]' : 'border-[var(--srg-color-primary-400)] bg-[var(--srg-surface)]'}`}
+            className={`srg-premium-card rounded-3xl p-4 text-sm ${item.read ? 'opacity-90' : ''}`}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
@@ -202,10 +202,10 @@ export default function NotificationCenter({
                 <p className="mt-1 text-[var(--srg-text-muted)]">{item.message}</p>
               </div>
               <div className="flex flex-col items-end gap-2">
-                <span className="rounded-full bg-[var(--srg-surface-strong)] px-3 py-1 text-[10px] uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">
+                <span className="srg-badge srg-badge-enterprise text-[10px] uppercase tracking-[0.2em]">
                   {item.category}
                 </span>
-                <span className={`rounded-full px-3 py-1 text-[10px] uppercase tracking-[0.18em] ${item.priority === 'high' ? 'bg-[rgba(223,78,78,0.12)] text-[#9b2f2f]' : item.priority === 'medium' ? 'bg-[rgba(197,145,31,0.12)] text-[#8a5d14]' : 'bg-[rgba(30,90,72,0.12)] text-[var(--srg-color-primary-500)]'}`}>
+                <span className={`srg-badge text-[10px] uppercase tracking-[0.18em] ${item.priority === 'high' ? 'srg-badge-danger' : item.priority === 'medium' ? 'srg-badge-warning' : 'srg-badge-success'}`}>
                   {item.priority}
                 </span>
               </div>

@@ -9,7 +9,7 @@ export const Route = createFileRoute('/about')({
 function About() {
   return (
     <div className="space-y-6">
-      <PageHeader title="About" description="SRG Studio centralise projets, prompts, génération, providers et connaissances dans un workspace cohérent." />
+      <PageHeader title="About" description="SRG Enterprise Intelligence Platform centralise projets, prompts, generation, providers et connaissances dans un workspace enterprise coherent." />
       <Section title="Plateforme" description="Vue produit de la couche applicative SRG.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           {[

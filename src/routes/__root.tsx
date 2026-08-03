@@ -1,6 +1,4 @@
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtoolsPanel } from '@tanstack/react-router-devtools'
-import { TanStackDevtools } from '@tanstack/react-devtools'
 import { AppProviders } from '#/app/contexts/AppProviders'
 import AppShell from '#/app/layout/AppShell'
 import KernelBootstrap from '#/core/bootstrap/KernelBootstrap'
@@ -20,7 +18,7 @@ export const Route = createRootRoute({
         content: 'width=device-width, initial-scale=1',
       },
       {
-        title: 'TanStack Start Starter',
+        title: 'SRG Enterprise Intelligence Platform',
       },
     ],
     links: [
@@ -45,17 +43,6 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <AppShell>{children}</AppShell>
         </AppProviders>
         <KernelBootstrap />
-        <TanStackDevtools
-          config={{
-            position: 'bottom-right',
-          }}
-          plugins={[
-            {
-              name: 'Tanstack Router',
-              render: <TanStackRouterDevtoolsPanel />,
-            },
-          ]}
-        />
         <Scripts />
       </body>
     </html>

@@ -110,6 +110,25 @@ const ACTIVITY_ROWS: ActivityRow[] = [
   { when: '09:20', actor: 'Enterprise user placeholder', action: 'Validation', workspace: 'Workflow Automation', details: 'Workflow achats pre-valide' },
 ]
 
+const CHARTS_PLACEHOLDER = [
+  { title: 'Revenue vs Expenses', detail: 'Placeholder chart area - 12 mois' },
+  { title: 'Operational Throughput', detail: 'Placeholder chart area - semaines' },
+  { title: 'Quality Trend', detail: 'Placeholder chart area - anomalies et conformite' },
+]
+
+const LATEST_DECISIONS = [
+  'Valider l acceleration du plan maintenance zone Nord.',
+  'Prioriser la revue cash des projets a marge reduite.',
+  'Replanifier les dependances fournisseurs critiques.',
+]
+
+const QUICK_ACTIONS = [
+  { label: 'Open Enterprise Insights', to: '/enterprise-insights' },
+  { label: 'Open Strategic Advisor', to: '/strategic-advisor' },
+  { label: 'Open Observability', to: '/observability' },
+  { label: 'Open History', to: '/history' },
+]
+
 function DashboardPage() {
   const tenant = useTenantContext()
   const askSrgRuntime = useAskSrgRuntimeContext()
@@ -177,7 +196,7 @@ function DashboardPage() {
     <div className="space-y-6">
       <PageHeader
         title="Executive Command Center"
-        description="Cockpit enterprise pilote par Ask SRG pour prioriser, surveiller et orchestrer les operations."
+        description="SRG Enterprise Intelligence Platform - executive cockpit for enterprise orchestration."
       />
 
       <Section title="Executive Header" description="Entreprise active, tenant, utilisateur, horodatage local et statuts runtime.">
@@ -249,10 +268,22 @@ function DashboardPage() {
       <Section title="Executive KPIs" description="Indicateurs executives placeholders avant integration des donnees reelles.">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {EXECUTIVE_KPIS.map((item) => (
-            <article key={item.label} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+            <article key={item.label} className="srg-premium-card rounded-3xl p-4">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{item.label}</p>
               <p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{item.value}</p>
               <p className="text-sm text-[var(--srg-text-muted)]">Variation: {item.trend}</p>
+            </article>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Charts Placeholders" description="Visual placeholders for executive trend analysis.">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {CHARTS_PLACEHOLDER.map((item) => (
+            <article key={item.title} className="srg-premium-card rounded-3xl p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item.title}</p>
+              <p className="mt-1 text-sm text-[var(--srg-text-muted)]">{item.detail}</p>
+              <div className="srg-skeleton mt-4 h-40 rounded-2xl" aria-hidden="true" />
             </article>
           ))}
         </div>
@@ -334,10 +365,23 @@ function DashboardPage() {
       <Section title="Ask SRG vous recommande" description="Recommandations simulees sans IA reelle.">
         <div className="space-y-3 text-sm">
           {RECOMMENDATIONS.map((item) => (
-            <div key={item} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 text-[var(--srg-text-muted)]">
+            <div key={item} className="srg-premium-card rounded-3xl p-4 text-[var(--srg-text-muted)]">
               {item}
             </div>
           ))}
+        </div>
+      </Section>
+
+      <Section title="Executive Summary" description="Synthesis placeholders for leadership readout.">
+        <div className="grid gap-4 lg:grid-cols-2">
+          <article className="srg-premium-card rounded-3xl p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Summary</p>
+            <p className="mt-2 text-sm text-[var(--srg-text-muted)]">Performance globale en progression moderee. Risques principaux concentres sur achats et maintenance. Opportunites sur optimisation workflow et allocation RH.</p>
+          </article>
+          <article className="srg-premium-card rounded-3xl p-4">
+            <p className="font-semibold text-[var(--srg-text-title)]">Latest Decisions</p>
+            {LATEST_DECISIONS.map((item) => <p key={item} className="mt-2 text-sm text-[var(--srg-text-muted)]">{item}</p>)}
+          </article>
         </div>
       </Section>
 
@@ -395,6 +439,65 @@ function DashboardPage() {
           pageSize={8}
           exportFileName="srg-dashboard-exec-activity.csv"
         />
+      </Section>
+
+      <Section title="Workspace Status" description="Readiness placeholders for enterprise workspaces.">
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {['Finance', 'Maintenance', 'RH', 'Knowledge', 'Workflow', 'CRM', 'Administration', 'Observability'].map((item) => (
+            <article key={item} className="srg-premium-card rounded-3xl p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">{item}</p>
+              <p className="mt-1 text-xs text-[var(--srg-text-muted)]">Prepared</p>
+              <span className="srg-badge srg-badge-ready mt-2">Ready</span>
+            </article>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Enterprise Health" description="Enterprise-level health placeholders.">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <article className="srg-premium-card rounded-3xl p-4"><p className="srg-label">Governance</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">Stable</p></article>
+          <article className="srg-premium-card rounded-3xl p-4"><p className="srg-label">Risk Exposure</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">Moderate</p></article>
+          <article className="srg-premium-card rounded-3xl p-4"><p className="srg-label">Execution Confidence</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">81%</p></article>
+        </div>
+      </Section>
+
+      <Section title="System Health" description="System-level placeholders for runtime and reliability.">
+        <div className="grid gap-4 lg:grid-cols-3">
+          <article className="srg-premium-card rounded-3xl p-4"><p className="srg-label">Availability</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">99.9%</p></article>
+          <article className="srg-premium-card rounded-3xl p-4"><p className="srg-label">Latency</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">320ms</p></article>
+          <article className="srg-premium-card rounded-3xl p-4"><p className="srg-label">Incidents</p><p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">2 open</p></article>
+        </div>
+      </Section>
+
+      <Section title="Quick Actions" description="Fast executive navigation shortcuts.">
+        <div className="flex flex-wrap gap-2">
+          {QUICK_ACTIONS.map((item) => (
+            <Link key={item.to} to={item.to} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] no-underline hover:bg-[var(--srg-hover)]">
+              {item.label}
+            </Link>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Ask SRG Widget" description="Premium visual conversation widget placeholder.">
+        <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <p className="font-semibold text-[var(--srg-text-title)]">Ask SRG Conversation</p>
+            <span className="srg-badge srg-badge-ai">AI</span>
+          </div>
+          <div className="space-y-2 text-sm">
+            <div className="rounded-2xl bg-[var(--srg-surface-strong)] p-3 text-[var(--srg-text-muted)]">Bonjour, quelles priorites executive aujourd'hui ?</div>
+            <div className="rounded-2xl bg-[color-mix(in_oklab,var(--srg-color-primary-500)_16%,transparent)] p-3 text-[var(--srg-text-body)]">Afficher les alertes critiques et les decisions recentes.</div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <span className="srg-badge srg-badge-neutral">Micro</span>
+            <span className="srg-badge srg-badge-neutral">Camera</span>
+            <span className="srg-badge srg-badge-neutral">Documents</span>
+            <span className="srg-badge srg-badge-neutral">Recherche</span>
+            <span className="srg-badge srg-badge-neutral">Favoris</span>
+            <span className="srg-badge srg-badge-neutral">Historique</span>
+          </div>
+        </div>
       </Section>
     </div>
   )
