@@ -1,23 +1,24 @@
 :root {
-  /* Premium SRG identity */
-  --srg-primary-navy: #0f2740;
-  --srg-primary-blue: #1e5aa7;
-  --srg-azure: #2f89f4;
-  --srg-emerald: #2f8f53;
-  --srg-gold: #c98312;
+  /* Premium SRG identity mapped to the official palette in src/styles.css */
+  --srg-primary-navy: var(--srg-official-navy);
+  --srg-primary-blue: color-mix(in oklab, var(--srg-official-navy) 86%, white);
+  --srg-azure: color-mix(in oklab, var(--srg-official-navy) 74%, white);
+  --srg-emerald: color-mix(in oklab, var(--srg-official-gold) 34%, var(--srg-official-navy));
+  --srg-gold: var(--srg-official-gold);
   --srg-white: #ffffff;
-  --srg-slate: #2a383f;
+  --srg-slate: color-mix(in oklab, var(--srg-official-foreground) 78%, white);
+  --srg-accent: var(--srg-official-gold);
 
   /* Required design tokens */
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-muted: rgba(244, 248, 252, 0.85);
-  --surface-glass: rgba(255, 255, 255, 0.62);
-  --card: rgba(255, 255, 255, 0.92);
-  --panel: rgba(250, 252, 255, 0.95);
+  --surface: color-mix(in oklab, var(--srg-official-muted) 82%, var(--srg-official-card));
+  --surface-muted: var(--srg-official-muted);
+  --surface-glass: color-mix(in oklab, var(--srg-official-navy) 92%, transparent);
+  --card: var(--srg-official-card);
+  --panel: color-mix(in oklab, var(--srg-official-card) 92%, var(--srg-official-muted));
   --danger: #d9463b;
-  --warning: #c98312;
+  --warning: color-mix(in oklab, var(--srg-official-gold) 80%, #8a4f00);
   --success: #2f8f53;
-  --info: #2f89f4;
+  --info: color-mix(in oklab, var(--srg-official-navy) 60%, white);
 
   --shadow-soft: 0 8px 24px rgba(15, 39, 64, 0.08);
   --shadow-medium: 0 16px 38px rgba(15, 39, 64, 0.13);
@@ -33,16 +34,16 @@
   --slow: 360ms cubic-bezier(0.2, 0.7, 0, 1);
 
   /* Official SRG palette */
-  --srg-color-primary-50: #eef6f7;
-  --srg-color-primary-100: #d6ebee;
-  --srg-color-primary-200: #afd8df;
-  --srg-color-primary-300: #82c1cb;
-  --srg-color-primary-400: #58a9b6;
-  --srg-color-primary-500: #328f97;
-  --srg-color-primary-600: #286f76;
-  --srg-color-primary-700: #1e5459;
-  --srg-color-primary-800: #163d41;
-  --srg-color-primary-900: #0f2a2d;
+  --srg-color-primary-50: color-mix(in oklab, var(--srg-official-navy) 8%, white);
+  --srg-color-primary-100: color-mix(in oklab, var(--srg-official-navy) 16%, white);
+  --srg-color-primary-200: color-mix(in oklab, var(--srg-official-navy) 28%, white);
+  --srg-color-primary-300: color-mix(in oklab, var(--srg-official-navy) 42%, white);
+  --srg-color-primary-400: color-mix(in oklab, var(--srg-official-navy) 58%, white);
+  --srg-color-primary-500: var(--srg-official-navy);
+  --srg-color-primary-600: color-mix(in oklab, var(--srg-official-navy) 88%, black);
+  --srg-color-primary-700: color-mix(in oklab, var(--srg-official-navy) 78%, black);
+  --srg-color-primary-800: color-mix(in oklab, var(--srg-official-navy) 66%, black);
+  --srg-color-primary-900: color-mix(in oklab, var(--srg-official-navy) 52%, black);
 
   --srg-color-secondary-50: #eef7f2;
   --srg-color-secondary-100: #d9ecdf;
@@ -77,16 +78,16 @@
   --srg-color-success-800: #143f25;
   --srg-color-success-900: #0c2817;
 
-  --srg-color-warning-50: #fff9ed;
-  --srg-color-warning-100: #ffefd3;
-  --srg-color-warning-200: #ffdca2;
-  --srg-color-warning-300: #ffc668;
-  --srg-color-warning-400: #f3aa33;
-  --srg-color-warning-500: #c98312;
-  --srg-color-warning-600: #a66a0e;
-  --srg-color-warning-700: #80500b;
-  --srg-color-warning-800: #5c3908;
-  --srg-color-warning-900: #392305;
+  --srg-color-warning-50: color-mix(in oklab, var(--srg-official-gold) 10%, white);
+  --srg-color-warning-100: color-mix(in oklab, var(--srg-official-gold) 20%, white);
+  --srg-color-warning-200: color-mix(in oklab, var(--srg-official-gold) 36%, white);
+  --srg-color-warning-300: color-mix(in oklab, var(--srg-official-gold) 50%, white);
+  --srg-color-warning-400: color-mix(in oklab, var(--srg-official-gold) 66%, white);
+  --srg-color-warning-500: var(--srg-official-gold);
+  --srg-color-warning-600: color-mix(in oklab, var(--srg-official-gold) 88%, black);
+  --srg-color-warning-700: color-mix(in oklab, var(--srg-official-gold) 76%, black);
+  --srg-color-warning-800: color-mix(in oklab, var(--srg-official-gold) 60%, black);
+  --srg-color-warning-900: color-mix(in oklab, var(--srg-official-gold) 44%, black);
 
   --srg-color-danger-50: #fff3f1;
   --srg-color-danger-100: #ffe1dc;
@@ -123,19 +124,29 @@
   --srg-color-neutral-900: #172126;
 
   /* Semantic tokens */
-  --srg-bg: var(--srg-color-neutral-50);
+  --srg-bg: var(--srg-official-background);
+  --srg-light-surface: var(--srg-official-muted);
+  --srg-dark-surface: color-mix(in oklab, var(--srg-official-navy) 92%, black);
   --srg-surface: var(--surface);
   --srg-surface-strong: var(--card);
-  --srg-border: rgba(23, 58, 64, 0.14);
+  --srg-border: var(--srg-official-border);
   --srg-disabled: #9eb2bc;
-  --srg-hover: rgba(47, 143, 151, 0.08);
+  --srg-hover: color-mix(in oklab, var(--srg-official-gold) 15%, var(--srg-official-background));
 
-  --srg-text-title: #173a40;
-  --srg-text-subtitle: #2f5258;
-  --srg-text-body: #2f4e54;
-  --srg-text-label: #385f65;
-  --srg-text-muted: #5f7f85;
+  --srg-text-title: var(--srg-official-foreground);
+  --srg-text-subtitle: color-mix(in oklab, var(--srg-official-foreground) 82%, white);
+  --srg-text-body: color-mix(in oklab, var(--srg-official-foreground) 78%, white);
+  --srg-text-label: color-mix(in oklab, var(--srg-official-foreground) 72%, white);
+  --srg-text-muted: color-mix(in oklab, var(--srg-official-foreground) 54%, white);
   --srg-text-inverse: #f6fbfc;
+
+  --srg-shell-header-bg: color-mix(in oklab, var(--srg-official-navy) 94%, black);
+  --srg-shell-header-surface: color-mix(in oklab, var(--srg-official-navy) 82%, white);
+  --srg-shell-sidebar-bg: linear-gradient(180deg, color-mix(in oklab, var(--srg-official-navy) 92%, black), color-mix(in oklab, var(--srg-official-navy) 84%, black));
+  --srg-shell-footer-bg: linear-gradient(180deg, color-mix(in oklab, var(--srg-official-navy) 94%, black), color-mix(in oklab, var(--srg-official-navy) 86%, black));
+  --srg-shell-text: color-mix(in oklab, white 92%, var(--srg-official-gold));
+  --srg-shell-muted: color-mix(in oklab, white 72%, var(--srg-official-navy));
+  --srg-shell-border: color-mix(in oklab, var(--srg-official-gold) 26%, transparent);
 
   --srg-font-title: "Fraunces", Georgia, serif;
   --srg-font-body: "Manrope", ui-sans-serif, system-ui, sans-serif;
@@ -165,6 +176,8 @@
 
 :root[data-theme="dark"] {
   --srg-bg: #0a1418;
+  --srg-light-surface: #122637;
+  --srg-dark-surface: #081118;
   --surface: rgba(14, 26, 37, 0.78);
   --surface-muted: rgba(17, 31, 45, 0.88);
   --surface-glass: rgba(16, 27, 39, 0.58);
@@ -294,14 +307,14 @@
 .srg-premium-panel {
   border: 1px solid var(--srg-border);
   border-radius: var(--srg-radius-lg);
-  background: linear-gradient(160deg, var(--card), var(--surface-muted));
+  background: linear-gradient(160deg, var(--card), color-mix(in oklab, var(--surface-muted) 88%, white 12%));
   box-shadow: var(--srg-shadow-sm);
   transition: transform var(--normal), box-shadow var(--normal), border-color var(--normal), background-color var(--normal);
 }
 
 .srg-premium-panel {
   border-radius: var(--srg-radius-xl);
-  background: linear-gradient(165deg, var(--panel), var(--surface-muted));
+  background: linear-gradient(165deg, var(--panel), color-mix(in oklab, var(--surface-muted) 92%, white 8%));
 }
 
 .srg-premium-card:hover,
@@ -312,17 +325,282 @@
 }
 
 .srg-glass-header {
-  border-bottom: 1px solid var(--srg-border);
-  background: color-mix(in oklab, var(--surface-glass) 86%, white 14%);
+  border-bottom: 1px solid var(--srg-shell-border);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--srg-shell-header-bg) 94%, black), color-mix(in oklab, var(--srg-shell-header-bg) 88%, var(--srg-official-navy)));
   backdrop-filter: blur(16px) saturate(140%);
-  box-shadow: 0 8px 24px rgba(15, 39, 64, 0.08);
+  box-shadow: 0 14px 34px color-mix(in oklab, var(--srg-official-navy) 22%, transparent);
 }
 
-.srg-badge-success { background: color-mix(in oklab, var(--success) 18%, transparent); color: color-mix(in oklab, var(--success) 78%, black 22%); }
-.srg-badge-warning { background: color-mix(in oklab, var(--warning) 18%, transparent); color: color-mix(in oklab, var(--warning) 75%, black 25%); }
-.srg-badge-danger { background: color-mix(in oklab, var(--danger) 18%, transparent); color: color-mix(in oklab, var(--danger) 74%, black 26%); }
-.srg-badge-info { background: color-mix(in oklab, var(--info) 18%, transparent); color: color-mix(in oklab, var(--info) 76%, black 24%); }
+.srg-glass-header :where(a, button, select) {
+  color: var(--srg-shell-text);
+}
+
+.srg-glass-header .srg-smart-input {
+  border-color: var(--srg-shell-border);
+  background: color-mix(in oklab, var(--srg-shell-header-surface) 94%, black);
+  box-shadow: inset 0 1px 0 color-mix(in oklab, white 10%, transparent);
+}
+
+.srg-glass-header .srg-smart-icon-btn,
+.srg-glass-header :where(button, select, a)[class*='border'] {
+  border-color: color-mix(in oklab, var(--srg-official-gold) 24%, transparent);
+  background: color-mix(in oklab, var(--srg-shell-header-surface) 88%, black);
+  color: var(--srg-shell-text);
+}
+
+.srg-glass-header .srg-smart-input input,
+.srg-glass-header .srg-smart-input input::placeholder,
+.srg-glass-header .srg-smart-input select {
+  color: var(--srg-shell-text);
+}
+
+.srg-shell-sidebar {
+  border-color: var(--srg-shell-border);
+  background: var(--srg-shell-sidebar-bg);
+  color: var(--srg-shell-text);
+}
+
+.srg-shell-sidebar :where(p, span, a, button) {
+  color: inherit;
+}
+
+.srg-shell-nav-link {
+  border-color: color-mix(in oklab, var(--srg-official-gold) 10%, transparent);
+  background: color-mix(in oklab, white 4%, transparent);
+}
+
+.srg-shell-nav-link:hover,
+.srg-shell-nav-link[data-active='true'] {
+  border-color: color-mix(in oklab, var(--srg-official-gold) 56%, transparent);
+  background: color-mix(in oklab, var(--srg-official-gold) 14%, var(--srg-official-navy));
+}
+
+.srg-shell-context {
+  border-color: color-mix(in oklab, var(--srg-official-gold) 18%, transparent);
+  background: color-mix(in oklab, white 5%, transparent);
+}
+
+.srg-shell-summary {
+  border-color: color-mix(in oklab, var(--srg-official-gold) 18%, var(--srg-border));
+  background: linear-gradient(180deg, color-mix(in oklab, var(--srg-official-card) 94%, var(--srg-official-muted)), color-mix(in oklab, var(--srg-official-muted) 92%, white));
+}
+
+.srg-shell-footer {
+  border-top-color: var(--srg-shell-border);
+  background: var(--srg-shell-footer-bg);
+  color: var(--srg-shell-muted);
+}
+
+.srg-shell-footer :where(p, span, label) {
+  color: inherit;
+}
+
+.srg-shell-footer :where(.srg-footer-title) {
+  color: var(--srg-shell-text);
+}
+
+.srg-shell-footer select {
+  border-color: color-mix(in oklab, var(--srg-official-gold) 24%, transparent);
+  background: color-mix(in oklab, white 5%, transparent);
+  color: var(--srg-shell-text);
+}
+
+/* Universal smart filter */
+.srg-smart-input {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+  border-radius: var(--srg-radius-lg);
+  border: 1px solid var(--srg-border);
+  background: linear-gradient(155deg, var(--card), var(--surface-muted));
+  padding: 0.55rem;
+  box-shadow: var(--srg-shadow-sm);
+}
+
+.srg-smart-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  height: 2.25rem;
+  border-radius: 0.8rem;
+  border: 1px solid var(--srg-border);
+  background: color-mix(in oklab, var(--srg-official-muted) 82%, white 18%);
+  color: var(--srg-text-body);
+  font-size: 0.76rem;
+  font-weight: 700;
+  padding: 0 0.65rem;
+}
+
+.srg-smart-toolbar {
+  border: 1px solid var(--srg-border);
+  border-radius: var(--srg-radius-lg);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--srg-official-muted) 80%, white), var(--srg-official-card));
+  padding: 0.8rem;
+  box-shadow: var(--srg-shadow-sm);
+}
+
+.srg-smart-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid color-mix(in oklab, var(--srg-official-gold) 24%, var(--srg-border));
+  background: color-mix(in oklab, var(--srg-official-muted) 76%, white 24%);
+  color: var(--srg-official-foreground);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.3rem 0.7rem;
+}
+
+.srg-smart-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  border-radius: 0.8rem;
+  border: 1px solid color-mix(in oklab, var(--srg-official-gold) 32%, var(--srg-border));
+  background: linear-gradient(135deg, color-mix(in oklab, var(--srg-official-gold) 10%, white), color-mix(in oklab, var(--srg-official-muted) 92%, white));
+  color: var(--srg-official-foreground);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.45rem 0.6rem;
+  transition: transform var(--fast), border-color var(--fast), background-color var(--fast);
+}
+
+.srg-smart-action:hover {
+  transform: translateX(2px);
+  border-color: color-mix(in oklab, var(--srg-official-gold) 56%, var(--srg-border));
+  background: color-mix(in oklab, var(--srg-official-gold) 18%, white);
+}
+
+.srg-hero-banner {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid color-mix(in oklab, var(--srg-official-gold) 30%, transparent);
+  border-radius: 1.8rem;
+  background: radial-gradient(circle at 20% 10%, color-mix(in oklab, var(--srg-official-gold) 18%, transparent), transparent 40%),
+    linear-gradient(145deg, color-mix(in oklab, var(--srg-official-navy) 94%, black), color-mix(in oklab, var(--srg-official-navy) 84%, var(--srg-official-gold)));
+  color: var(--srg-text-inverse);
+  box-shadow: var(--srg-shadow-lg);
+}
+
+.srg-hero-banner::after {
+  content: '';
+  position: absolute;
+  inset: auto -15% -40% auto;
+  width: 28rem;
+  height: 28rem;
+  border-radius: 999px;
+  background: radial-gradient(circle, color-mix(in oklab, var(--srg-gold) 26%, transparent) 0%, transparent 66%);
+  pointer-events: none;
+}
+
+.srg-kpi-premium {
+  border: 1px solid color-mix(in oklab, var(--srg-official-gold) 22%, var(--srg-border));
+  border-radius: 1.1rem;
+  background: linear-gradient(165deg, var(--srg-official-card), color-mix(in oklab, var(--srg-official-muted) 88%, white 12%));
+  box-shadow: 0 10px 24px rgba(15, 39, 64, 0.1);
+  padding: 0.9rem;
+}
+
+.srg-nav-section-title {
+  color: color-mix(in oklab, var(--srg-official-gold) 85%, white 15%);
+  font-size: 0.67rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 800;
+  padding: 0.45rem 0.2rem;
+}
+
+.srg-nav-divider {
+  border-top: 1px dashed color-mix(in oklab, var(--srg-official-gold) 28%, transparent);
+  margin: 0.4rem 0 0.55rem;
+}
+
+.srg-ask-panel {
+  border: 1px solid var(--srg-border);
+  border-radius: var(--srg-radius-xl);
+  background: linear-gradient(150deg, var(--card), color-mix(in oklab, var(--surface-muted) 92%, white 8%));
+  box-shadow: var(--srg-shadow-md);
+  padding: 1rem;
+}
+
+.srg-chat-bubble {
+  max-width: 90%;
+  border-radius: 1rem;
+  padding: 0.75rem 0.9rem;
+  box-shadow: var(--srg-shadow-sm);
+}
+
+.srg-chat-bubble-assistant {
+  border: 1px solid color-mix(in oklab, var(--srg-official-gold) 22%, var(--srg-border));
+  background: color-mix(in oklab, var(--srg-official-muted) 86%, white 14%);
+  color: var(--srg-official-foreground);
+}
+
+.srg-chat-bubble-user {
+  margin-left: auto;
+  border: 1px solid color-mix(in oklab, var(--srg-official-gold) 36%, transparent);
+  background: color-mix(in oklab, var(--srg-official-navy) 16%, white 84%);
+  color: var(--srg-official-foreground);
+}
+
+.srg-thinking-dot {
+  width: 0.35rem;
+  height: 0.35rem;
+  border-radius: 999px;
+  background: var(--srg-color-info-500);
+  animation: srg-thinking 1s infinite ease-in-out;
+}
+
+.srg-thinking-dot:nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.srg-thinking-dot:nth-child(3) {
+  animation-delay: 280ms;
+}
+
+@keyframes srg-thinking {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  50% {
+    transform: translateY(-3px);
+    opacity: 1;
+  }
+}
+
+.srg-typing-caret {
+  display: inline-block;
+  width: 0.4rem;
+  height: 1em;
+  margin-left: 0.2rem;
+  border-radius: 1px;
+  background: var(--srg-color-primary-500);
+  animation: srg-caret 1s step-end infinite;
+}
+
+@keyframes srg-caret {
+  0%,
+  45% {
+    opacity: 1;
+  }
+  46%,
+  100% {
+    opacity: 0;
+  }
+}
+
 .srg-kpi > .srg-kpi-label {
+  color: var(--srg-color-primary-600);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
 
 .srg-badge-ai,
 .srg-badge-enterprise,
@@ -330,8 +608,8 @@
 .srg-badge-premium,
 .srg-badge-ready,
 .srg-badge-experimental {
-  background: color-mix(in oklab, var(--srg-primary-blue) 10%, transparent);
-  color: var(--srg-primary-navy);
+  background: color-mix(in oklab, var(--srg-official-gold) 22%, white 78%);
+  color: var(--srg-official-foreground);
 }
 
 .srg-badge-ai { border-color: color-mix(in oklab, var(--srg-azure) 36%, var(--srg-border)); }
@@ -339,13 +617,7 @@
 .srg-badge-tenant { border-color: color-mix(in oklab, var(--srg-primary-blue) 35%, var(--srg-border)); }
 .srg-badge-premium { border-color: color-mix(in oklab, var(--srg-gold) 42%, var(--srg-border)); }
 .srg-badge-ready { border-color: color-mix(in oklab, var(--srg-emerald) 38%, var(--srg-border)); }
-.srg-badge-experimental { border-color: color-mix(in oklab, var(--srg-warning) 32%, var(--srg-border)); }
-  color: var(--srg-color-primary-600);
-  text-transform: uppercase;
-  letter-spacing: 0.2em;
-  font-size: 0.68rem;
-  font-weight: 800;
-}
+.srg-badge-experimental { border-color: color-mix(in oklab, var(--warning) 32%, var(--srg-border)); }
 
 .srg-kpi > .srg-kpi-value {
   margin-top: 0.42rem;
@@ -359,7 +631,7 @@
   border: 1px solid var(--srg-border);
   border-radius: var(--srg-radius-lg);
   overflow: hidden;
-  background: var(--srg-surface);
+  background: var(--srg-official-card);
 }
 
 .srg-table {
@@ -376,8 +648,8 @@
 }
 
 .srg-table th {
-  background: color-mix(in oklab, var(--srg-surface-strong) 90%, white 10%);
-  color: var(--srg-text-subtitle);
+  background: linear-gradient(180deg, color-mix(in oklab, var(--srg-official-muted) 96%, white 4%), color-mix(in oklab, var(--srg-official-muted) 88%, white 12%));
+  color: var(--srg-official-foreground);
   text-align: left;
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -385,7 +657,7 @@
 }
 
 .srg-table tr:hover td {
-  background: var(--srg-hover);
+  background: color-mix(in oklab, var(--srg-official-gold) 10%, white);
 }
 
 /* Badges */
@@ -394,7 +666,7 @@
   align-items: center;
   gap: 0.35rem;
   border-radius: 999px;
-  border: 1px solid var(--srg-border);
+  border: 1px solid color-mix(in oklab, var(--srg-official-gold) 28%, var(--srg-border));
   padding: 0.2rem 0.62rem;
   font-size: 0.75rem;
   font-weight: 700;
@@ -410,13 +682,13 @@
 .srg-state-block {
   border-radius: var(--srg-radius-xl);
   border: 1px dashed var(--srg-border);
-  background: linear-gradient(180deg, var(--srg-surface-strong), var(--srg-surface));
+  background: linear-gradient(180deg, var(--srg-official-card), color-mix(in oklab, var(--srg-official-muted) 92%, white));
   box-shadow: var(--srg-shadow-sm);
   padding: 1.5rem;
 }
 
 .srg-skeleton {
-  background: linear-gradient(100deg, color-mix(in oklab, var(--srg-surface-strong) 88%, white 12%) 10%, color-mix(in oklab, var(--srg-surface) 80%, white 20%) 30%, color-mix(in oklab, var(--srg-surface-strong) 88%, white 12%) 55%);
+  background: linear-gradient(100deg, color-mix(in oklab, var(--srg-official-muted) 82%, white 18%) 10%, color-mix(in oklab, var(--srg-official-gold) 10%, white 90%) 30%, color-mix(in oklab, var(--srg-official-muted) 82%, white 18%) 55%);
   background-size: 250% 100%;
   animation: srg-shimmer 1.25s linear infinite;
 }
@@ -454,6 +726,21 @@
 
 .srg-slide-up {
   animation: srg-slide-up var(--normal);
+}
+
+@keyframes srg-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.srg-scale-in {
+  animation: srg-scale-in var(--normal);
 }
 
 .srg-progress {
@@ -526,7 +813,11 @@
 /* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .srg-fade-up,
-  .srg-skeleton {
+  .srg-skeleton,
+  .srg-slide-up,
+  .srg-scale-in,
+  .srg-thinking-dot,
+  .srg-typing-caret {
     animation: none !important;
   }
 

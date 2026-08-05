@@ -10,6 +10,14 @@
 }
 
 :root {
+  --srg-official-navy: oklch(0.24 0.09 265);
+  --srg-official-gold: oklch(0.78 0.14 80);
+  --srg-official-background: oklch(0.99 0.005 250);
+  --srg-official-card: oklch(1 0 0);
+  --srg-official-muted: oklch(0.96 0.008 250);
+  --srg-official-foreground: oklch(0.18 0.06 260);
+  --srg-official-border: oklch(0.929 0.013 255.508);
+
   --sea-ink: #173a40;
   --sea-ink-soft: #416166;
   --lagoon: #4fb8b2;
@@ -91,12 +99,12 @@ body {
   margin: 0;
   color: var(--srg-text-title);
   font-family: var(--font-sans);
-  background-color: var(--bg-base);
+  background-color: var(--srg-official-background);
   background:
-    radial-gradient(1100px 620px at -8% -10%, var(--hero-a), transparent 58%),
-    radial-gradient(1050px 620px at 112% -12%, var(--hero-b), transparent 62%),
-    radial-gradient(720px 380px at 50% 115%, rgba(79, 184, 178, 0.1), transparent 68%),
-    linear-gradient(180deg, color-mix(in oklab, var(--sand) 68%, white) 0%, var(--foam) 44%, var(--bg-base) 100%);
+    radial-gradient(1100px 620px at -8% -10%, color-mix(in oklab, var(--srg-official-gold) 10%, transparent), transparent 58%),
+    radial-gradient(1050px 620px at 112% -12%, color-mix(in oklab, var(--srg-official-navy) 11%, transparent), transparent 62%),
+    radial-gradient(720px 380px at 50% 115%, color-mix(in oklab, var(--srg-official-gold) 8%, transparent), transparent 68%),
+    linear-gradient(180deg, color-mix(in oklab, var(--srg-official-background) 95%, white 5%) 0%, var(--srg-official-muted) 44%, var(--srg-official-background) 100%);
   overflow-x: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -111,8 +119,8 @@ body::before {
   opacity: 0.28;
   background:
     radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.8), transparent 34%),
-    radial-gradient(circle at 78% 26%, rgba(79, 184, 178, 0.2), transparent 42%),
-    radial-gradient(circle at 42% 82%, rgba(47, 106, 74, 0.14), transparent 36%);
+    radial-gradient(circle at 78% 26%, color-mix(in oklab, var(--srg-official-gold) 18%, transparent), transparent 42%),
+    radial-gradient(circle at 42% 82%, color-mix(in oklab, var(--srg-official-navy) 10%, transparent), transparent 36%);
 }
 
 body::after {
@@ -130,14 +138,14 @@ body::after {
 }
 
 a {
-  color: var(--srg-color-primary-500);
-  text-decoration-color: rgba(50, 143, 151, 0.4);
+  color: var(--srg-accent);
+  text-decoration-color: color-mix(in oklab, var(--srg-accent) 45%, transparent);
   text-decoration-thickness: 1px;
   text-underline-offset: 2px;
 }
 
 a:hover {
-  color: #246f76;
+  color: color-mix(in oklab, var(--srg-accent) 72%, var(--srg-official-navy));
 }
 
 code {
@@ -315,6 +323,244 @@ pre code {
   color: var(--srg-text-muted);
 }
 
+@keyframes askOrbBreathe {
+  0% {
+    transform: scale(0.98);
+    box-shadow: 0 0 0 0 rgba(92, 170, 255, 0.28), 0 0 0 18px rgba(58, 139, 255, 0.12);
+  }
+  50% {
+    transform: scale(1.03);
+    box-shadow: 0 0 0 14px rgba(92, 170, 255, 0.1), 0 0 0 36px rgba(58, 139, 255, 0.06);
+  }
+  100% {
+    transform: scale(0.98);
+    box-shadow: 0 0 0 0 rgba(92, 170, 255, 0.28), 0 0 0 18px rgba(58, 139, 255, 0.12);
+  }
+}
+
+@keyframes askOrbWave {
+  0% {
+    transform: scale(0.94);
+    opacity: 0.35;
+  }
+  70% {
+    transform: scale(1.18);
+    opacity: 0.08;
+  }
+  100% {
+    transform: scale(1.22);
+    opacity: 0;
+  }
+}
+
+.ask-orb-wrap {
+  position: relative;
+  width: 9rem;
+  height: 9rem;
+}
+
+.ask-orb-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.ask-orb-button:hover .ask-orb-core {
+  transform: scale(1.04);
+}
+
+.ask-orb-button:active .ask-orb-core {
+  transform: scale(0.97);
+}
+
+.ask-orb-button:focus-visible {
+  outline: 2px solid rgba(173, 216, 255, 0.95);
+  outline-offset: 8px;
+  border-radius: 999px;
+}
+
+.ask-orb-core {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: radial-gradient(circle at 35% 30%, #ffffff 0%, #d9ebff 32%, #6eb4ff 72%, #2f74ff 100%);
+  border: 2px solid rgba(233, 244, 255, 0.95);
+  animation: askOrbBreathe 4.2s ease-in-out infinite;
+}
+
+.ask-orb-halo {
+  position: absolute;
+  inset: -16px;
+  border-radius: 9999px;
+  background: radial-gradient(circle, rgba(120, 185, 255, 0.42) 0%, rgba(73, 147, 255, 0.16) 45%, transparent 72%);
+  filter: blur(3px);
+}
+
+.ask-orb-wave {
+  position: absolute;
+  inset: -8px;
+  border-radius: 9999px;
+  border: 2px solid rgba(175, 215, 255, 0.75);
+  animation: askOrbWave 3.8s ease-out infinite;
+}
+
+.srg-hero-stage {
+  min-height: 100svh;
+  background-image: url('/design/hero-home-webp.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.srg-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(180deg, rgba(3, 10, 40, 0.2) 0%, rgba(2, 6, 28, 0.42) 36%, rgba(2, 6, 24, 0.62) 100%);
+}
+
+.srg-hero-stars,
+.srg-hero-water,
+.srg-hero-splashes {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.srg-hero-stars {
+  background:
+    radial-gradient(circle at 8% 14%, rgba(255, 255, 255, 0.55) 0 1px, transparent 1px),
+    radial-gradient(circle at 23% 20%, rgba(162, 206, 255, 0.55) 0 1.1px, transparent 1.1px),
+    radial-gradient(circle at 38% 16%, rgba(255, 255, 255, 0.45) 0 1px, transparent 1px),
+    radial-gradient(circle at 56% 13%, rgba(162, 206, 255, 0.5) 0 1.1px, transparent 1.1px),
+    radial-gradient(circle at 74% 18%, rgba(255, 255, 255, 0.5) 0 1px, transparent 1px),
+    radial-gradient(circle at 88% 24%, rgba(162, 206, 255, 0.5) 0 1.1px, transparent 1.1px);
+  opacity: 0.55;
+  animation: srgStarTwinkle 7s ease-in-out infinite alternate;
+}
+
+.srg-hero-water {
+  inset: auto 0 0 0;
+  height: 46%;
+  background:
+    radial-gradient(120% 90% at 20% 120%, rgba(255, 255, 255, 0.08) 0%, transparent 58%),
+    radial-gradient(120% 90% at 70% 130%, rgba(124, 175, 255, 0.16) 0%, transparent 62%);
+  animation: srgWaterDrift 11s ease-in-out infinite alternate;
+}
+
+.srg-hero-splashes {
+  inset: auto 0 8% 0;
+  height: 24%;
+  background:
+    radial-gradient(circle at 18% 68%, rgba(255, 255, 255, 0.14) 0%, transparent 24%),
+    radial-gradient(circle at 46% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 22%),
+    radial-gradient(circle at 71% 65%, rgba(255, 255, 255, 0.13) 0%, transparent 24%);
+  animation: srgSplashPulse 5s ease-in-out infinite;
+}
+
+.srg-home-universal .srg-smart-input {
+  border-radius: 1.65rem;
+  border-color: rgba(219, 229, 255, 0.9);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(248, 251, 255, 0.9));
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.85) inset,
+    0 16px 44px rgba(18, 56, 150, 0.18);
+}
+
+.srg-home-universal .srg-smart-icon-btn,
+.srg-home-universal .srg-smart-input button,
+.srg-home-universal .srg-smart-input select {
+  border-color: rgba(203, 217, 255, 0.95);
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.srg-home-universal .srg-smart-input input {
+  font-size: 0.95rem;
+  color: #1b335f;
+}
+
+.srg-space-page {
+  background:
+    radial-gradient(900px 420px at 95% -10%, rgba(88, 145, 255, 0.1), transparent 65%),
+    radial-gradient(900px 420px at -10% 0%, rgba(42, 91, 196, 0.08), transparent 60%),
+    linear-gradient(180deg, #f4f8ff 0%, #f9fbff 45%, #f5f8ff 100%);
+}
+
+.srg-space-header,
+.srg-space-favorites,
+.srg-space-list,
+.srg-space-conversation {
+  backdrop-filter: blur(7px);
+}
+
+.srg-space-icon {
+  display: inline-flex;
+  height: 2.3rem;
+  width: 2.3rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.9rem;
+  background: linear-gradient(145deg, #f8fbff, #e8f1ff);
+  border: 1px solid #d2def8;
+  box-shadow: 0 7px 16px rgba(25, 72, 172, 0.14);
+  font-size: 1.1rem;
+}
+
+.srg-space-row {
+  transition: transform 160ms ease, border-color 160ms ease, background-color 160ms ease, box-shadow 160ms ease;
+}
+
+.srg-space-row:hover {
+  transform: translateY(-1px);
+  border-color: #aac3ff;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(30, 80, 180, 0.12);
+}
+
+.srg-space-row:focus-within {
+  border-color: #2f5fd4;
+  box-shadow: 0 0 0 2px rgba(47, 95, 212, 0.22);
+}
+
+@keyframes srgStarTwinkle {
+  0% {
+    opacity: 0.42;
+  }
+  50% {
+    opacity: 0.62;
+  }
+  100% {
+    opacity: 0.48;
+  }
+}
+
+@keyframes srgWaterDrift {
+  0% {
+    transform: translateX(-0.8%) translateY(0);
+    opacity: 0.66;
+  }
+  100% {
+    transform: translateX(0.8%) translateY(-0.6%);
+    opacity: 0.78;
+  }
+}
+
+@keyframes srgSplashPulse {
+  0% {
+    opacity: 0.42;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-1.2%);
+  }
+  100% {
+    opacity: 0.44;
+    transform: translateY(0);
+  }
+}
+
 .demo-button-danger {
   border-color: rgba(196, 71, 71, 0.28);
   background: rgba(196, 71, 71, 0.1);
@@ -442,6 +688,23 @@ a {
   .nav-link::after {
     bottom: -4px;
   }
+
+  .srg-home-universal .srg-smart-input {
+    gap: 0.32rem;
+    padding: 0.45rem;
+  }
+
+  .srg-home-universal .srg-smart-input button,
+  .srg-home-universal .srg-smart-icon-btn {
+    min-width: 2.1rem;
+  }
+
+  .srg-space-icon {
+    height: 2rem;
+    width: 2rem;
+    border-radius: 0.75rem;
+    font-size: 0.95rem;
+  }
 }
 
 .site-footer {
@@ -461,6 +724,19 @@ a {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ask-orb-core,
+  .ask-orb-wave,
+  .srg-hero-stars,
+  .srg-hero-water,
+  .srg-hero-splashes,
+  .srg-space-row {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
   }
 }
 

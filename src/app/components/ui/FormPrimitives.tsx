@@ -12,8 +12,9 @@ export function FormSection({
 }) {
   return (
     <section className="srg-premium-card rounded-[var(--srg-radius-lg)] p-4">
-      <header className="mb-3">
-        <h3 className="srg-h4">{title}</h3>
+      <header className="mb-3 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-3">
+        <p className="text-xs uppercase tracking-[0.18em] text-[var(--srg-text-muted)]">Form Section</p>
+        <h3 className="srg-h4 mt-1 inline-flex items-center gap-2"><span aria-hidden>✦</span>{title}</h3>
         {description ? <p className="srg-body mt-1 text-sm">{description}</p> : null}
       </header>
       {children}
@@ -47,8 +48,9 @@ export function Field({
   children: ReactNode
 }) {
   return (
-    <label className="grid gap-2 text-sm">
-      <span className="font-semibold text-[var(--srg-text-label)]">
+    <label className="grid gap-2 rounded-2xl border border-transparent p-2 text-sm transition hover:border-[var(--srg-border)] hover:bg-[var(--srg-surface)]">
+      <span className="inline-flex items-center gap-2 font-semibold text-[var(--srg-text-label)]">
+        <span aria-hidden>•</span>
         {label}
         {required ? <span className="ml-1 text-[var(--srg-color-danger-500)]">*</span> : null}
       </span>

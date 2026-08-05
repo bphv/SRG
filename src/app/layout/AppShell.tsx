@@ -1,7 +1,7 @@
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
 import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
 import { navItems } from '#/app/navigation/navConfig'
-import SearchBar from '#/app/components/SearchBar'
+import SmartInputBar from '#/app/components/SmartInputBar'
 import ProviderBadge from '#/app/components/ProviderBadge'
 import StatusBadge from '#/app/components/StatusBadge'
 import TenantSwitcher from '#/app/components/TenantSwitcher'
@@ -13,6 +13,40 @@ import { useBreadcrumb } from '#/app/hooks/useBreadcrumb'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 const NotificationCenter = lazy(() => import('#/app/components/NotificationCenter'))
+
+function getNavSection(itemPath: string): string {
+  if (itemPath.startsWith('/dashboard')) {
+    return 'Accueil'
+  }
+  if (itemPath.startsWith('/chat')) {
+    return 'Ask SRG'
+  }
+  if (itemPath.startsWith('/projects') || itemPath.startsWith('/project-execution') || itemPath.startsWith('/finance') || itemPath.startsWith('/human-resources') || itemPath.startsWith('/maintenance') || itemPath.startsWith('/procurement-inventory')) {
+    return 'Workspaces'
+  }
+  if (itemPath.startsWith('/knowledge-center') || itemPath.startsWith('/knowledge-intelligence')) {
+    return 'Centre de connaissances'
+  }
+  if (itemPath.startsWith('/prompt') || itemPath.startsWith('/reviews')) {
+    return 'Documents'
+  }
+  if (itemPath.startsWith('/history')) {
+    return 'Historique'
+  }
+  if (itemPath.startsWith('/enterprise-insights') || itemPath.startsWith('/strategic-advisor') || itemPath.startsWith('/observability') || itemPath.startsWith('/management-control')) {
+    return 'Analyses'
+  }
+  if (itemPath.startsWith('/workflow-automation') || itemPath.startsWith('/agents') || itemPath.startsWith('/generate')) {
+    return 'Automatisation'
+  }
+  if (itemPath.startsWith('/administration') || itemPath.startsWith('/auth') || itemPath.startsWith('/providers')) {
+    return 'Administration'
+  }
+  if (itemPath.startsWith('/settings') || itemPath.startsWith('/profile')) {
+    return 'Parametres'
+  }
+  return 'Reunions'
+}
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const location = useLocation()
@@ -94,6 +128,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     return ranked.slice(0, 18)
   }, [allCommands, commandQuery, commandRevision])
 
+  const navSections = useMemo(() => {
+    const grouped = new Map<string, typeof navItems>()
+    navItems.forEach((item) => {
+      const section = getNavSection(item.path)
+      const current = grouped.get(section) ?? []
+      grouped.set(section, [...current, item])
+    })
+    return Array.from(grouped.entries())
+  }, [])
+
   useEffect(() => {
     WorkspacePreferencesService.setRecentPage(location.pathname)
   }, [location.pathname])
@@ -136,6 +180,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     { label: 'Memory Ready', status: 'Placeholder' },
   ]
 
+  const isFocusExperience = location.pathname === '/' || location.pathname === '/chat'
+
+  if (isFocusExperience) {
+    return <div className="min-h-screen bg-[var(--srg-bg)] text-[var(--srg-text-body)]">{children}</div>
+  }
+
   return (
     <div className="srg-workspace min-h-screen bg-[var(--srg-bg)] text-[var(--srg-text-body)]">
       <div className="srg-glass-header">
@@ -146,16 +196,22 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
 
           <div className="ml-auto flex flex-wrap items-center gap-3">
-            <SearchBar
+            <div className="min-w-[20rem] max-w-[40rem] flex-1">
+              <SmartInputBar
               placeholder="Search Enterprise Intelligence"
               value={shellSearch}
-              onSearch={(value) => {
+              onSubmit={(value) => {
                 setShellSearch(value)
                 WorkspacePreferencesService.pushRecentSearch(value)
               }}
               onValueChange={setShellSearch}
-              instant
+              mode="search"
+              persistKey="app-shell-search"
+              submitLabel="Rechercher"
+              showDropzone={false}
+              compact
             />
+            </div>
             <button
               type="button"
               className="hidden rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs font-semibold text-[var(--srg-text-muted)] transition hover:bg-[var(--srg-hover)] lg:inline-flex"
@@ -190,6 +246,35 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </button>
             <button
               type="button"
+              className="hidden rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm text-[var(--srg-text-body)] transition hover:bg-[var(--srg-hover)] lg:inline-flex"
+              onClick={() => navigate({ to: '/history' })}
+              aria-label="Open calendar and timeline"
+            >
+              Calendrier
+            </button>
+            <button
+              type="button"
+              className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-body)] transition hover:bg-[var(--srg-hover)]"
+              onClick={() => navigate({ to: '/chat' })}
+              aria-label="Open Ask SRG"
+            >
+              Ask SRG
+            </button>
+            <button
+              type="button"
+              className="hidden rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm text-[var(--srg-text-body)] transition hover:bg-[var(--srg-hover)] lg:inline-flex"
+              onClick={() => navigate({ to: '/profile' })}
+              aria-label="Open profile"
+            >
+              Profil
+            </button>
+            <div className="hidden rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs text-[var(--srg-text-muted)] lg:block">
+              <p className="font-semibold text-[var(--srg-text-title)]">{tenant.activeUser}</p>
+              <p>{tenant.activeEnterprise}</p>
+              <p className="mt-1">Tenant: {tenant.tenantId}</p>
+            </div>
+            <button
+              type="button"
               className="rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-body)] transition hover:bg-[var(--srg-hover)]"
               onClick={() => theme.setMode(theme.mode === 'light' ? 'dark' : 'light')}
             >
@@ -201,7 +286,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="page-wrap grid gap-6 py-6 lg:grid-cols-[320px_minmax(0,1fr)]">
         <aside
-          className={`${isSidebarOpen ? 'block' : 'hidden'} srg-premium-panel p-5 lg:block`}
+          className={`${isSidebarOpen ? 'block' : 'hidden'} srg-premium-panel srg-shell-sidebar p-5 lg:block`}
         >
           <div className="mb-6 space-y-3">
             <div className="flex items-center justify-between gap-3">
@@ -218,25 +303,49 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               Explore the SRG workspace and settings.
             </p>
           </div>
-          <nav className="space-y-2">
-            {navItems.map((item) => (
-              <Link
-                key={item.id}
-                to={item.path}
-                className={`group flex flex-col gap-1 rounded-3xl border px-4 py-3 text-sm no-underline transition hover:border-[var(--srg-color-primary-400)] hover:bg-[var(--srg-hover)] ${
-                  activePage.path === item.path ? 'border-[var(--srg-color-primary-400)] bg-[var(--srg-hover)]' : 'border-transparent'
-                }`}
-              >
-                <span className="text-base">{item.icon}</span>
-                <span className="font-semibold text-[var(--srg-text-title)]">{item.title}</span>
-                <span className="text-xs text-[var(--srg-text-muted)]">{item.description}</span>
-              </Link>
+          <nav className="space-y-3">
+            {navSections.map(([sectionName, sectionItems]) => (
+              <div key={sectionName}>
+                <div className="srg-nav-section-title">{sectionName}</div>
+                <div className="srg-nav-divider" />
+                <div className="space-y-2">
+                  {sectionItems.map((item) => (
+                    <Link
+                      key={item.id}
+                      to={item.path}
+                      className={`srg-shell-nav-link group flex flex-col gap-1 rounded-3xl border px-4 py-3 text-sm no-underline transition ${
+                        activePage.path === item.path ? 'border-[var(--srg-color-warning-500)] bg-[color-mix(in_oklab,var(--srg-official-gold)_14%,var(--srg-official-navy))]' : 'border-transparent'
+                      }`}
+                      data-active={activePage.path === item.path ? 'true' : 'false'}
+                    >
+                      <span className="text-base">{item.icon}</span>
+                      <span className="font-semibold text-[var(--srg-shell-text)]">{item.title}</span>
+                      <span className="text-xs text-[var(--srg-shell-muted)]">{item.description}</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             ))}
           </nav>
+
+          <div className="srg-shell-context mt-5 rounded-2xl border p-3 text-xs text-[var(--srg-shell-muted)]">
+            <p className="font-semibold text-[var(--srg-shell-text)]">Workspace actif</p>
+            <p className="mt-1">{tenant.workspaceName}</p>
+            <p className="mt-1">Tenant: {tenant.tenantId}</p>
+            <button
+              type="button"
+              className="mt-3 w-full rounded-xl border border-[color-mix(in_oklab,var(--srg-official-gold)_24%,transparent)] bg-[color-mix(in_oklab,white_6%,transparent)] px-3 py-2 text-xs font-semibold text-[var(--srg-shell-text)]"
+              onClick={() => navigate({ to: '/chat' })}
+            >
+              Open Ask SRG
+            </button>
+          </div>
+
+          <p className="mt-4 text-center text-[10px] uppercase tracking-[0.18em] text-[var(--srg-shell-muted)]">SRG Enterprise Navigation</p>
         </aside>
 
         <main className="space-y-6">
-          <div className="srg-fade-up flex flex-col gap-3 rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5 shadow-[var(--srg-shadow-md)] sm:flex-row sm:items-center sm:justify-between">
+          <div className="srg-shell-summary srg-fade-up flex flex-col gap-3 rounded-[2rem] border p-5 shadow-[var(--srg-shadow-md)] sm:flex-row sm:items-center sm:justify-between">
             <div>
               <p className="srg-label">{activePage.title}</p>
               <h2 className="srg-h2 mt-2 text-2xl font-semibold tracking-tight text-[var(--srg-text-title)]">
@@ -335,12 +444,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       {isCommandPaletteOpen ? (
         <div className="fixed inset-0 z-[60] flex items-start justify-center bg-black/35 p-4 pt-20" role="dialog" aria-modal="true" aria-label="Command palette">
           <div className="w-full max-w-2xl rounded-[1.5rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 shadow-[var(--srg-shadow-lg)]">
-            <SearchBar
+            <SmartInputBar
               placeholder="Type a command or search a page"
               value={commandQuery}
-              onSearch={setCommandQuery}
+              onSubmit={setCommandQuery}
               onValueChange={setCommandQuery}
-              instant
+              mode="command"
+              submitLabel="Executer"
+              showDropzone={false}
             />
             <div className="mt-3 max-h-[60vh] overflow-y-auto">
               <div className="mb-2 flex items-center justify-between">
@@ -391,10 +502,58 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       ) : null}
 
-      <footer className="page-wrap border-t border-[var(--srg-border)] py-10 text-sm text-[var(--srg-text-muted)]">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <p>SRG Enterprise Intelligence Platform</p>
-          <p>Executive-ready workspace for enterprise orchestration.</p>
+      <footer className="srg-shell-footer mt-8 py-10 text-sm">
+        <div className="page-wrap">
+        <div className="grid gap-6 lg:grid-cols-5">
+          <div>
+            <p className="srg-footer-title font-semibold">SRG</p>
+            <p className="mt-2 text-xs">Enterprise Premium Intelligence Platform</p>
+            <p className="mt-2 text-xs">Devise: Build clarity at scale.</p>
+          </div>
+          <div>
+            <p className="srg-footer-title font-semibold">Navigation rapide</p>
+            <div className="mt-2 space-y-1 text-xs">
+              <p>Dashboard</p>
+              <p>Ask SRG</p>
+              <p>Enterprise Insights</p>
+              <p>Workflow Automation</p>
+            </div>
+          </div>
+          <div>
+            <p className="srg-footer-title font-semibold">Solutions & Ressources</p>
+            <div className="mt-2 space-y-1 text-xs">
+              <p>Operations</p>
+              <p>Finance</p>
+              <p>Knowledge Center</p>
+              <p>Developers</p>
+            </div>
+          </div>
+          <div>
+            <p className="srg-footer-title font-semibold">Confidentialite & Contact</p>
+            <div className="mt-2 space-y-1 text-xs">
+              <p>Confidentialite</p>
+              <p>Conformite</p>
+              <p>Contact</p>
+              <p>Reseaux sociaux</p>
+            </div>
+          </div>
+          <div>
+            <p className="srg-footer-title font-semibold">Preferences</p>
+            <div className="mt-2 space-y-2 text-xs">
+              <select aria-label="Language selector" className="w-full rounded-xl border px-2 py-1">
+                <option>Francais</option>
+                <option>English</option>
+                <option>Español</option>
+              </select>
+              <p>Theme: {theme.resolvedMode}</p>
+              <p>Version: v1.0.0-premium</p>
+            </div>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-col gap-2 border-t border-[color-mix(in_oklab,var(--srg-official-gold)_18%,transparent)] pt-4 text-xs sm:flex-row sm:items-center sm:justify-between">
+          <p>© 2026 SRG Enterprise Intelligence Platform</p>
+          <p>All rights reserved.</p>
+        </div>
         </div>
       </footer>
     </div>

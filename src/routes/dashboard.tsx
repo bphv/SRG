@@ -6,6 +6,7 @@ import Section from '#/app/components/Section'
 import SmartInputBar from '#/app/components/SmartInputBar'
 import DataTable from '#/app/components/ui/DataTable'
 import type { DataTableColumn } from '#/app/components/ui/DataTable'
+import Button from '#/app/components/ui/Button'
 import { useAskSrgRuntimeContext } from '#/app/contexts/AskSrgRuntimeContext'
 import { useTenantContext } from '#/app/contexts/TenantContext'
 import { useNotifications } from '#/app/hooks/useNotifications'
@@ -129,6 +130,12 @@ const QUICK_ACTIONS = [
   { label: 'Open History', to: '/history' },
 ]
 
+const TODAY_PRIORITIES = [
+  'Valider la revue de tresorerie projets critiques',
+  'Arbitrer la priorite maintenance zone Nord',
+  'Synchroniser achats et capacite fournisseurs',
+]
+
 function DashboardPage() {
   const tenant = useTenantContext()
   const askSrgRuntime = useAskSrgRuntimeContext()
@@ -199,6 +206,117 @@ function DashboardPage() {
         description="SRG Enterprise Intelligence Platform - executive cockpit for enterprise orchestration."
       />
 
+      <section className="srg-hero-banner srg-scale-in p-6 sm:p-8">
+        <div className="grid gap-5 lg:grid-cols-[1.3fr_1fr]">
+          <div>
+            <p className="text-xs uppercase tracking-[0.22em] text-[color-mix(in_oklab,var(--srg-white)_70%,var(--srg-azure))]">Executive Welcome</p>
+            <h2 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl">Bienvenue {tenant.activeUser}, pilotage global de {tenant.activeEnterprise}</h2>
+            <p className="mt-3 max-w-2xl text-sm text-[color-mix(in_oklab,var(--srg-white)_85%,var(--srg-azure))]">
+              SRG centralise vos priorites, vos risques et vos decisions critiques dans une experience executive unifiee.
+            </p>
+            <div className="mt-4 flex flex-wrap gap-2">
+              <span className="srg-badge srg-badge-premium">Enterprise Premium</span>
+              <span className="srg-badge srg-badge-ready">Realtime Ready</span>
+              <span className="srg-badge srg-badge-ai">Ask SRG Ready</span>
+            </div>
+          </div>
+          <div className="rounded-3xl border border-white/20 bg-white/10 p-4 text-sm backdrop-blur-sm">
+            <p className="font-semibold">Intelligent Summary</p>
+            <p className="mt-2 text-[color-mix(in_oklab,var(--srg-white)_88%,var(--srg-azure))]">
+              Performance stable, vigilance sur tresorerie projet Atlas, opportunite d'optimisation immediate sur la chaine achats-maintenance.
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2">
+              <div className="rounded-2xl border border-white/20 bg-black/10 p-3">
+                <p className="text-xs uppercase tracking-[0.18em]">Important Notifications</p>
+                <p className="mt-1 text-xl font-semibold">{unreadNotifications}</p>
+              </div>
+              <div className="rounded-2xl border border-white/20 bg-black/10 p-3">
+                <p className="text-xs uppercase tracking-[0.18em]">Local Time</p>
+                <p className="mt-1 text-sm font-semibold">{localTime || 'Synchronisation...'}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Section title="Ask SRG Widget" description="Premium visual conversation widget placeholder.">
+        <div className="srg-ask-panel">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <span className="inline-flex h-10 w-10 items-center justify-center rounded-2xl bg-[var(--srg-color-primary-500)] text-white">SRG</span>
+              <div>
+                <p className="font-semibold text-[var(--srg-text-title)]">Ask SRG Conversation</p>
+                <p className="text-xs text-[var(--srg-text-muted)]">Assistant enterprise premium</p>
+              </div>
+            </div>
+            <span className="srg-badge srg-badge-ai">AI</span>
+          </div>
+          <div className="space-y-3 text-sm">
+            <div className="srg-chat-bubble srg-chat-bubble-assistant">
+              Bonjour. Je prepare votre synthese executive. Quels indicateurs voulez-vous prioriser ?
+              <div className="mt-2 inline-flex items-center gap-1" aria-label="Animation de reflexion">
+                <span className="srg-thinking-dot" />
+                <span className="srg-thinking-dot" />
+                <span className="srg-thinking-dot" />
+              </div>
+            </div>
+            <div className="srg-chat-bubble srg-chat-bubble-user">
+              Afficher les alertes critiques, les decisions recentes et un plan d'action 7 jours.
+            </div>
+            <div className="srg-chat-bubble srg-chat-bubble-assistant">
+              Compris. Je compile les risques majeurs et les recommandations transverses.
+              <span className="srg-typing-caret" aria-hidden> </span>
+            </div>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2 text-xs">
+            <span className="srg-badge srg-badge-ready">Confiance: 92%</span>
+            <span className="srg-badge srg-badge-enterprise">Sources: Dashboard + Knowledge + Workflow</span>
+          </div>
+          <div className="mt-4 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--srg-text-muted)]">Suggestions</p>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {RECOMMENDATIONS.map((item) => <span key={item} className="srg-smart-chip">{item}</span>)}
+              </div>
+            </div>
+            <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-[var(--srg-text-muted)]">Documents recents</p>
+              <div className="mt-2 space-y-1 text-xs text-[var(--srg-text-muted)]">
+                {EXECUTIVE_DOCUMENTS.slice(0, 3).map((doc) => <p key={doc.name}>• {doc.name}</p>)}
+              </div>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2 text-xs">
+            <Button variant="secondary" size="sm"><span aria-hidden>🎤</span><span>Micro</span></Button>
+            <Button variant="secondary" size="sm"><span aria-hidden>📷</span><span>Camera</span></Button>
+            <Button variant="secondary" size="sm"><span aria-hidden>📎</span><span>Documents</span></Button>
+            <Button variant="secondary" size="sm"><span aria-hidden>🕘</span><span>Historique</span></Button>
+            <Button variant="secondary" size="sm"><span aria-hidden>★</span><span>Favoris</span></Button>
+            <Button variant="secondary" size="sm"><span aria-hidden>↗</span><span>Partager</span></Button>
+            <Button variant="secondary" size="sm"><span aria-hidden>⇩</span><span>Exporter</span></Button>
+          </div>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {QUICK_ACTIONS.map((item) => (
+              <Link key={item.to} to={item.to} className="srg-smart-chip no-underline">{item.label}</Link>
+            ))}
+          </div>
+          <div className="mt-4">
+            <SmartInputBar
+              value={smartInput}
+              onValueChange={setSmartInput}
+              onSubmit={(value) => {
+                setSmartInput(value)
+              }}
+              placeholder="Demander une synthese, une analyse ou une recommandation"
+              persistKey="dashboard-ask-srg-widget"
+              mode="conversation"
+              submitLabel="Envoyer"
+              showDropzone={false}
+            />
+          </div>
+        </div>
+      </Section>
+
       <Section title="Executive Header" description="Entreprise active, tenant, utilisateur, horodatage local et statuts runtime.">
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
@@ -268,10 +386,21 @@ function DashboardPage() {
       <Section title="Executive KPIs" description="Indicateurs executives placeholders avant integration des donnees reelles.">
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {EXECUTIVE_KPIS.map((item) => (
-            <article key={item.label} className="srg-premium-card rounded-3xl p-4">
+            <article key={item.label} className="srg-kpi-premium srg-slide-up">
               <p className="text-xs uppercase tracking-[0.2em] text-[var(--srg-color-primary-500)]">{item.label}</p>
               <p className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">{item.value}</p>
               <p className="text-sm text-[var(--srg-text-muted)]">Variation: {item.trend}</p>
+            </article>
+          ))}
+        </div>
+      </Section>
+
+      <Section title="Today's Priorities" description="Priorites critiques des 24 prochaines heures.">
+        <div className="grid gap-4 lg:grid-cols-3">
+          {TODAY_PRIORITIES.map((item) => (
+            <article key={item} className="srg-premium-card rounded-3xl p-4">
+              <p className="srg-label">Priority</p>
+              <p className="mt-2 text-sm text-[var(--srg-text-body)]">{item}</p>
             </article>
           ))}
         </div>
@@ -291,11 +420,11 @@ function DashboardPage() {
 
       <Section title="Executive Alerts" description="Alertes critiques, importantes, notifications et actions recommandees.">
         <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-3xl border border-[rgba(223,78,78,0.28)] bg-[rgba(223,78,78,0.08)] p-4 text-sm">
+          <div className="rounded-3xl border border-[color-mix(in_oklab,var(--danger)_32%,var(--srg-border))] bg-[color-mix(in_oklab,var(--danger)_12%,transparent)] p-4 text-sm">
             <p className="font-semibold text-[var(--srg-text-title)]">Alertes critiques</p>
             {ALERTS.critical.map((item) => <p key={item} className="mt-2 text-[var(--srg-text-muted)]">{item}</p>)}
           </div>
-          <div className="rounded-3xl border border-[rgba(197,145,31,0.28)] bg-[rgba(197,145,31,0.08)] p-4 text-sm">
+          <div className="rounded-3xl border border-[color-mix(in_oklab,var(--warning)_36%,var(--srg-border))] bg-[color-mix(in_oklab,var(--warning)_14%,transparent)] p-4 text-sm">
             <p className="font-semibold text-[var(--srg-text-title)]">Alertes importantes</p>
             {ALERTS.important.map((item) => <p key={item} className="mt-2 text-[var(--srg-text-muted)]">{item}</p>)}
           </div>
@@ -479,26 +608,6 @@ function DashboardPage() {
         </div>
       </Section>
 
-      <Section title="Ask SRG Widget" description="Premium visual conversation widget placeholder.">
-        <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="font-semibold text-[var(--srg-text-title)]">Ask SRG Conversation</p>
-            <span className="srg-badge srg-badge-ai">AI</span>
-          </div>
-          <div className="space-y-2 text-sm">
-            <div className="rounded-2xl bg-[var(--srg-surface-strong)] p-3 text-[var(--srg-text-muted)]">Bonjour, quelles priorites executive aujourd'hui ?</div>
-            <div className="rounded-2xl bg-[color-mix(in_oklab,var(--srg-color-primary-500)_16%,transparent)] p-3 text-[var(--srg-text-body)]">Afficher les alertes critiques et les decisions recentes.</div>
-          </div>
-          <div className="mt-3 flex flex-wrap gap-2 text-xs">
-            <span className="srg-badge srg-badge-neutral">Micro</span>
-            <span className="srg-badge srg-badge-neutral">Camera</span>
-            <span className="srg-badge srg-badge-neutral">Documents</span>
-            <span className="srg-badge srg-badge-neutral">Recherche</span>
-            <span className="srg-badge srg-badge-neutral">Favoris</span>
-            <span className="srg-badge srg-badge-neutral">Historique</span>
-          </div>
-        </div>
-      </Section>
     </div>
   )
 }

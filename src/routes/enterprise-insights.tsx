@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import NotificationCenter from '#/app/components/NotificationCenter'
 import PageHeader from '#/app/components/PageHeader'
-import SearchBar from '#/app/components/SearchBar'
+import SmartInputBar from '#/app/components/SmartInputBar'
 import Section from '#/app/components/Section'
 import DataTable from '#/app/components/ui/DataTable'
 import type { DataTableColumn } from '#/app/components/ui/DataTable'
@@ -13,7 +13,6 @@ import {
   FieldGroup,
   FormSection,
   FormToolbar,
-  SmartInputField,
   ValidationMessage,
 } from '#/app/components/ui/FormPrimitives'
 import Button from '#/app/components/ui/Button'
@@ -174,8 +173,8 @@ function EnterpriseInsightsPage() {
     { key: 'createdAt', label: 'Created', sortable: true, render: (row) => new Date(row.createdAt).toLocaleString() },
   ]
 
-  const askAssistant = () => {
-    const text = assistantQuestion.trim()
+  const askAssistant = (sourceText?: string) => {
+    const text = (sourceText ?? assistantQuestion).trim()
     if (!text) {
       setAssistantAnswer(null)
       return
@@ -287,15 +286,22 @@ function EnterpriseInsightsPage() {
       <Section title="Decision Assistant" description="Ask enterprise decision support questions and get explainable answers.">
         <FormSection title="Decision Q&A" description="Ctrl+K focus search • Ctrl+Shift+R refresh insights.">
           <FieldGroup columns={2}>
-            <SmartInputField
-              id="enterprise-insights-question"
-              label="Question"
-              value={assistantQuestion}
-              onValueChange={setAssistantQuestion}
-              placeholder="What should be monitored today?"
-              required
-              autosaveLabel="Question history"
-            />
+            <Field label="Question" hint="Ask SRG with universal input actions.">
+              <SmartInputBar
+                value={assistantQuestion}
+                onValueChange={setAssistantQuestion}
+                onSubmit={(value) => {
+                  setAssistantQuestion(value)
+                  askAssistant(value)
+                }}
+                placeholder="What should be monitored today?"
+                persistKey="enterprise-insights-assistant"
+                mode="conversation"
+                submitLabel="Analyser"
+                suggestions={assistantAnswers.map((item) => item.question)}
+                showDropzone={false}
+              />
+            </Field>
             <Field label="Quick questions" hint="Use these grounded prompts based on existing workspace data.">
               <select
                 aria-label="Quick assistant prompts"
@@ -308,7 +314,7 @@ function EnterpriseInsightsPage() {
             </Field>
           </FieldGroup>
           <FormToolbar autosaveLabel="Enterprise assistant prompt history">
-            <Button onClick={askAssistant}>Ask Assistant</Button>
+            <Button onClick={() => askAssistant()}>Ask Assistant</Button>
             <Button variant="secondary" onClick={refreshInsights}>Refresh Insights</Button>
           </FormToolbar>
           {assistantAnswer ? (
@@ -328,13 +334,15 @@ function EnterpriseInsightsPage() {
           <FieldGroup columns={3}>
             <Field label="Search">
               <div ref={searchHostRef}>
-                <SearchBar
+                <SmartInputBar
                   value={search}
-                  onSearch={setSearch}
+                  onSubmit={setSearch}
                   onValueChange={setSearch}
                   placeholder="Search risks, opportunities, recommendations"
-                  instant
                   persistKey="enterprise-insights-search"
+                  mode="search"
+                  submitLabel="Filtrer"
+                  showDropzone={false}
                 />
               </div>
             </Field>

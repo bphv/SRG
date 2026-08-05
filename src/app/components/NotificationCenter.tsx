@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
-import SearchBar from '#/app/components/SearchBar'
+import SmartInputBar from '#/app/components/SmartInputBar'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import type { NotificationItem } from '#/app/services/NotificationService'
 
@@ -90,15 +90,18 @@ export default function NotificationCenter({
       </div>
 
       <div className="mt-4">
-        <SearchBar
+        <SmartInputBar
           placeholder="Search notifications"
           value={textQuery}
-          onSearch={(value) => {
+          onSubmit={(value) => {
             setTextQuery(value)
             WorkspacePreferencesService.pushRecentSearch(value)
           }}
           onValueChange={setTextQuery}
-          instant
+          mode="search"
+          submitLabel="Filtrer"
+          showDropzone={false}
+          persistKey="notification-center-search"
         />
       </div>
 
@@ -145,7 +148,7 @@ export default function NotificationCenter({
         <button
           type="button"
           onClick={onClear}
-          className="rounded-2xl border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] px-3 py-2 text-xs font-semibold text-[#9b2f2f]"
+          className="rounded-2xl border border-[color-mix(in_oklab,var(--srg-color-danger-500)_22%,transparent)] bg-[color-mix(in_oklab,var(--srg-color-danger-50)_82%,white)] px-3 py-2 text-xs font-semibold text-[var(--srg-color-danger-700)]"
         >
           Tout effacer
         </button>

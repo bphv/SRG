@@ -62,10 +62,12 @@ export default function SearchBar({
       persistKey={persistKey}
       instant={instant}
       mode="search"
-      compact
-      submitLabel="Search"
+      compact={false}
+      submitLabel="Rechercher"
       suggestions={recentSearches}
       persistState={false}
+      showDropzone={false}
+      ariaLabel={placeholder}
     />
   )
 }
