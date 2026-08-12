@@ -204,7 +204,7 @@ function ProjectsPage() {
           <button
             type="button"
             onClick={() => setWizardOpen(true)}
-            className="rounded-3xl bg-[var(--srg-color-primary-500)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
+            className="rounded-3xl bg-[var(--lagoon-deep)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--palm)]"
           >
             Nouveau projet
           </button>
@@ -231,18 +231,18 @@ function ProjectsPage() {
                   <button
                     type="button"
                     onClick={() => refresh()}
-                    className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                   >
                     Actualiser
                   </button>
                   <button
                     type="button"
                     onClick={exportProjects}
-                    className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                   >
                     Exporter
                   </button>
-                  <label className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]">
+                  <label className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]">
                     Importer
                     <input type="file" accept="application/json" className="hidden" onChange={importProjects} />
                   </label>
@@ -259,7 +259,7 @@ function ProjectsPage() {
                 <button
                   type="button"
                   onClick={() => setWizardOpen(true)}
-                  className="rounded-3xl bg-[var(--srg-color-primary-500)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
+                  className="rounded-3xl bg-[var(--lagoon-deep)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--palm)]"
                 >
                   Créer un premier projet
                 </button>
@@ -294,13 +294,13 @@ function ProjectsPage() {
             />
           ) : null}
           {selectedProject ? (
-            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
-              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--srg-color-primary-500)]">Actions projet</p>
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+              <p className="text-sm font-semibold uppercase tracking-[0.24em] text-[var(--lagoon-deep)]">Actions projet</p>
               <div className="mt-4 grid gap-3">
                 <button
                   type="button"
                   onClick={() => favoriteProject(selectedProject.id)}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                 >
                   {selectedProject.favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 </button>
@@ -309,12 +309,12 @@ function ProjectsPage() {
                     value={renameValue}
                     onChange={(event) => setRenameValue(event.target.value)}
                     placeholder="Renommer le projet"
-                    className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm text-[var(--srg-text-title)]"
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]"
                   />
                   <button
                     type="button"
                     onClick={renameSelectedProject}
-                    className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                   >
                     Renommer
                   </button>
@@ -325,14 +325,14 @@ function ProjectsPage() {
                     setPendingProjectId(selectedProject.id)
                     setPendingAction('duplicate')
                   }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                 >
                   Dupliquer
                 </button>
                 <button
                   type="button"
                   onClick={shareProject}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                 >
                   Partager
                 </button>
@@ -342,7 +342,7 @@ function ProjectsPage() {
                     setPendingProjectId(selectedProject.id)
                     setPendingAction('archive')
                   }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)] transition hover:border-[var(--srg-color-primary-400)]"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)] transition hover:border-[var(--lagoon)]"
                 >
                   Archiver
                 </button>
@@ -356,7 +356,7 @@ function ProjectsPage() {
                 >
                   Supprimer
                 </button>
-                {shareLink ? <p className="text-xs text-[var(--srg-text-muted)]">Lien de partage: {shareLink}</p> : null}
+                {shareLink ? <p className="text-xs text-[var(--sea-ink-soft)]">Lien de partage: {shareLink}</p> : null}
               </div>
             </div>
           ) : null}
@@ -365,7 +365,7 @@ function ProjectsPage() {
 
       {wizardOpen ? (
         <div className="fixed inset-0 z-50 grid place-items-center bg-black/40 p-4">
-          <div className="w-full max-w-3xl rounded-[2rem] bg-[var(--srg-surface)] p-6 shadow-[0_36px_68px_rgba(13,30,14,0.36)]">
+          <div className="w-full max-w-3xl rounded-[2rem] bg-[var(--surface)] p-6 shadow-[0_36px_68px_rgba(13,30,14,0.36)]">
             <ProjectCreateWizard
               onCreate={handleCreateProject}
               onClose={() => setWizardOpen(false)}

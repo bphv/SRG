@@ -72,6 +72,8 @@ const ARCHIVE_COLLECTIONS = [
 
 const ARCHIVE_SOURCES = [
   'ZIP',
+  'RAR',
+  '7Z',
   'PDF',
   'Word',
   'Excel',
@@ -170,11 +172,20 @@ export default function KnowledgeWorkspace() {
   ), [])
 
   const archiveSources = useMemo<ArchiveSourceRow[]>(() => (
-    ARCHIVE_SOURCES.map((source) => ({
-      source,
-      state: 'Supported in UI',
-      note: 'Prévisualisation et métadonnées uniquement.',
-    }))
+    ARCHIVE_SOURCES.map((source) => {
+      if (source === 'RAR' || source === '7Z') {
+        return {
+          source,
+          state: 'NOT AVAILABLE',
+          note: 'Non pris en charge pour la certification actuelle.',
+        }
+      }
+      return {
+        source,
+        state: 'Supported in UI',
+        note: 'Prévisualisation et métadonnées uniquement.',
+      }
+    })
   ), [])
 
   const archiveReadiness = useMemo<ArchiveReadinessRow[]>(() => [
@@ -267,6 +278,23 @@ export default function KnowledgeWorkspace() {
     const answer = KnowledgeWorkspaceService.answerEnterpriseQuestion(aiQuestion)
     setAiPreview(`${answer.answerText}\n\nConfidence: ${answer.confidenceScore}\nSources: ${answer.sources.map((item) => item.title).join(' | ') || 'n/a'}`)
     refresh()
+  }
+
+  const runZipImport = async (file: File | undefined) => {
+    if (!file) return
+    try {
+      await KnowledgeWorkspaceService.importZipArchive(file, actorName)
+      refresh()
+    } catch (error) {
+      notificationService.publish({
+        title: 'ZIP import failed',
+        message: error instanceof Error ? error.message : 'Unable to import ZIP archive.',
+        level: 'error',
+        priority: 'high',
+        category: 'system',
+        read: false,
+      })
+    }
   }
 
   const previewArchiveExport = (format: 'pdf' | 'excel' | 'csv') => {
@@ -622,9 +650,46 @@ export default function KnowledgeWorkspace() {
                     }} />
                   </label>
                   <button type="button" onClick={() => runTextImport('zip')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">Import ZIP</button>
-                  <button type="button" onClick={() => { KnowledgeWorkspaceService.importArchivePlaceholder('zip', archiveName || 'enterprise-zip', actorName); refresh() }} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">Analyze ZIP</button>
-                  <button type="button" onClick={() => { KnowledgeWorkspaceService.importArchivePlaceholder('rar', archiveName || 'enterprise-rar', actorName); refresh() }} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">Analyze RAR</button>
-                  <button type="button" onClick={() => { KnowledgeWorkspaceService.importArchivePlaceholder('7z', archiveName || 'enterprise-7z', actorName); refresh() }} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">Analyze 7Z</button>
+                  <label className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 cursor-pointer">
+                    Analyze ZIP
+                    <input hidden type="file" accept=".zip,application/zip,application/x-zip-compressed" onChange={(event) => {
+                      const file = event.target.files?.[0]
+                      void runZipImport(file)
+                      event.target.value = ''
+                    }} />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      notificationService.publish({
+                        title: 'RAR import',
+                        message: 'RAR = NOT AVAILABLE for this certification.',
+                        level: 'info',
+                        priority: 'medium',
+                        category: 'system',
+                        read: false,
+                      })
+                    }}
+                    className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2"
+                  >
+                    Analyze RAR
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      notificationService.publish({
+                        title: '7Z import',
+                        message: '7Z = NOT AVAILABLE for this certification.',
+                        level: 'info',
+                        priority: 'medium',
+                        category: 'system',
+                        read: false,
+                      })
+                    }}
+                    className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2"
+                  >
+                    Analyze 7Z
+                  </button>
                   <button type="button" onClick={() => runTextImport('markdown')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">Import Markdown</button>
                   <button type="button" onClick={() => runTextImport('pdf')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">Import PDF</button>
                   <button type="button" onClick={() => runTextImport('csv')} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2">Import CSV</button>

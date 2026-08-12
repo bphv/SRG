@@ -70,6 +70,7 @@ export class BusinessWorkflow implements IBusinessWorkflow {
         email: input.email,
         password: input.password,
         role: input.role,
+        accountStatus: input.accountStatus,
         profile: input.profile,
         organizationId: input.organizationId,
         departmentId: input.departmentId,
@@ -209,6 +210,8 @@ export class BusinessWorkflow implements IBusinessWorkflow {
     this.state.pushTimeline({ workflow: 'generation.run', action: 'generation-start', status: 'started', userId: input.userId })
 
     try {
+      BusinessFoundationService.requireApprovedAccount(input.userId)
+
       const snapshot = BusinessFoundationService.getSnapshot()
       const user = snapshot.users.find((item) => item.id === input.userId)
       if (!user) {
@@ -320,6 +323,8 @@ export class BusinessWorkflow implements IBusinessWorkflow {
     const txn = this.tx.start('payment.process', input.userId)
     this.state.pushTimeline({ workflow: 'payment.process', action: 'payment-start', status: 'started', userId: input.userId })
 
+    BusinessFoundationService.requireApprovedAccount(input.userId)
+
     const session = this.billing.createPaymentSession({
       provider: input.provider,
       invoiceId: input.invoiceId,
@@ -369,6 +374,7 @@ export class BusinessWorkflow implements IBusinessWorkflow {
   }
 
   subscribe(userId: string, planName: 'Free' | 'Starter' | 'Professional' | 'Business' | 'Enterprise'): SubscriptionWorkflowResult {
+    BusinessFoundationService.requireApprovedAccount(userId)
     const result = this.billing.subscribe(userId, planName)
     if (planName === 'Free' || planName === 'Starter' || planName === 'Professional' || planName === 'Enterprise') {
       this.applyFeatureFlagsForPlan(userId, planName)
@@ -379,6 +385,7 @@ export class BusinessWorkflow implements IBusinessWorkflow {
   }
 
   renew(userId: string): SubscriptionWorkflowResult {
+    BusinessFoundationService.requireApprovedAccount(userId)
     const result = this.billing.renew(userId)
     this.events.publish('SubscriptionCreated', { action: 'renew', plan: result.subscription.planName }, userId)
     this.state.pushTimeline({ workflow: 'subscription.manage', action: 'renew', status: 'success', userId })
@@ -386,6 +393,7 @@ export class BusinessWorkflow implements IBusinessWorkflow {
   }
 
   cancel(userId: string): SubscriptionWorkflowResult {
+    BusinessFoundationService.requireApprovedAccount(userId)
     const result = this.billing.cancel(userId)
     this.events.publish('SubscriptionCreated', { action: 'cancel', plan: result.subscription.planName }, userId)
     this.state.pushTimeline({ workflow: 'subscription.manage', action: 'cancel', status: 'success', userId })
@@ -393,6 +401,7 @@ export class BusinessWorkflow implements IBusinessWorkflow {
   }
 
   upgrade(userId: string, targetPlan: 'Free' | 'Starter' | 'Professional' | 'Business' | 'Enterprise'): SubscriptionWorkflowResult {
+    BusinessFoundationService.requireApprovedAccount(userId)
     const result = this.billing.upgrade(userId, targetPlan)
     if (targetPlan === 'Starter' || targetPlan === 'Professional' || targetPlan === 'Enterprise' || targetPlan === 'Free') {
       this.applyFeatureFlagsForPlan(userId, targetPlan)
@@ -403,6 +412,7 @@ export class BusinessWorkflow implements IBusinessWorkflow {
   }
 
   downgrade(userId: string, targetPlan: 'Free' | 'Starter' | 'Professional' | 'Business' | 'Enterprise'): SubscriptionWorkflowResult {
+    BusinessFoundationService.requireApprovedAccount(userId)
     const result = this.billing.downgrade(userId, targetPlan)
     if (targetPlan === 'Starter' || targetPlan === 'Professional' || targetPlan === 'Enterprise' || targetPlan === 'Free') {
       this.applyFeatureFlagsForPlan(userId, targetPlan)
@@ -413,6 +423,7 @@ export class BusinessWorkflow implements IBusinessWorkflow {
   }
 
   expire(userId: string): SubscriptionWorkflowResult {
+    BusinessFoundationService.requireApprovedAccount(userId)
     const result = this.billing.cancel(userId)
     this.events.publish('SubscriptionCreated', { action: 'expire', plan: result.subscription.planName }, userId)
     this.state.pushTimeline({ workflow: 'subscription.manage', action: 'expire', status: 'success', userId })

@@ -73,6 +73,8 @@ function getStoredFiles(record: Record<string, string | boolean | number>) {
   }
 }
 
+type AudioTestStatus = 'idle' | 'pass' | 'fail' | 'not_available'
+
 export default function SmartInputBar({
   value,
   onValueChange,
@@ -96,6 +98,9 @@ export default function SmartInputBar({
   showAuxiliaryPanel = true,
 }: SmartInputBarProps) {
   const onSubmitRef = useRef(onSubmit)
+  const mediaStreamRef = useRef<MediaStream | null>(null)
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null)
+  const recorderStopTimeoutRef = useRef<number | null>(null)
 
   useEffect(() => {
     onSubmitRef.current = onSubmit
@@ -130,6 +135,8 @@ export default function SmartInputBar({
   const [showMenu, setShowMenu] = useState(false)
   const [favoriteQueries, setFavoriteQueries] = useState<string[]>(() => WorkspacePreferencesService.getPreferences().favorites[favoriteScope] ?? [])
   const recentDocuments = useMemo(() => filesPlaceholder.slice(0, 4), [filesPlaceholder])
+  const [microphoneStatus, setMicrophoneStatus] = useState<AudioTestStatus>('idle')
+  const [speakerStatus, setSpeakerStatus] = useState<AudioTestStatus>('idle')
 
   useEffect(() => {
     if (value !== undefined && value !== internalValue) {
@@ -166,11 +173,21 @@ export default function SmartInputBar({
     setFavoriteQueries(WorkspacePreferencesService.getPreferences().favorites[favoriteScope] ?? [])
   }, [favoriteScope])
 
+  useEffect(() => () => {
+    if (recorderStopTimeoutRef.current) {
+      window.clearTimeout(recorderStopTimeoutRef.current)
+    }
+    if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+      mediaRecorderRef.current.stop()
+    }
+    mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
+  }, [])
+
   useEffect(() => {
     if (!enableNotifications || compact) return
     notificationService.publish({
       title: 'Voice Ready',
-      message: 'Voice placeholder mode is ready.',
+      message: 'Voice mode is ready.',
       level: 'info',
       priority: 'low',
       category: 'system',
@@ -179,7 +196,7 @@ export default function SmartInputBar({
     })
     notificationService.publish({
       title: 'Camera Ready',
-      message: 'Camera placeholder mode is ready.',
+      message: 'Camera mode is ready.',
       level: 'info',
       priority: 'low',
       category: 'system',
@@ -188,7 +205,7 @@ export default function SmartInputBar({
     })
     notificationService.publish({
       title: 'Upload Ready',
-      message: 'Upload placeholder mode is ready.',
+      message: 'Upload mode is ready.',
       level: 'info',
       priority: 'low',
       category: 'system',
@@ -197,7 +214,7 @@ export default function SmartInputBar({
     })
     notificationService.publish({
       title: 'Language Ready',
-      message: 'Auto language detection placeholder is ready.',
+      message: 'Auto language mode is ready.',
       level: 'info',
       priority: 'low',
       category: 'system',
@@ -248,21 +265,184 @@ export default function SmartInputBar({
     onValueChange?.(nextValue)
   }
 
-  const toggleMicrophone = () => {
+  const runShortSpeechRecognition = (): Promise<{ status: AudioTestStatus; transcript?: string }> => {
+    return new Promise((resolve) => {
+      const SpeechRecognitionCtor =
+        (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition
+
+      if (!SpeechRecognitionCtor) {
+        resolve({ status: 'not_available' })
+        return
+      }
+
+      const recognition = new SpeechRecognitionCtor()
+      let settled = false
+      const finish = (status: AudioTestStatus, transcript?: string) => {
+        if (settled) return
+        settled = true
+        resolve({ status, transcript })
+      }
+
+      recognition.lang = 'fr-FR'
+      recognition.continuous = false
+      recognition.interimResults = false
+      recognition.maxAlternatives = 1
+      recognition.onresult = (event: any) => {
+        const transcript = event?.results?.[0]?.[0]?.transcript ?? ''
+        finish('pass', transcript || undefined)
+      }
+      recognition.onerror = () => finish('fail')
+      recognition.onend = () => finish('not_available')
+
+      recognition.start()
+      window.setTimeout(() => {
+        recognition.stop()
+      }, 3500)
+    })
+  }
+
+  const toggleMicrophone = async () => {
     const next = !micEnabled
     setMicEnabled(next)
     onMicrophoneToggle?.(next)
 
+    if (!next) {
+      if (recorderStopTimeoutRef.current) {
+        window.clearTimeout(recorderStopTimeoutRef.current)
+        recorderStopTimeoutRef.current = null
+      }
+      if (mediaRecorderRef.current && mediaRecorderRef.current.state !== 'inactive') {
+        mediaRecorderRef.current.stop()
+      }
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
+      mediaStreamRef.current = null
+      mediaRecorderRef.current = null
+      return
+    }
+
+    let testStatus: AudioTestStatus = 'idle'
+    let testMessage = 'Microphone check complete.'
+
+    try {
+      const hasMediaDevices = 'mediaDevices' in navigator
+      const hasGetUserMedia = hasMediaDevices && typeof navigator.mediaDevices.getUserMedia === 'function'
+      if (!hasGetUserMedia) {
+        testStatus = 'not_available'
+        testMessage = 'Microphone API is not available in this browser.'
+      } else {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+        mediaStreamRef.current = stream
+
+        if (typeof MediaRecorder === 'undefined') {
+          testStatus = 'not_available'
+          testMessage = 'MediaRecorder is not available; permission granted but recording test skipped.'
+        } else {
+          const recorder = new MediaRecorder(stream)
+          mediaRecorderRef.current = recorder
+          const chunks: BlobPart[] = []
+          recorder.ondataavailable = (event) => {
+            if (event.data.size > 0) chunks.push(event.data)
+          }
+
+          const recordingResult = await new Promise<AudioTestStatus>((resolve) => {
+            recorder.onerror = () => resolve('fail')
+            recorder.onstop = () => {
+              const size = chunks.reduce((sum, part) => sum + (part instanceof Blob ? part.size : 0), 0)
+              resolve(size > 0 ? 'pass' : 'fail')
+            }
+            recorder.start()
+            recorderStopTimeoutRef.current = window.setTimeout(() => recorder.stop(), 2000)
+          })
+
+          const stt = await runShortSpeechRecognition()
+          if (recordingResult === 'pass' && (stt.status === 'pass' || stt.status === 'not_available')) {
+            testStatus = 'pass'
+            testMessage = stt.transcript
+              ? `Microphone PASS. Transcript preview: ${stt.transcript.slice(0, 80)}.`
+              : 'Microphone PASS. Recording succeeded.'
+          } else if (recordingResult === 'pass' && stt.status === 'fail') {
+            testStatus = 'fail'
+            testMessage = 'Microphone recording PASS but speech recognition failed.'
+          } else {
+            testStatus = 'fail'
+            testMessage = 'Microphone recording failed.'
+          }
+        }
+      }
+    } catch (error) {
+      testStatus = 'fail'
+      testMessage = error instanceof Error ? error.message : 'Microphone access failed.'
+    } finally {
+      mediaStreamRef.current?.getTracks().forEach((track) => track.stop())
+      mediaStreamRef.current = null
+      mediaRecorderRef.current = null
+      if (recorderStopTimeoutRef.current) {
+        window.clearTimeout(recorderStopTimeoutRef.current)
+        recorderStopTimeoutRef.current = null
+      }
+    }
+
+    const normalizedStatus: AudioTestStatus = testStatus
+    setMicrophoneStatus(normalizedStatus)
+
     if (!enableNotifications) return
     notificationService.publish({
-      title: next ? 'Start Recording' : 'Stop Recording',
-      message: next ? 'Microphone placeholder recording started.' : 'Microphone placeholder recording stopped.',
-      level: 'info',
+      title: 'Microphone test',
+      message: testMessage,
+      level: normalizedStatus === 'pass' ? 'success' : normalizedStatus === 'not_available' ? 'info' : 'warning',
       priority: 'low',
       category: 'system',
       read: false,
       channels: ['email'],
     })
+  }
+
+  const runSpeakerTest = () => {
+    if (!('speechSynthesis' in globalThis) || typeof SpeechSynthesisUtterance !== 'function') {
+      setSpeakerStatus('not_available')
+      if (enableNotifications) {
+        notificationService.publish({
+          title: 'Speaker test',
+          message: 'Speech synthesis is not available in this browser.',
+          level: 'info',
+          priority: 'low',
+          category: 'system',
+          read: false,
+        })
+      }
+      return
+    }
+
+    const utterance = new SpeechSynthesisUtterance('SRG audio test successful.')
+    utterance.lang = 'fr-FR'
+    utterance.onend = () => {
+      setSpeakerStatus('pass')
+      if (enableNotifications) {
+        notificationService.publish({
+          title: 'Speaker test',
+          message: 'Speaker PASS. Speech synthesis playback finished.',
+          level: 'success',
+          priority: 'low',
+          category: 'system',
+          read: false,
+        })
+      }
+    }
+    utterance.onerror = () => {
+      setSpeakerStatus('fail')
+      if (enableNotifications) {
+        notificationService.publish({
+          title: 'Speaker test',
+          message: 'Speaker FAIL. Speech synthesis playback failed.',
+          level: 'warning',
+          priority: 'low',
+          category: 'system',
+          read: false,
+        })
+      }
+    }
+    globalThis.speechSynthesis.cancel()
+    globalThis.speechSynthesis.speak(utterance)
   }
 
   const rotateCameraState = () => {
@@ -366,9 +546,13 @@ export default function SmartInputBar({
 
         {!compact ? (
           <>
-            <Button type="button" variant="secondary" size="sm" onClick={toggleMicrophone} aria-label="Microphone">
+            <Button type="button" variant="secondary" size="sm" onClick={() => { void toggleMicrophone() }} aria-label="Microphone">
               <span aria-hidden>🎤</span>
-              <span className="hidden md:inline">Micro</span>
+              <span className="hidden md:inline">Micro ({microphoneStatus})</span>
+            </Button>
+            <Button type="button" variant="secondary" size="sm" onClick={runSpeakerTest} aria-label="Speaker">
+              <span aria-hidden>🔊</span>
+              <span className="hidden md:inline">Speaker ({speakerStatus})</span>
             </Button>
             <Button type="button" variant="secondary" size="sm" onClick={rotateCameraState} aria-label="Camera">
               <span aria-hidden>📷</span>

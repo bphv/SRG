@@ -10,6 +10,7 @@ import { useTenantContext } from '#/app/contexts/TenantContext'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { useTheme } from '#/app/hooks/useTheme'
 import { useBreadcrumb } from '#/app/hooks/useBreadcrumb'
+import { useBusiness } from '#/app/hooks/useBusiness'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 const NotificationCenter = lazy(() => import('#/app/components/NotificationCenter'))
@@ -56,6 +57,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const theme = useTheme()
   const tenant = useTenantContext()
   const askSrgRuntime = useAskSrgRuntimeContext()
+  const business = useBusiness()
   const [shellSearch, setShellSearch] = useState('')
   const [isSidebarOpen, setIsSidebarOpen] = useState(() => WorkspacePreferencesService.getPreferences().sidebarOpen)
   const [selectedProvider, setSelectedProvider] = useState(() => WorkspacePreferencesService.getPreferences().favoriteProvider)
@@ -180,10 +182,46 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     { label: 'Memory Ready', status: 'Placeholder' },
   ]
 
-  const isFocusExperience = location.pathname === '/' || location.pathname === '/chat'
+  const isFocusExperience =
+    location.pathname === '/' ||
+    location.pathname === '/chat' ||
+    location.pathname === '/account-pending' ||
+    location.pathname === '/categories' ||
+    location.pathname.startsWith('/category/') ||
+    location.pathname.startsWith('/conversation/')
+
+  useEffect(() => {
+    const userId = business.currentSession?.userId
+    if (!userId) {
+      return
+    }
+
+    const user = business.snapshot.users.find((item) => item.id === userId)
+    if (!user) {
+      return
+    }
+
+    const hasAccess = user.role === 'SuperAdmin' || user.role === 'Admin' || user.accountStatus === 'APPROVED'
+    if (hasAccess) {
+      return
+    }
+
+    const allowedPath =
+      location.pathname === '/' ||
+      location.pathname === '/auth' ||
+      location.pathname === '/account-pending' ||
+      location.pathname === '/chat' ||
+      location.pathname === '/categories' ||
+      location.pathname.startsWith('/category/') ||
+      location.pathname.startsWith('/conversation/')
+
+    if (!allowedPath) {
+      navigate({ to: '/account-pending', search: { status: user.accountStatus } })
+    }
+  }, [business.currentSession?.userId, business.snapshot.users, location.pathname, navigate])
 
   if (isFocusExperience) {
-    return <div className="min-h-screen bg-[var(--srg-bg)] text-[var(--srg-text-body)]">{children}</div>
+    return <>{children}</>
   }
 
   return (

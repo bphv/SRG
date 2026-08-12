@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
+import { Route as AccountPendingRouteImport } from './routes/account-pending'
 import { Route as AccountingRouteImport } from './routes/accounting'
 import { Route as AdministrationRouteImport } from './routes/administration'
 import { Route as AgentsRouteImport } from './routes/agents'
 import { Route as AttendanceRouteImport } from './routes/attendance'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as BusinessPolicyRouteImport } from './routes/business-policy'
+import { Route as CategoriesRouteImport } from './routes/categories'
 import { Route as ChatRouteImport } from './routes/chat'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as DevisRouteImport } from './routes/devis'
@@ -54,6 +56,9 @@ import { Route as StrategicAdvisorRouteImport } from './routes/strategic-advisor
 import { Route as TrainingsRouteImport } from './routes/trainings'
 import { Route as TreasuryRouteImport } from './routes/treasury'
 import { Route as WorkflowAutomationRouteImport } from './routes/workflow-automation'
+import { Route as CategoryCategorySlugRouteImport } from './routes/category.$categorySlug'
+import { Route as CategoryCategorySlugSubcategorySlugRouteImport } from './routes/category.$categorySlug.$subcategorySlug'
+import { Route as ConversationCategorySlugSubcategorySlugRouteImport } from './routes/conversation.$categorySlug.$subcategorySlug'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -63,6 +68,11 @@ const IndexRoute = IndexRouteImport.update({
 const AboutRoute = AboutRouteImport.update({
   id: '/about',
   path: '/about',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountPendingRoute = AccountPendingRouteImport.update({
+  id: '/account-pending',
+  path: '/account-pending',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AccountingRoute = AccountingRouteImport.update({
@@ -93,6 +103,11 @@ const AuthRoute = AuthRouteImport.update({
 const BusinessPolicyRoute = BusinessPolicyRouteImport.update({
   id: '/business-policy',
   path: '/business-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoriesRoute = CategoriesRouteImport.update({
+  id: '/categories',
+  path: '/categories',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ChatRoute = ChatRouteImport.update({
@@ -280,16 +295,35 @@ const WorkflowAutomationRoute = WorkflowAutomationRouteImport.update({
   path: '/workflow-automation',
   getParentRoute: () => rootRouteImport,
 } as any)
+const CategoryCategorySlugRoute = CategoryCategorySlugRouteImport.update({
+  id: '/category/$categorySlug',
+  path: '/category/$categorySlug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CategoryCategorySlugSubcategorySlugRoute =
+  CategoryCategorySlugSubcategorySlugRouteImport.update({
+    id: '/$subcategorySlug',
+    path: '/$subcategorySlug',
+    getParentRoute: () => CategoryCategorySlugRoute,
+  } as any)
+const ConversationCategorySlugSubcategorySlugRoute =
+  ConversationCategorySlugSubcategorySlugRouteImport.update({
+    id: '/conversation/$categorySlug/$subcategorySlug',
+    path: '/conversation/$categorySlug/$subcategorySlug',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account-pending': typeof AccountPendingRoute
   '/accounting': typeof AccountingRoute
   '/administration': typeof AdministrationRoute
   '/agents': typeof AgentsRoute
   '/attendance': typeof AttendanceRoute
   '/auth': typeof AuthRoute
   '/business-policy': typeof BusinessPolicyRoute
+  '/categories': typeof CategoriesRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/devis': typeof DevisRoute
@@ -327,16 +361,21 @@ export interface FileRoutesByFullPath {
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
   '/workflow-automation': typeof WorkflowAutomationRoute
+  '/category/$categorySlug': typeof CategoryCategorySlugRouteWithChildren
+  '/category/$categorySlug/$subcategorySlug': typeof CategoryCategorySlugSubcategorySlugRoute
+  '/conversation/$categorySlug/$subcategorySlug': typeof ConversationCategorySlugSubcategorySlugRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account-pending': typeof AccountPendingRoute
   '/accounting': typeof AccountingRoute
   '/administration': typeof AdministrationRoute
   '/agents': typeof AgentsRoute
   '/attendance': typeof AttendanceRoute
   '/auth': typeof AuthRoute
   '/business-policy': typeof BusinessPolicyRoute
+  '/categories': typeof CategoriesRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/devis': typeof DevisRoute
@@ -374,17 +413,22 @@ export interface FileRoutesByTo {
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
   '/workflow-automation': typeof WorkflowAutomationRoute
+  '/category/$categorySlug': typeof CategoryCategorySlugRouteWithChildren
+  '/category/$categorySlug/$subcategorySlug': typeof CategoryCategorySlugSubcategorySlugRoute
+  '/conversation/$categorySlug/$subcategorySlug': typeof ConversationCategorySlugSubcategorySlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/account-pending': typeof AccountPendingRoute
   '/accounting': typeof AccountingRoute
   '/administration': typeof AdministrationRoute
   '/agents': typeof AgentsRoute
   '/attendance': typeof AttendanceRoute
   '/auth': typeof AuthRoute
   '/business-policy': typeof BusinessPolicyRoute
+  '/categories': typeof CategoriesRoute
   '/chat': typeof ChatRoute
   '/dashboard': typeof DashboardRoute
   '/devis': typeof DevisRoute
@@ -422,18 +466,23 @@ export interface FileRoutesById {
   '/trainings': typeof TrainingsRoute
   '/treasury': typeof TreasuryRoute
   '/workflow-automation': typeof WorkflowAutomationRoute
+  '/category/$categorySlug': typeof CategoryCategorySlugRouteWithChildren
+  '/category/$categorySlug/$subcategorySlug': typeof CategoryCategorySlugSubcategorySlugRoute
+  '/conversation/$categorySlug/$subcategorySlug': typeof ConversationCategorySlugSubcategorySlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/about'
+    | '/account-pending'
     | '/accounting'
     | '/administration'
     | '/agents'
     | '/attendance'
     | '/auth'
     | '/business-policy'
+    | '/categories'
     | '/chat'
     | '/dashboard'
     | '/devis'
@@ -471,16 +520,21 @@ export interface FileRouteTypes {
     | '/trainings'
     | '/treasury'
     | '/workflow-automation'
+    | '/category/$categorySlug'
+    | '/category/$categorySlug/$subcategorySlug'
+    | '/conversation/$categorySlug/$subcategorySlug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/about'
+    | '/account-pending'
     | '/accounting'
     | '/administration'
     | '/agents'
     | '/attendance'
     | '/auth'
     | '/business-policy'
+    | '/categories'
     | '/chat'
     | '/dashboard'
     | '/devis'
@@ -518,16 +572,21 @@ export interface FileRouteTypes {
     | '/trainings'
     | '/treasury'
     | '/workflow-automation'
+    | '/category/$categorySlug'
+    | '/category/$categorySlug/$subcategorySlug'
+    | '/conversation/$categorySlug/$subcategorySlug'
   id:
     | '__root__'
     | '/'
     | '/about'
+    | '/account-pending'
     | '/accounting'
     | '/administration'
     | '/agents'
     | '/attendance'
     | '/auth'
     | '/business-policy'
+    | '/categories'
     | '/chat'
     | '/dashboard'
     | '/devis'
@@ -565,17 +624,22 @@ export interface FileRouteTypes {
     | '/trainings'
     | '/treasury'
     | '/workflow-automation'
+    | '/category/$categorySlug'
+    | '/category/$categorySlug/$subcategorySlug'
+    | '/conversation/$categorySlug/$subcategorySlug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
+  AccountPendingRoute: typeof AccountPendingRoute
   AccountingRoute: typeof AccountingRoute
   AdministrationRoute: typeof AdministrationRoute
   AgentsRoute: typeof AgentsRoute
   AttendanceRoute: typeof AttendanceRoute
   AuthRoute: typeof AuthRoute
   BusinessPolicyRoute: typeof BusinessPolicyRoute
+  CategoriesRoute: typeof CategoriesRoute
   ChatRoute: typeof ChatRoute
   DashboardRoute: typeof DashboardRoute
   DevisRoute: typeof DevisRoute
@@ -613,6 +677,8 @@ export interface RootRouteChildren {
   TrainingsRoute: typeof TrainingsRoute
   TreasuryRoute: typeof TreasuryRoute
   WorkflowAutomationRoute: typeof WorkflowAutomationRoute
+  CategoryCategorySlugRoute: typeof CategoryCategorySlugRouteWithChildren
+  ConversationCategorySlugSubcategorySlugRoute: typeof ConversationCategorySlugSubcategorySlugRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -629,6 +695,13 @@ declare module '@tanstack/react-router' {
       path: '/about'
       fullPath: '/about'
       preLoaderRoute: typeof AboutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account-pending': {
+      id: '/account-pending'
+      path: '/account-pending'
+      fullPath: '/account-pending'
+      preLoaderRoute: typeof AccountPendingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/accounting': {
@@ -671,6 +744,13 @@ declare module '@tanstack/react-router' {
       path: '/business-policy'
       fullPath: '/business-policy'
       preLoaderRoute: typeof BusinessPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/categories': {
+      id: '/categories'
+      path: '/categories'
+      fullPath: '/categories'
+      preLoaderRoute: typeof CategoriesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/chat': {
@@ -932,18 +1012,53 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof WorkflowAutomationRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/category/$categorySlug': {
+      id: '/category/$categorySlug'
+      path: '/category/$categorySlug'
+      fullPath: '/category/$categorySlug'
+      preLoaderRoute: typeof CategoryCategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/category/$categorySlug/$subcategorySlug': {
+      id: '/category/$categorySlug/$subcategorySlug'
+      path: '/$subcategorySlug'
+      fullPath: '/category/$categorySlug/$subcategorySlug'
+      preLoaderRoute: typeof CategoryCategorySlugSubcategorySlugRouteImport
+      parentRoute: typeof CategoryCategorySlugRoute
+    }
+    '/conversation/$categorySlug/$subcategorySlug': {
+      id: '/conversation/$categorySlug/$subcategorySlug'
+      path: '/conversation/$categorySlug/$subcategorySlug'
+      fullPath: '/conversation/$categorySlug/$subcategorySlug'
+      preLoaderRoute: typeof ConversationCategorySlugSubcategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
+
+interface CategoryCategorySlugRouteChildren {
+  CategoryCategorySlugSubcategorySlugRoute: typeof CategoryCategorySlugSubcategorySlugRoute
+}
+
+const CategoryCategorySlugRouteChildren: CategoryCategorySlugRouteChildren = {
+  CategoryCategorySlugSubcategorySlugRoute:
+    CategoryCategorySlugSubcategorySlugRoute,
+}
+
+const CategoryCategorySlugRouteWithChildren =
+  CategoryCategorySlugRoute._addFileChildren(CategoryCategorySlugRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
+  AccountPendingRoute: AccountPendingRoute,
   AccountingRoute: AccountingRoute,
   AdministrationRoute: AdministrationRoute,
   AgentsRoute: AgentsRoute,
   AttendanceRoute: AttendanceRoute,
   AuthRoute: AuthRoute,
   BusinessPolicyRoute: BusinessPolicyRoute,
+  CategoriesRoute: CategoriesRoute,
   ChatRoute: ChatRoute,
   DashboardRoute: DashboardRoute,
   DevisRoute: DevisRoute,
@@ -981,6 +1096,9 @@ const rootRouteChildren: RootRouteChildren = {
   TrainingsRoute: TrainingsRoute,
   TreasuryRoute: TreasuryRoute,
   WorkflowAutomationRoute: WorkflowAutomationRoute,
+  CategoryCategorySlugRoute: CategoryCategorySlugRouteWithChildren,
+  ConversationCategorySlugSubcategorySlugRoute:
+    ConversationCategorySlugSubcategorySlugRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

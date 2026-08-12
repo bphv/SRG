@@ -89,11 +89,27 @@ export type ConversationCollection = {
   conversationIds: string[]
 }
 
+export type ConversationContext = {
+  categorySlug?: string
+  subcategorySlug?: string
+  categoryLabel?: string
+  subcategoryLabel?: string
+  userId?: string
+  sessionId?: string
+}
+
+export type ConversationReport = {
+  lastExportAt?: string
+  lastExportFormat?: 'markdown' | 'json' | 'pdf' | 'html' | 'txt'
+  exportCount: number
+}
+
 export type ConversationRecord = {
   id: string
   title: string
   createdAt: string
   updatedAt: string
+  context?: ConversationContext
   provider: string
   model: string
   sdkVersion: string
@@ -116,7 +132,9 @@ export type ConversationRecord = {
   favorite: boolean
   pinned: boolean
   archived: boolean
+  archivedAt?: string
   published: boolean
+  report: ConversationReport
   tags: string[]
   collectionIds: string[]
   sharedLink?: string
@@ -186,6 +204,7 @@ function defaultStore(): ConversationWorkspaceStore {
   const base = providers.find((item) => item.status === 'enabled') ?? providers[0]
   const first = createConversationRecord(
     'Daily AI Workspace',
+    undefined,
     base.label,
     base.id === 'anthropic' ? 'claude-sonnet-4' : base.id === 'azure-openai' ? 'gpt-4.1' : 'gpt-5',
     base.sdkVersion,
@@ -211,6 +230,7 @@ function defaultStore(): ConversationWorkspaceStore {
 
 function createConversationRecord(
   title: string,
+  context: ConversationContext | undefined,
   provider: string,
   model: string,
   sdkVersion: string,
@@ -228,6 +248,7 @@ function createConversationRecord(
     title,
     createdAt,
     updatedAt: createdAt,
+    context,
     provider,
     model,
     sdkVersion,
@@ -250,7 +271,13 @@ function createConversationRecord(
     favorite: false,
     pinned: false,
     archived: false,
+    archivedAt: undefined,
     published: false,
+    report: {
+      exportCount: 0,
+      lastExportAt: undefined,
+      lastExportFormat: undefined,
+    },
     tags: ['workspace'],
     collectionIds: [],
     draft: '',
@@ -314,11 +341,12 @@ export class ConversationWorkspaceService {
     return this.getConversation(store.activeConversationId)
   }
 
-  static createConversation(input?: { title?: string; providerId?: string; model?: string }): ConversationRecord {
+  static createConversation(input?: { title?: string; providerId?: string; model?: string; context?: ConversationContext }): ConversationRecord {
     const providers = ProviderWorkspaceService.list()
     const provider = providers.find((item) => item.id === input?.providerId) ?? providers.find((item) => item.status === 'enabled') ?? providers[0]
     const next = createConversationRecord(
       input?.title?.trim() || 'New Conversation',
+      input?.context,
       provider.label,
       input?.model?.trim() || 'gpt-5',
       provider.sdkVersion,
@@ -353,6 +381,14 @@ export class ConversationWorkspaceService {
     })
   }
 
+  static setConversationContext(idValue: string, context: ConversationContext): void {
+    this.updateConversation(idValue, (item) => ({
+      ...item,
+      context: { ...item.context, ...context },
+      updatedAt: nowIso(),
+    }))
+  }
+
   static closeConversationTab(idValue: string): void {
     const store = this.getStore()
     const openIds = store.openConversationIds.filter((item) => item !== idValue)
@@ -379,7 +415,7 @@ export class ConversationWorkspaceService {
   }
 
   static archiveConversation(idValue: string): void {
-    this.updateConversation(idValue, (item) => ({ ...item, archived: true, status: 'completed', updatedAt: nowIso() }))
+    this.updateConversation(idValue, (item) => ({ ...item, archived: true, archivedAt: nowIso(), status: 'completed', updatedAt: nowIso() }))
     this.pushTimeline(idValue, 'info', 'conversation.archived', 'Conversation archived.')
   }
 
@@ -613,6 +649,11 @@ export class ConversationWorkspaceService {
       entityType: 'prompt',
       entityId: current.id,
       actorName: 'Conversation Workspace',
+      conversationId: current.id,
+      userId: current.context?.userId,
+      sessionId: current.context?.sessionId,
+      categorySlug: current.context?.categorySlug,
+      subcategorySlug: current.context?.subcategorySlug,
     })
 
     notificationService.publish({
@@ -946,6 +987,15 @@ export class ConversationWorkspaceService {
   static exportConversation(idValue: string, format: 'markdown' | 'json' | 'pdf' | 'html' | 'txt'): void {
     const conversation = this.getConversation(idValue)
     if (!conversation) return
+    this.updateConversation(idValue, (item) => ({
+      ...item,
+      report: {
+        exportCount: item.report.exportCount + 1,
+        lastExportAt: nowIso(),
+        lastExportFormat: format,
+      },
+      updatedAt: nowIso(),
+    }))
     const content = this.toExportText(conversation)
     if (format === 'json') {
       WorkspaceExchangeService.downloadJson(`${conversation.title}.json`, conversation)
@@ -1041,6 +1091,11 @@ export class ConversationWorkspaceService {
           const conversation = conversationUnknown as Partial<ConversationRecord>
           return {
           ...conversation,
+          report: conversation.report ?? {
+            exportCount: 0,
+            lastExportAt: undefined,
+            lastExportFormat: undefined,
+          },
           streaming: conversation.streaming ?? {
             active: false,
             paused: false,

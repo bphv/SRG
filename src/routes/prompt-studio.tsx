@@ -196,16 +196,16 @@ function PromptStudioPage() {
       <PageHeader title="Prompt Studio" description="Composez, gérez et testez vos prompts prompt engineering." />
 
       <div className="grid gap-6 xl:grid-cols-[1.2fr_minmax(620px,1.4fr)_0.85fr]">
-        <section className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
+        <section className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
           <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Explorateur</p>
-              <h2 className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">Prompts et projets</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Explorateur</p>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">Prompts et projets</h2>
             </div>
             <button
               type="button"
               onClick={() => setWizardOpen(true)}
-              className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
+              className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white transition hover:bg-[var(--palm)]"
             >
               Nouveau prompt
             </button>
@@ -218,7 +218,7 @@ function PromptStudioPage() {
                 const value = event.target.value
                 selectProject(value === 'all' ? null : value)
               }}
-              className="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm text-[var(--srg-text-title)] outline-none"
+              className="w-full rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--sea-ink)] outline-none"
             >
               <option value="all">Tous les projets</option>
               {projects.map((project) => (
@@ -244,7 +244,7 @@ function PromptStudioPage() {
                 illustration={<span aria-hidden>◇</span>}
                 title="Aucun prompt visible"
                 description="Aucun prompt ne correspond au projet ou aux filtres actuels."
-                action={<button type="button" onClick={() => setWizardOpen(true)} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Créer un prompt</button>}
+                action={<button type="button" onClick={() => setWizardOpen(true)} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Créer un prompt</button>}
               />
             ) : (
               <PromptList
@@ -256,11 +256,11 @@ function PromptStudioPage() {
           </div>
         </section>
 
-        <section className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
+        <section className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
           <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Éditeur</p>
-              <h2 className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">Détails du prompt</h2>
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Éditeur</p>
+              <h2 className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">Détails du prompt</h2>
             </div>
             {selectedPrompt ? (
               <PromptActionsMenu
@@ -309,11 +309,11 @@ function PromptStudioPage() {
         </div>
       </div>
 
-      <section className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
+      <section className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
         <div className="mb-5 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Test et versioning</p>
-            <h2 className="mt-2 text-2xl font-semibold text-[var(--srg-text-title)]">Exécution de prompt</h2>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Test et versioning</p>
+            <h2 className="mt-2 text-2xl font-semibold text-[var(--sea-ink)]">Exécution de prompt</h2>
           </div>
         </div>
 
@@ -329,38 +329,38 @@ function PromptStudioPage() {
 
         {selectedPrompt ? (
           <div className="mt-6 grid gap-6 xl:grid-cols-2">
-            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Publication</p>
-                  <p className="text-sm text-[var(--srg-text-muted)]">Publiez le prompt et exportez sa definition.</p>
+                  <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Publication</p>
+                  <p className="text-sm text-[var(--sea-ink-soft)]">Publiez le prompt et exportez sa definition.</p>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   <select
                     value={exportFormat}
                     onChange={(event) => setExportFormat(event.target.value as 'json' | 'markdown' | 'txt' | 'pdf')}
-                    className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm"
+                    className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
                   >
                     <option value="json">JSON</option>
                     <option value="markdown">Markdown</option>
                     <option value="txt">TXT</option>
                     <option value="pdf">PDF</option>
                   </select>
-                  <button type="button" onClick={exportPrompt} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Exporter</button>
+                  <button type="button" onClick={exportPrompt} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]">Exporter</button>
                 </div>
               </div>
               <div className="mt-3">
                 <input type="file" accept=".json,.md,.markdown,.txt,.yml,.yaml" onChange={(event) => { void handleImportPrompt(event) }} className="text-sm" />
               </div>
               {publishingRecord ? (
-                <p className="mt-3 text-sm text-[var(--srg-text-muted)]">Workflow: {publishingRecord.stage} • version {publishingRecord.version}</p>
+                <p className="mt-3 text-sm text-[var(--sea-ink-soft)]">Workflow: {publishingRecord.stage} • version {publishingRecord.version}</p>
               ) : null}
               <div className="mt-4 flex flex-wrap gap-3">
-                <select value={publishVisibility} onChange={(event) => setPublishVisibility(event.target.value as 'internal' | 'public')} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm text-[var(--srg-text-title)]">
+                <select value={publishVisibility} onChange={(event) => setPublishVisibility(event.target.value as 'internal' | 'public')} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
                   <option value="internal">Interne</option>
                   <option value="public">Public</option>
                 </select>
-                <button type="button" onClick={() => publishPrompt(selectedPrompt.id, publishVisibility)} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Publier</button>
+                <button type="button" onClick={() => publishPrompt(selectedPrompt.id, publishVisibility)} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Publier</button>
                 <button
                   type="button"
                   onClick={() => {
@@ -388,7 +388,7 @@ function PromptStudioPage() {
                       PromptMarketplaceService.setStatus(marketplaceRecord.id, status)
                     }
                   }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
                 >
                   Publier + Workflow
                 </button>
@@ -404,7 +404,7 @@ function PromptStudioPage() {
                     })
                     WorkspaceExchangeService.downloadText(`${selectedPrompt.name}-share-link.txt`, share.url)
                   }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
                 >
                   Partager
                 </button>
@@ -413,7 +413,7 @@ function PromptStudioPage() {
                   onClick={() => {
                     void PromptImportExportService.copyToClipboard(selectedPrompt)
                   }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
                 >
                   Copier
                 </button>
@@ -421,7 +421,7 @@ function PromptStudioPage() {
               {shares.length > 0 ? (
                 <div className="mt-4 space-y-2">
                   {shares.slice(0, 3).map((share) => (
-                    <div key={share.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-xs text-[var(--srg-text-muted)]">
+                    <div key={share.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-xs text-[var(--sea-ink-soft)]">
                       {share.scope} • {share.permission} • {share.url}
                     </div>
                   ))}
@@ -429,11 +429,11 @@ function PromptStudioPage() {
               ) : null}
             </div>
 
-            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Comparaison de versions</p>
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Comparaison de versions</p>
               <div className="mt-4 space-y-3">
                 {selectedPrompt.versions.map((version) => (
-                  <label key={version.id} className="flex items-center justify-between rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm text-[var(--srg-text-title)]">
+                  <label key={version.id} className="flex items-center justify-between rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm text-[var(--sea-ink)]">
                     <span>Version {version.version} • {version.date}</span>
                     <input
                       type="checkbox"
@@ -456,13 +456,13 @@ function PromptStudioPage() {
 
         {selectedPrompt ? (
           <div className="mt-6 grid gap-6 xl:grid-cols-2">
-            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Collections</p>
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Collections</p>
               <div className="mt-3 flex gap-2">
                 <select
                   value={selectedCollectionId}
                   onChange={(event) => setSelectedCollectionId(event.target.value)}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
                 >
                   {collections.map((item) => (
                     <option key={item.id} value={item.id}>
@@ -477,26 +477,26 @@ function PromptStudioPage() {
                       PromptCollectionService.addPrompt(selectedCollection.id, selectedPrompt.id)
                     }
                   }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold"
                 >
                   Ajouter
                 </button>
               </div>
               {selectedCollection ? (
-                <p className="mt-3 text-xs text-[var(--srg-text-muted)]">{selectedCollection.promptIds.length} prompts dans {selectedCollection.name}</p>
+                <p className="mt-3 text-xs text-[var(--sea-ink-soft)]">{selectedCollection.promptIds.length} prompts dans {selectedCollection.name}</p>
               ) : null}
             </div>
 
-            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
-              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Reviews Marketplace</p>
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+              <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Reviews Marketplace</p>
               <div className="mt-2 flex justify-end">
-                <Link to="/reviews" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]">Ouvrir la file de modération</Link>
+                <Link to="/reviews" className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-xs font-semibold text-[var(--sea-ink)]">Ouvrir la file de modération</Link>
               </div>
               <div className="mt-3 flex flex-wrap gap-2">
                 <select
                   value={reviewStars}
                   onChange={(event) => setReviewStars(Number(event.target.value))}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm"
                 >
                   <option value={5}>5</option>
                   <option value={4}>4</option>
@@ -508,7 +508,7 @@ function PromptStudioPage() {
                   value={reviewComment}
                   onChange={(event) => setReviewComment(event.target.value)}
                   placeholder="Ajouter un commentaire"
-                  className="flex-1 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm"
+                  className="flex-1 rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
                 />
                 <button
                   type="button"
@@ -527,7 +527,7 @@ function PromptStudioPage() {
                     })
                     setReviewComment('')
                   }}
-                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold"
                 >
                   Noter
                 </button>
@@ -535,7 +535,7 @@ function PromptStudioPage() {
               {reviews.length > 0 ? (
                 <div className="mt-3 space-y-2">
                   {reviews.slice(0, 3).map((item) => (
-                    <div key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-xs text-[var(--srg-text-muted)]">
+                    <div key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-xs text-[var(--sea-ink-soft)]">
                       {item.authorName} • {item.stars}/5 • {item.comment}
                     </div>
                   ))}
@@ -545,9 +545,9 @@ function PromptStudioPage() {
           </div>
         ) : null}
 
-        <div className="mt-6 rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
+        <div className="mt-6 rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--srg-color-primary-500)]">Marketplace Search</p>
+            <p className="text-sm font-semibold uppercase tracking-[0.22em] text-[var(--lagoon-deep)]">Marketplace Search</p>
             <div className="flex flex-wrap gap-2">
               <input
                 value={marketplaceFilters.text}
@@ -557,7 +557,7 @@ function PromptStudioPage() {
                   PromptMarketplaceService.persistFilters(next)
                 }}
                 placeholder="Recherche prompt marketplace"
-                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm"
+                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
               />
               <select
                 value={marketplaceFilters.sortBy}
@@ -569,7 +569,7 @@ function PromptStudioPage() {
                   setMarketplaceFilters(next)
                   PromptMarketplaceService.persistFilters(next)
                 }}
-                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm"
+                className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm"
               >
                 <option value="trending">Trending</option>
                 <option value="downloads">Downloads</option>
@@ -581,12 +581,12 @@ function PromptStudioPage() {
           </div>
           <div className="grid gap-3 xl:grid-cols-2">
             {marketplaceRecords.slice(0, 6).map((item) => (
-              <article key={item.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 text-sm">
-                <p className="font-semibold text-[var(--srg-text-title)]">{item.title}</p>
-                <p className="mt-1 text-[var(--srg-text-muted)]">
+              <article key={item.id} className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-sm">
+                <p className="font-semibold text-[var(--sea-ink)]">{item.title}</p>
+                <p className="mt-1 text-[var(--sea-ink-soft)]">
                   {item.category} • {item.authorName} • {item.status}
                 </p>
-                <p className="mt-1 text-xs text-[var(--srg-text-muted)]">
+                <p className="mt-1 text-xs text-[var(--sea-ink-soft)]">
                   {item.downloads} downloads • {item.averageRating}/5 • {item.visibility}
                 </p>
               </article>
@@ -597,10 +597,10 @@ function PromptStudioPage() {
         {comparedVersions.length === 2 ? (
           <div className="mt-6 grid gap-4 xl:grid-cols-2">
             {comparedVersions.map((version) => (
-              <div key={version.id} className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5">
-                <p className="font-semibold text-[var(--srg-text-title)]">Version {version.version}</p>
-                <p className="mt-1 text-sm text-[var(--srg-text-muted)]">{version.comment}</p>
-                <pre className="mt-4 whitespace-pre-wrap break-words rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 text-xs text-[var(--srg-text-title)]">{version.content}</pre>
+              <div key={version.id} className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5">
+                <p className="font-semibold text-[var(--sea-ink)]">Version {version.version}</p>
+                <p className="mt-1 text-sm text-[var(--sea-ink-soft)]">{version.comment}</p>
+                <pre className="mt-4 whitespace-pre-wrap break-words rounded-3xl border border-[var(--line)] bg-[var(--surface)] p-4 text-xs text-[var(--sea-ink)]">{version.content}</pre>
               </div>
             ))}
           </div>

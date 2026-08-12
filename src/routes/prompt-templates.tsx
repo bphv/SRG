@@ -373,7 +373,7 @@ function PromptTemplatesPage() {
           <button
             type="button"
             onClick={() => setWizardOpen(true)}
-            className="rounded-3xl bg-[var(--srg-color-primary-500)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)]"
+            className="rounded-3xl bg-[var(--lagoon-deep)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--palm)]"
             aria-label="Create Template"
           >
             Create Template
@@ -393,7 +393,7 @@ function PromptTemplatesPage() {
         <button
           type="button"
           onClick={() => setMobileSidebarOpen((open) => !open)}
-          className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm font-semibold text-[var(--srg-text-title)]"
+          className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-2 text-sm font-semibold text-[var(--sea-ink)]"
           aria-expanded={mobileSidebarOpen}
           aria-controls="template-sidebar"
         >
@@ -410,8 +410,8 @@ function PromptTemplatesPage() {
           />
 
           <div className="mt-6">
-            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
-              <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Collections</h3>
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+              <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Collections</h3>
               <div className="mt-4 space-y-2">
                 {collections.map((collection) => (
                   <button
@@ -431,10 +431,10 @@ function PromptTemplatesPage() {
                         setSortKey('updatedAt')
                       }
                     }}
-                    className="flex w-full items-center justify-between rounded-3xl bg-[var(--srg-surface-strong)] px-4 py-3 text-left text-sm font-semibold text-[var(--srg-text-title)]"
+                    className="flex w-full items-center justify-between rounded-3xl bg-[var(--surface-strong)] px-4 py-3 text-left text-sm font-semibold text-[var(--sea-ink)]"
                   >
                     <span>{collection.name}</span>
-                    <span className="rounded-full bg-[var(--srg-surface)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">{collection.count}</span>
+                    <span className="rounded-full bg-[var(--surface)] px-3 py-1 text-xs text-[var(--sea-ink-soft)]">{collection.count}</span>
                   </button>
                 ))}
               </div>
@@ -459,15 +459,15 @@ function PromptTemplatesPage() {
               onValueChange={(value) => setSearch(value)}
             />
 
-            <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
-              <label className="block text-sm font-semibold text-[var(--srg-text-title)]" htmlFor="template-sort">
+            <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+              <label className="block text-sm font-semibold text-[var(--sea-ink)]" htmlFor="template-sort">
                 Tri
               </label>
               <select
                 id="template-sort"
                 value={sortKey}
                 onChange={(event) => setSortKey(event.target.value as typeof sortKey)}
-                className="mt-2 w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm text-[var(--srg-text-title)] outline-none"
+                className="mt-2 w-full rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm text-[var(--sea-ink)] outline-none"
               >
                 <option value="updatedAt">Dernière modification</option>
                 <option value="createdAt">Date de création</option>
@@ -492,7 +492,7 @@ function PromptTemplatesPage() {
               illustration={<span aria-hidden>◈</span>}
               title="Aucun template"
               description="Aucun template ne correspond aux filtres actifs ou le catalogue est vide."
-              action={<button type="button" onClick={() => setWizardOpen(true)} className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white">Créer un template</button>}
+              action={<button type="button" onClick={() => setWizardOpen(true)} className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white">Créer un template</button>}
             />
           ) : viewMode === 'grid' ? (
             <TemplateGrid
@@ -583,7 +583,7 @@ function PromptTemplatesPage() {
 
       {wizardOpen ? (
         <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/40 p-4" role="dialog" aria-modal="true" aria-label="Template creation wizard">
-          <div className="h-full w-full max-w-2xl overflow-y-auto rounded-[2rem] bg-[var(--srg-surface)] p-6 shadow-[0_36px_68px_rgba(13,30,14,0.36)]">
+          <div className="h-full w-full max-w-2xl overflow-y-auto rounded-[2rem] bg-[var(--surface)] p-6 shadow-[0_36px_68px_rgba(13,30,14,0.36)]">
             <TemplateCreateWizard
               onCreate={handleCreateTemplate}
               onCancel={() => setWizardOpen(false)}
@@ -624,9 +624,9 @@ function PromptTemplatesPage() {
         </div>
       ) : null}
 
-      <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5 text-sm text-[var(--srg-text-muted)]">
-        <span className="font-semibold text-[var(--srg-text-title)]">Integration path:</span>{' '}
-        <Link to="/prompt-studio" className="text-[var(--srg-color-primary-500)] underline-offset-4 hover:underline">
+      <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface-strong)] p-5 text-sm text-[var(--sea-ink-soft)]">
+        <span className="font-semibold text-[var(--sea-ink)]">Integration path:</span>{' '}
+        <Link to="/prompt-studio" className="text-[var(--lagoon-deep)] underline-offset-4 hover:underline">
           Prompt Studio
         </Link>
       </div>

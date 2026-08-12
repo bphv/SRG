@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
-import type { FeatureFlagKey, UserRole } from '#/app/services/business/BusinessFoundationService'
+import type { AccountStatus, FeatureFlagKey, UserRole } from '#/app/services/business/BusinessFoundationService'
 
 export const Route = createFileRoute('/administration')({
   component: AdministrationPage,
@@ -70,6 +70,9 @@ function AdministrationPage() {
   const [sessionSort, setSessionSort] = useState<'lastActivityDesc' | 'createdDesc' | 'deviceAsc'>('lastActivityDesc')
   const [sessionPage, setSessionPage] = useState(1)
   const [selectedSessionIds, setSelectedSessionIds] = useState<string[]>([])
+  const [approvalQuery, setApprovalQuery] = useState('')
+  const [approvalStatusFilter, setApprovalStatusFilter] = useState<AccountStatus | 'all'>('all')
+  const [approvalReason, setApprovalReason] = useState('')
 
   const [securityQuery, setSecurityQuery] = useState('')
   const [securityTypeFilter, setSecurityTypeFilter] = useState('all')
@@ -188,6 +191,61 @@ function AdministrationPage() {
     const values = new Set(securityEvents.map((event) => event.type))
     return ['all', ...Array.from(values)]
   }, [securityEvents])
+
+  const approvalUsers = useMemo(() => {
+    const query = approvalQuery.trim().toLowerCase()
+    return snapshot.users
+      .filter((user) => {
+        if (approvalStatusFilter !== 'all' && user.accountStatus !== approvalStatusFilter) {
+          return false
+        }
+        if (!query) {
+          return true
+        }
+        return (
+          user.username.toLowerCase().includes(query) ||
+          user.matricule.toLowerCase().includes(query) ||
+          user.phone.toLowerCase().includes(query) ||
+          (user.email ?? '').toLowerCase().includes(query)
+        )
+      })
+      .sort((left, right) => {
+        if (left.accountStatus !== right.accountStatus) {
+          return left.accountStatus.localeCompare(right.accountStatus)
+        }
+        return new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime()
+      })
+  }, [approvalQuery, approvalStatusFilter, snapshot.users])
+
+  const actingAdminId = useMemo(
+    () => snapshot.users.find((user) => user.role === 'SuperAdmin' || user.role === 'Admin')?.id ?? selectedUser.id,
+    [selectedUser.id, snapshot.users],
+  )
+
+  const applyApprovalAction = (
+    action: 'approve' | 'reject' | 'suspend' | 'reactivate',
+    userId: string,
+  ) => {
+    try {
+      if (action === 'approve') {
+        business.approveUser(userId, actingAdminId)
+        setOperationStatus('Compte approuve avec succes.')
+      } else if (action === 'reject') {
+        business.rejectUser(userId, actingAdminId, approvalReason || undefined)
+        setOperationStatus('Compte rejete avec succes.')
+      } else if (action === 'suspend') {
+        business.suspendUser(userId, actingAdminId, approvalReason || undefined)
+        setOperationStatus('Compte suspendu avec succes.')
+      } else {
+        business.reactivateUser(userId, actingAdminId)
+        setOperationStatus('Compte reactive avec succes.')
+      }
+
+      setApprovalReason('')
+    } catch (error) {
+      setOperationStatus(error instanceof Error ? error.message : 'Erreur action d\'approbation.')
+    }
+  }
 
   const csvEscape = (value: string) => `"${value.replaceAll('"', '""')}"`
   const downloadFile = (fileName: string, content: string, mimeType: string) => {
@@ -522,8 +580,92 @@ function AdministrationPage() {
                   <p className="mt-1">Matricule: {user.matricule}</p>
                   <p>Téléphone: {user.phone}</p>
                   <p>Email: {user.email ?? 'N/A'}</p>
+                  <p>Statut compte: {user.accountStatus}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-6 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4">
+              <p className="text-sm font-semibold text-[var(--srg-text-title)]">Workflow d'approbation des comptes</p>
+              <p className="mt-1 text-xs text-[var(--srg-text-muted)]">
+                Les comptes utilisateur sont crees en attente puis valides par un administrateur.
+              </p>
+
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <input
+                  value={approvalQuery}
+                  onChange={(event) => setApprovalQuery(event.target.value)}
+                  placeholder="Recherche username, matricule, telephone, email"
+                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm"
+                />
+                <select
+                  value={approvalStatusFilter}
+                  onChange={(event) => setApprovalStatusFilter(event.target.value as AccountStatus | 'all')}
+                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm"
+                >
+                  <option value="all">Tous les statuts</option>
+                  <option value="PENDING_APPROVAL">PENDING_APPROVAL</option>
+                  <option value="APPROVED">APPROVED</option>
+                  <option value="REJECTED">REJECTED</option>
+                  <option value="SUSPENDED">SUSPENDED</option>
+                </select>
+                <input
+                  value={approvalReason}
+                  onChange={(event) => setApprovalReason(event.target.value)}
+                  placeholder="Motif (rejet/suspension)"
+                  className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm"
+                />
+              </div>
+
+              <div className="mt-4 space-y-3">
+                {approvalUsers.length === 0 ? (
+                  <p className="text-sm text-[var(--srg-text-muted)]">Aucun compte ne correspond aux filtres.</p>
+                ) : null}
+
+                {approvalUsers.slice(0, 12).map((user) => (
+                  <article key={user.id} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-sm">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <p className="font-semibold text-[var(--srg-text-title)]">{user.username} · {user.role}</p>
+                      <span className="rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">
+                        {user.accountStatus}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-[var(--srg-text-muted)]">Matricule: {user.matricule} · Téléphone: {user.phone}</p>
+                    <p className="text-[var(--srg-text-muted)]">Email: {user.email ?? 'N/A'}</p>
+                    <p className="text-[var(--srg-text-muted)]">MAJ statut: {new Date(user.statusUpdatedAt).toLocaleString()}</p>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => applyApprovalAction('approve', user.id)}
+                        className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-xs font-semibold text-white"
+                      >
+                        Approuver
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyApprovalAction('reject', user.id)}
+                        className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
+                      >
+                        Rejeter
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyApprovalAction('suspend', user.id)}
+                        className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
+                      >
+                        Suspendre
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => applyApprovalAction('reactivate', user.id)}
+                        className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-xs font-semibold text-[var(--srg-text-title)]"
+                      >
+                        Reactiver
+                      </button>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           </Section>
 

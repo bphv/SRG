@@ -6,7 +6,7 @@ import {
   
   
 } from '#/app/services/business/BusinessFoundationService'
-import type {AuthResult, BusinessSnapshot, FeatureFlagKey, UserIdentity, UserRole} from '#/app/services/business/BusinessFoundationService';
+import type { AccountStatus, AuthResult, BusinessSnapshot, FeatureFlagKey, UserIdentity, UserRole } from '#/app/services/business/BusinessFoundationService'
 import { AuthAccountService } from '#/app/services/business/AuthAccountService'
 import type { RegistrationWizardInput, Step1Validation, Step3Validation } from '#/app/services/business/AuthAccountService'
 import type { DeviceSession, SecurityEvent } from '#/app/services/business/session/types'
@@ -46,7 +46,13 @@ type BusinessContextValue = {
   validateRegistrationStep1: (input: RegistrationWizardInput['personal']) => Step1Validation
   validateRegistrationStep3: (input: RegistrationWizardInput['security']) => Step3Validation
   registerAccount: (input: RegistrationWizardInput) => UserIdentity
-  loginWithSession: (identifier: string, password: string, options?: LoginSessionOptions) => { success: boolean; sessionId?: string; reason?: string }
+  loginWithSession: (identifier: string, password: string, options?: LoginSessionOptions) => {
+    success: boolean
+    sessionId?: string
+    reason?: string
+    accountStatus?: AccountStatus
+    requiresApproval?: boolean
+  }
   logoutSession: (sessionId: string) => boolean
   logoutAllUserSessions: (userId: string, exceptSessionId?: string) => number
   revokeUserSessions: (userId: string, sessionIds: string[]) => number
@@ -117,6 +123,10 @@ type BusinessContextValue = {
   createDepartment: (input: { organizationId: string; name: string; managerUserId?: string }) => void
   createTeam: (input: { departmentId: string; name: string; leadUserId?: string }) => void
   setUserRole: (userId: string, role: UserRole) => void
+  approveUser: (userId: string, adminId: string) => UserIdentity
+  rejectUser: (userId: string, adminId: string, reason?: string) => UserIdentity
+  suspendUser: (userId: string, adminId: string, reason?: string) => UserIdentity
+  reactivateUser: (userId: string, adminId: string) => UserIdentity
   toggleFeatureFlag: (userId: string, key: FeatureFlagKey, enabled: boolean) => void
   rechargeWallet: (userId: string, amount: number, note?: string) => void
   addWalletBonus: (userId: string, amount: number, note?: string) => void
@@ -210,11 +220,21 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
       loginWithSession: (identifier, password, options = {}) => {
         const login = authAccountService.login(identifier, password, options)
         if (!login.success || !login.session) {
-          return { success: false, reason: login.reason }
+          return {
+            success: false,
+            reason: login.reason,
+            accountStatus: login.accountStatus,
+            requiresApproval: login.accountAccess?.allowed === false,
+          }
         }
 
         setCurrentSession(authAccountService.getActiveSession())
-        return { success: true, sessionId: login.session.id }
+        return {
+          success: true,
+          sessionId: login.session.id,
+          accountStatus: login.accountStatus,
+          requiresApproval: login.accountAccess?.allowed === false,
+        }
       },
       logoutSession: (sessionId) => {
         const ok = authAccountService.logout(sessionId)
@@ -292,6 +312,26 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
         BusinessFoundationService.setUserRole(userId, role)
         refresh()
       },
+      approveUser: (userId, adminId) => {
+        const user = authAccountService.approveUser(userId, adminId)
+        refresh()
+        return user
+      },
+      rejectUser: (userId, adminId, reason) => {
+        const user = authAccountService.rejectUser(userId, adminId, reason)
+        refresh()
+        return user
+      },
+      suspendUser: (userId, adminId, reason) => {
+        const user = authAccountService.suspendUser(userId, adminId, reason)
+        refresh()
+        return user
+      },
+      reactivateUser: (userId, adminId) => {
+        const user = authAccountService.reactivateUser(userId, adminId)
+        refresh()
+        return user
+      },
       toggleFeatureFlag: (userId, key, enabled) => {
         BusinessFoundationService.toggleFeatureFlag(userId, key, enabled)
         refresh()
@@ -317,6 +357,7 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
         refresh()
       },
       createSubscription: (input) => {
+        authAccountService.requireApprovedAccount(input.userId)
         businessOrchestrator.subscribe(input.userId, input.planName)
         refresh()
       },
@@ -333,6 +374,7 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
         refresh()
       },
       recordPayment: (input) => {
+        authAccountService.requireApprovedAccount(input.userId)
         const invoice = BusinessFoundationService.getSnapshot().invoices.find((item) => item.id === input.invoiceId)
         if (!invoice) {
           throw new Error('Invoice not found for payment workflow.')
@@ -369,6 +411,24 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
           streaming: input.streaming,
         }),
       validateGenerationReadiness: (input) => {
+        try {
+          authAccountService.requireApprovedAccount(input.userId)
+        } catch (error) {
+          const reason = error instanceof Error ? error.message : 'ACCOUNT_PENDING_APPROVAL'
+          return {
+            ok: false,
+            reasons: [reason],
+            estimate: businessOrchestrator.estimateCredits({
+              userId: input.userId,
+              model: input.model,
+              inputTokens: input.inputTokens,
+              outputTokens: input.outputTokens,
+              streaming: input.streaming,
+            }),
+            context: businessOrchestrator.getContext(input.userId),
+          }
+        }
+
         const context = businessOrchestrator.getContext(input.userId)
         const estimate = businessOrchestrator.estimateCredits({
           userId: input.userId,
@@ -396,7 +456,10 @@ export function BusinessProvider({ children }: { children: React.ReactNode }) {
           context,
         }
       },
-      runGenerationWorkflow: (input) => businessOrchestrator.runGeneration(input),
+      runGenerationWorkflow: (input) => {
+        authAccountService.requireApprovedAccount(input.userId)
+        return businessOrchestrator.runGeneration(input)
+      },
       getGenerationObservability: (userId) => businessOrchestrator.getContext(userId),
     }),
     [currentSession, snapshot],

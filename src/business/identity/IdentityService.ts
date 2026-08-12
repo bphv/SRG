@@ -35,6 +35,7 @@ export class IdentityService implements IIdentityService {
       email: input.email,
       password: input.password,
       role: input.role,
+      accountStatus: input.accountStatus,
       profile: input.profile,
       organizationId: input.organizationId,
       departmentId: input.departmentId,

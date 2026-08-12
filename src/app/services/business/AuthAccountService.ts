@@ -1,5 +1,5 @@
 import { BusinessFoundationService } from '#/app/services/business/BusinessFoundationService'
-import type { FeatureFlagKey, UserIdentity } from '#/app/services/business/BusinessFoundationService'
+import type { AccountAccess, AccountStatus, FeatureFlagKey, UserIdentity } from '#/app/services/business/BusinessFoundationService'
 import type { OtpChallenge, OtpProviderName } from '#/business/identity'
 import type { BusinessOrchestrator, LoginSessionOptions, SessionHistoryEntry } from '#/business/orchestrator'
 import { LocalStorageSessionStore } from '#/app/services/business/session/LocalStorageSessionStore'
@@ -110,6 +110,17 @@ type PasswordPolicySnapshot = {
   lockedUntil?: string
 }
 
+export type LoginWithStatusResult = {
+  success: boolean
+  session?: {
+    id: string
+    userId: string
+  }
+  reason?: string
+  accountStatus?: AccountStatus
+  accountAccess?: AccountAccess
+}
+
 function hashForHistory(userId: string, password: string): string {
   let hash = 2166136261
   const value = `${userId}:${password}`
@@ -138,12 +149,16 @@ export class AuthAccountService {
 
     const usernameExists = snapshot.users.some((user) => user.username.toLowerCase() === username)
     const phoneExists = snapshot.users.some((user) => user.phone.trim() === phone)
+    const emailExists =
+      email.length > 0 &&
+      snapshot.users.some((user) => (user.email ?? '').trim().toLowerCase() === email.toLowerCase())
 
     const firstName = input.firstName.trim().length > 1
     const lastName = input.lastName.trim().length > 1
     const usernameValid = this.orchestrator.identity.validateUsername(input.username) && !usernameExists
     const phoneValid = this.orchestrator.identity.validatePhone(phone) && !phoneExists
-    const emailValid = email.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    const emailFormatValid = email.length === 0 || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    const emailValid = emailFormatValid && !emailExists
     const country = input.country.trim().length > 1
     const city = input.city.trim().length > 1
     const language = input.language.trim().length > 1
@@ -159,7 +174,10 @@ export class AuthAccountService {
         valid: phoneValid,
         message: phoneValid ? undefined : phoneExists ? 'Ce numéro existe déjà.' : 'Téléphone invalide.',
       },
-      email: { valid: emailValid, message: emailValid ? undefined : 'Email invalide.' },
+      email: {
+        valid: emailValid,
+        message: emailValid ? undefined : emailExists ? 'Cet email existe déjà.' : 'Email invalide.',
+      },
       country: { valid: country, message: country ? undefined : 'Pays requis.' },
       city: { valid: city, message: city ? undefined : 'Ville requise.' },
       language: { valid: language, message: language ? undefined : 'Langue requise.' },
@@ -236,11 +254,12 @@ export class AuthAccountService {
     }
 
     const context = this.orchestrator.createAccount({
-      username: input.personal.username,
-      phone: input.personal.phone,
-      email: input.personal.email,
+      username: input.personal.username.trim(),
+      phone: input.personal.phone.trim(),
+      email: input.personal.email?.trim(),
       password: input.security.password,
       role: 'User',
+      accountStatus: 'PENDING_APPROVAL',
       profile: {
         firstName: input.personal.firstName,
         lastName: input.personal.lastName,
@@ -263,7 +282,7 @@ export class AuthAccountService {
     return context.user
   }
 
-  login(identifier: string, password: string, options: LoginSessionOptions = {}) {
+  login(identifier: string, password: string, options: LoginSessionOptions = {}): LoginWithStatusResult {
     const userId = this.findUserIdByIdentifier(identifier)
     const lockKey = userId ?? identifier.trim().toLowerCase()
     const existingLock = this.failedLoginState.get(lockKey)
@@ -301,7 +320,7 @@ export class AuthAccountService {
         attempts: nextAttempts,
         lockedUntil,
       })
-      return result
+      return { success: false, reason: result.reason }
     }
 
     this.failedLoginState.delete(lockKey)
@@ -314,7 +333,63 @@ export class AuthAccountService {
       rememberMe: result.session.rememberMe,
     })
 
-    return result
+    const accountAccess = BusinessFoundationService.getAccountAccess(result.session.userId)
+
+    return {
+      success: true,
+      session: {
+        id: result.session.id,
+        userId: result.session.userId,
+      },
+      accountStatus: accountAccess.status,
+      accountAccess,
+    }
+  }
+
+  getAccountAccess(userId: string): AccountAccess {
+    return BusinessFoundationService.getAccountAccess(userId)
+  }
+
+  requireApprovedAccount(userId: string): void {
+    BusinessFoundationService.requireApprovedAccount(userId)
+  }
+
+  approveUser(userId: string, adminId: string): UserIdentity {
+    const updated = BusinessFoundationService.approveUser(userId, adminId)
+    this.recordSecurityEvent('login', 'success', 'ACCOUNT_APPROVED', { userId, adminId, action: 'ACCOUNT_APPROVED' })
+    return updated
+  }
+
+  rejectUser(userId: string, adminId: string, reason?: string): UserIdentity {
+    const updated = BusinessFoundationService.rejectUser(userId, adminId, reason)
+    this.recordSecurityEvent('failed-login', 'success', 'ACCOUNT_REJECTED', {
+      userId,
+      adminId,
+      action: 'ACCOUNT_REJECTED',
+      reason,
+    })
+    return updated
+  }
+
+  suspendUser(userId: string, adminId: string, reason?: string): UserIdentity {
+    const updated = BusinessFoundationService.suspendUser(userId, adminId, reason)
+    this.recordSecurityEvent('failed-login', 'success', 'ACCOUNT_SUSPENDED', {
+      userId,
+      adminId,
+      action: 'ACCOUNT_SUSPENDED',
+      reason,
+    })
+    return updated
+  }
+
+  reactivateUser(userId: string, adminId: string): UserIdentity {
+    const updated = BusinessFoundationService.reactivateUser(userId, adminId)
+    this.recordSecurityEvent('login', 'success', 'ACCOUNT_REACTIVATED', {
+      userId,
+      adminId,
+      action: 'ACCOUNT_REACTIVATED',
+    })
+    return updated
   }
 
   logout(sessionId: string): boolean {
@@ -667,13 +742,21 @@ export class AuthAccountService {
       return undefined
     }
 
+    const canonicalMatricule = BusinessFoundationService.normalizeMatriculeInput(identifier)
+
     const snapshot = BusinessFoundationService.getSnapshot()
     const user = snapshot.users.find((item) => {
       const username = item.username.trim().toLowerCase()
       const matricule = item.matricule.trim().toLowerCase()
       const phone = item.phone.trim().toLowerCase()
       const email = (item.email ?? '').trim().toLowerCase()
-      return username === needle || matricule === needle || phone === needle || email === needle
+      return (
+        username === needle ||
+        matricule === needle ||
+        phone === needle ||
+        email === needle ||
+        (canonicalMatricule !== undefined && item.matricule === canonicalMatricule)
+      )
     })
 
     return user?.id

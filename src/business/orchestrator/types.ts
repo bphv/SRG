@@ -1,4 +1,5 @@
 import type {
+  AccountStatus,
   FeatureFlagKey,
   SubscriptionPlanName,
   UserIdentity,
@@ -135,6 +136,7 @@ export type AccountCreationInput = {
   email?: string
   password: string
   role: 'SuperAdmin' | 'Admin' | 'Manager' | 'User' | 'Guest'
+  accountStatus?: AccountStatus
   profile: {
     firstName: string
     lastName: string

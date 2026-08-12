@@ -1,4 +1,4 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
@@ -13,6 +13,7 @@ type Step = 1 | 2 | 3 | 4
 
 function AuthPage() {
   const business = useBusiness()
+  const navigate = useNavigate({ from: '/auth' })
 
   const [step, setStep] = useState<Step>(1)
   const [personal, setPersonal] = useState({
@@ -39,7 +40,10 @@ function AuthPage() {
   })
 
   const [registerStatus, setRegisterStatus] = useState('')
-  const [createdIdentity, setCreatedIdentity] = useState<{ userId: string; matricule: string; username: string } | null>(null)
+  const [createdIdentity, setCreatedIdentity] = useState<{ matricule: string; username: string } | null>(null)
+  const [isSubmittingRegistration, setIsSubmittingRegistration] = useState(false)
+  const [step1Attempted, setStep1Attempted] = useState(false)
+  const [step3Attempted, setStep3Attempted] = useState(false)
 
   const [loginIdentifier, setLoginIdentifier] = useState('')
   const [loginPassword, setLoginPassword] = useState('')
@@ -58,15 +62,24 @@ function AuthPage() {
   const step1Validation = useMemo(() => business.validateRegistrationStep1(personal), [business, personal])
   const step3Validation = useMemo(() => business.validateRegistrationStep3(security), [business, security])
 
-  const activeUserId = createdIdentity?.userId || business.snapshot.users.at(0)?.id || ''
+  const activeUserId =
+    (createdIdentity
+      ? business.snapshot.users.find(
+          (user) => user.username === createdIdentity.username && user.matricule === createdIdentity.matricule,
+        )?.id
+      : undefined) ||
+    business.snapshot.users.at(0)?.id ||
+    ''
   const sessionHistory = activeUserId ? business.getSessionHistory(activeUserId) : []
 
   const nextStep = () => {
     if (step === 1 && !step1Validation.isValid) {
+      setStep1Attempted(true)
       setRegisterStatus('Veuillez corriger les erreurs de l\'étape 1.')
       return
     }
     if (step === 3 && !step3Validation.isValid) {
+      setStep3Attempted(true)
       setRegisterStatus('Veuillez corriger les erreurs de sécurité.')
       return
     }
@@ -79,16 +92,47 @@ function AuthPage() {
   }
 
   const submitRegistration = () => {
+    if (isSubmittingRegistration) return
+    setIsSubmittingRegistration(true)
+
     try {
       const user = business.registerAccount({
         personal,
         company,
         security,
       })
-      setCreatedIdentity({ userId: user.id, matricule: user.matricule, username: user.username })
-      setRegisterStatus(`Compte créé avec succès. Matricule: ${user.matricule}`)
+
+      setCreatedIdentity({ matricule: user.matricule, username: user.username })
+
+      const loginResult = business.loginWithSession(user.username, security.password, {
+        rememberMe: true,
+        device: {
+          deviceName: 'Web Browser',
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+        },
+      })
+
+      if (!loginResult.success) {
+        setRegisterStatus(`Compte créé avec succès. Matricule: ${user.matricule}. Connexion automatique échouée.`)
+        return
+      }
+
+      setLoginSessionId(loginResult.sessionId ?? null)
+      if (loginResult.requiresApproval) {
+        const status = loginResult.accountStatus ?? 'PENDING_APPROVAL'
+        setLoginStatus(`Compte créé. Statut: ${status}. En attente de validation administrateur.`)
+        setRegisterStatus(`Compte créé avec succès. Matricule: ${user.matricule}. Votre compte est en attente d'approbation.`)
+        navigate({ to: '/account-pending', search: { status } })
+        return
+      }
+
+      setLoginStatus(`Connexion réussie. Session: ${loginResult.sessionId}`)
+      setRegisterStatus(`Compte créé avec succès. Matricule: ${user.matricule}. Redirection vers l'espace Categories...`)
+      navigate({ to: '/categories' })
     } catch (error) {
       setRegisterStatus(error instanceof Error ? error.message : 'Échec de création du compte.')
+    } finally {
+      setIsSubmittingRegistration(false)
     }
   }
 
@@ -103,6 +147,13 @@ function AuthPage() {
 
     if (!result.success || !result.sessionId) {
       setLoginStatus(`Connexion échouée: ${result.reason ?? 'unknown'}`)
+      return
+    }
+
+    if (result.requiresApproval) {
+      const status = result.accountStatus ?? 'PENDING_APPROVAL'
+      setLoginStatus(`Compte authentifié mais accès restreint: ${status}. Validation administrateur requise.`)
+      navigate({ to: '/account-pending', search: { status } })
       return
     }
 
@@ -181,14 +232,14 @@ function AuthPage() {
 
         {step === 1 ? (
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-1 text-sm"><span>Nom</span><input value={personal.lastName} onChange={(event) => setPersonal((current) => ({ ...current, lastName: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Prénom</span><input value={personal.firstName} onChange={(event) => setPersonal((current) => ({ ...current, firstName: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Username</span><input value={personal.username} onChange={(event) => setPersonal((current) => ({ ...current, username: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Téléphone</span><input value={personal.phone} onChange={(event) => setPersonal((current) => ({ ...current, phone: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Email (facultatif)</span><input value={personal.email} onChange={(event) => setPersonal((current) => ({ ...current, email: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Pays</span><input value={personal.country} onChange={(event) => setPersonal((current) => ({ ...current, country: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Ville</span><input value={personal.city} onChange={(event) => setPersonal((current) => ({ ...current, city: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Langue</span><input value={personal.language} onChange={(event) => setPersonal((current) => ({ ...current, language: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
+            <label className="grid gap-1 text-sm"><span>Nom</span><input value={personal.lastName} onChange={(event) => setPersonal((current) => ({ ...current, lastName: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.lastName.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.lastName.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Prénom</span><input value={personal.firstName} onChange={(event) => setPersonal((current) => ({ ...current, firstName: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.firstName.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.firstName.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Username</span><input value={personal.username} onChange={(event) => setPersonal((current) => ({ ...current, username: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.username.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.username.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Téléphone</span><input value={personal.phone} onChange={(event) => setPersonal((current) => ({ ...current, phone: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.phone.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.phone.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Email (facultatif)</span><input value={personal.email} onChange={(event) => setPersonal((current) => ({ ...current, email: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.email.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.email.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Pays</span><input value={personal.country} onChange={(event) => setPersonal((current) => ({ ...current, country: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.country.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.country.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Ville</span><input value={personal.city} onChange={(event) => setPersonal((current) => ({ ...current, city: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.city.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.city.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Langue</span><input value={personal.language} onChange={(event) => setPersonal((current) => ({ ...current, language: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step1Attempted && !step1Validation.language.valid ? <span className="text-xs text-[#9b2f2f]">{step1Validation.language.message}</span> : null}</label>
           </div>
         ) : null}
 
@@ -211,8 +262,8 @@ function AuthPage() {
 
         {step === 3 ? (
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="grid gap-1 text-sm"><span>Mot de passe</span><input type="password" value={security.password} onChange={(event) => setSecurity((current) => ({ ...current, password: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
-            <label className="grid gap-1 text-sm"><span>Confirmation</span><input type="password" value={security.confirmPassword} onChange={(event) => setSecurity((current) => ({ ...current, confirmPassword: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" /></label>
+            <label className="grid gap-1 text-sm"><span>Mot de passe</span><input type="password" value={security.password} onChange={(event) => setSecurity((current) => ({ ...current, password: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step3Attempted && !step3Validation.password.valid ? <span className="text-xs text-[#9b2f2f]">{step3Validation.password.message}</span> : null}</label>
+            <label className="grid gap-1 text-sm"><span>Confirmation</span><input type="password" value={security.confirmPassword} onChange={(event) => setSecurity((current) => ({ ...current, confirmPassword: event.target.value }))} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2" />{step3Attempted && !step3Validation.confirmPassword.valid ? <span className="text-xs text-[#9b2f2f]">{step3Validation.confirmPassword.message}</span> : null}</label>
             <div className="md:col-span-2 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-sm">
               Force du mot de passe: <strong>{step3Validation.strength}</strong>
             </div>
@@ -220,10 +271,12 @@ function AuthPage() {
               <input type="checkbox" checked={security.acceptTerms} onChange={(event) => setSecurity((current) => ({ ...current, acceptTerms: event.target.checked }))} />
               <span>J'accepte les conditions générales</span>
             </label>
+            {step3Attempted && !step3Validation.acceptTerms.valid ? <span className="md:col-span-2 text-xs text-[#9b2f2f]">{step3Validation.acceptTerms.message}</span> : null}
             <label className="inline-flex items-center gap-2 text-sm md:col-span-2">
               <input type="checkbox" checked={security.acceptPrivacy} onChange={(event) => setSecurity((current) => ({ ...current, acceptPrivacy: event.target.checked }))} />
               <span>J'accepte la politique de confidentialité</span>
             </label>
+            {step3Attempted && !step3Validation.acceptPrivacy.valid ? <span className="md:col-span-2 text-xs text-[#9b2f2f]">{step3Validation.acceptPrivacy.message}</span> : null}
           </div>
         ) : null}
 
@@ -246,14 +299,14 @@ function AuthPage() {
           {step < 4 ? (
             <button type="button" onClick={nextStep} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Suivant</button>
           ) : (
-            <button type="button" onClick={submitRegistration} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Créer le compte</button>
+            <button type="button" onClick={submitRegistration} disabled={isSubmittingRegistration} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white disabled:opacity-50">{isSubmittingRegistration ? 'Création...' : 'Créer le compte'}</button>
           )}
         </div>
 
         {registerStatus ? <p className="mt-3 text-sm text-[var(--srg-text-muted)]">{registerStatus}</p> : null}
         {createdIdentity ? (
           <p className="mt-2 text-sm text-[var(--srg-text-muted)]">
-            Identité générée: UUID {createdIdentity.userId} | Matricule {createdIdentity.matricule} | Username {createdIdentity.username}
+            Votre compte SRG a été créé. Matricule: {createdIdentity.matricule}. Ce matricule peut être utilisé pour se connecter.
           </p>
         ) : null}
       </Section>

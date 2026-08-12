@@ -23,6 +23,13 @@ export type WorkspaceHistoryRecord = {
   latencyMs?: number
   providerSdkVersion?: string
   actorName?: string
+  userId?: string
+  sessionId?: string
+  conversationId?: string
+  categorySlug?: string
+  subcategorySlug?: string
+  reportId?: string
+  archiveId?: string
   entityType?: 'project' | 'prompt' | 'template' | 'workflow'
   entityId?: string
   eventType?:

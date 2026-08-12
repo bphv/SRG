@@ -1,4 +1,5 @@
 import { PDFDocument, StandardFonts } from 'pdf-lib'
+import JSZip from 'jszip'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { GenerateWorkspaceService } from '#/app/services/GenerateWorkspaceService'
 import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
@@ -341,6 +342,26 @@ export type KnowledgeFilters = {
 }
 
 const STORAGE_KEY = 'srg.knowledge.workspace.v1'
+const ZIP_MAX_ARCHIVE_BYTES = 50 * 1024 * 1024
+const ZIP_MAX_FILES = 400
+const ZIP_MAX_UNCOMPRESSED_BYTES = 120 * 1024 * 1024
+const ZIP_MAX_ENTRY_PREVIEW_BYTES = 2 * 1024 * 1024
+
+const DANGEROUS_ARCHIVE_EXTENSIONS = new Set([
+  'exe',
+  'dll',
+  'bat',
+  'cmd',
+  'msi',
+  'vbs',
+  'ps1',
+  'com',
+  'scr',
+  'hta',
+  'js',
+  'jar',
+  'sh',
+])
 
 function nowIso(): string {
   return new Date().toISOString()
@@ -401,6 +422,27 @@ function fromMimeType(mimeType: string): KnowledgeDocumentType | undefined {
   if (mimeType.includes('markdown')) return 'markdown'
   if (mimeType.includes('plain')) return 'txt'
   return undefined
+}
+
+function isTextualDocumentType(type: KnowledgeDocumentType): boolean {
+  return type === 'markdown' || type === 'txt' || type === 'csv' || type === 'json' || type === 'xml' || type === 'html' || type === 'documentation' || type === 'note' || type === 'faq' || type === 'guide' || type === 'web-link' || type === 'report'
+}
+
+function normalizeArchivePath(raw: string): string | undefined {
+  const value = raw.replace(/\\/g, '/').replace(/^\/+/, '')
+  if (!value || /(^|\/)\.\.(\/|$)/.test(value)) return undefined
+  const normalized = value
+    .split('/')
+    .filter((segment) => segment && segment !== '.')
+    .join('/')
+  return normalized || undefined
+}
+
+function extensionOf(path: string): string {
+  const name = path.split('/').pop() ?? path
+  const index = name.lastIndexOf('.')
+  if (index <= 0 || index === name.length - 1) return ''
+  return name.slice(index + 1).toLowerCase()
 }
 
 function parseKeywords(title: string, content: string): string[] {
@@ -849,6 +891,134 @@ export class KnowledgeWorkspaceService {
     this.recordImport(type, archiveName, this.getStore().documents.filter((item) => linkedDocumentIds.includes(item.id)), 240)
     this.pushEvent('info', 'decompression.done', `${type.toUpperCase()} archive analyzed: ${archiveName}`)
     this.logHistory('Knowledge decompression', `${type}:${archiveName}`, 'modification', 'completed')
+    return record
+  }
+
+  static async importZipArchive(file: File, actorName: string): Promise<KnowledgeDecompressionRecord> {
+    const startedAt = Date.now()
+    if (file.size > ZIP_MAX_ARCHIVE_BYTES) {
+      throw new Error(`Archive too large. Max size is ${Math.floor(ZIP_MAX_ARCHIVE_BYTES / (1024 * 1024))} MB.`)
+    }
+
+    const archiveName = file.name || `archive-${Date.now()}.zip`
+    const buffer = await file.arrayBuffer()
+    const zip = await JSZip.loadAsync(buffer)
+    const entries = Object.values(zip.files)
+    const files = entries.filter((entry) => !entry.dir)
+
+    const unsafePathEntries = entries.filter((entry) => {
+      const rawName = (entry as unknown as { unsafeOriginalName?: string }).unsafeOriginalName ?? entry.name
+      return !normalizeArchivePath(rawName)
+    })
+    if (unsafePathEntries.length > 0) {
+      throw new Error('Archive contains unsafe path entries.')
+    }
+
+    if (files.length === 0) {
+      throw new Error('The ZIP archive does not contain files.')
+    }
+
+    if (files.length > ZIP_MAX_FILES) {
+      throw new Error(`Archive contains too many files. Limit is ${ZIP_MAX_FILES}.`)
+    }
+
+    let totalUncompressed = 0
+    const tree: KnowledgeDecompressionRecord['tree'] = []
+    const importedDocuments: KnowledgeDocumentRecord[] = []
+    const blockedEntries: string[] = []
+
+    for (const entry of files) {
+      const rawName = (entry as unknown as { unsafeOriginalName?: string }).unsafeOriginalName ?? entry.name
+      const normalizedPath = normalizeArchivePath(rawName)
+      if (!normalizedPath) {
+        blockedEntries.push(rawName)
+        continue
+      }
+
+      const ext = extensionOf(normalizedPath)
+      if (DANGEROUS_ARCHIVE_EXTENSIONS.has(ext)) {
+        blockedEntries.push(normalizedPath)
+        continue
+      }
+
+      const metadata = (entry as unknown as { _data?: { uncompressedSize?: number } })._data
+      const uncompressedSize = metadata?.uncompressedSize ?? 0
+      totalUncompressed += Math.max(0, uncompressedSize)
+      if (totalUncompressed > ZIP_MAX_UNCOMPRESSED_BYTES) {
+        throw new Error(`Archive exceeds uncompressed volume limit (${Math.floor(ZIP_MAX_UNCOMPRESSED_BYTES / (1024 * 1024))} MB).`)
+      }
+
+      const type = toTypeFromName(normalizedPath)
+      const timestamp = entry.date.toISOString()
+      tree.push({
+        path: normalizedPath,
+        name: normalizedPath.split('/').at(-1) ?? normalizedPath,
+        type,
+        createdAt: timestamp,
+        modifiedAt: timestamp,
+      })
+
+      let content = ''
+      if (isTextualDocumentType(type)) {
+        try {
+          const text = await entry.async('string')
+          content = text.slice(0, 4000)
+        } catch {
+          content = `[text decode failed] ${normalizedPath}`
+        }
+      } else {
+        const binary = await entry.async('uint8array')
+        const previewBytes = Math.min(binary.byteLength, ZIP_MAX_ENTRY_PREVIEW_BYTES)
+        content = `[binary ${type}] ${normalizedPath} (${binary.byteLength} bytes, preview limit ${previewBytes} bytes).`
+      }
+
+      const record = this.addDocument({
+        title: normalizedPath.split('/').at(-1) ?? normalizedPath,
+        description: `Imported from ZIP archive ${archiveName}`,
+        content,
+        documentType: type,
+        category: this.suggestCategory(type, normalizedPath),
+        tags: ['zip', 'archive', 'decompressed'],
+        source: `zip:${archiveName}/${normalizedPath}`,
+        author: actorName,
+      })
+      importedDocuments.push(record)
+    }
+
+    if (importedDocuments.length === 0) {
+      throw new Error('No safe files were imported from this ZIP archive.')
+    }
+
+    const linkedDocumentIds = importedDocuments.map((item) => item.id)
+    if (linkedDocumentIds.length > 1) {
+      const linkedSet = new Set(linkedDocumentIds)
+      for (const document of importedDocuments) {
+        this.updateDocument(document.id, (item) => ({
+          ...item,
+          relatedDocumentIds: Array.from(linkedSet).filter((value) => value !== item.id),
+        }))
+      }
+    }
+
+    const record: KnowledgeDecompressionRecord = {
+      id: id('kdecomp'),
+      archiveName,
+      archiveType: 'zip',
+      tree,
+      createdAt: nowIso(),
+      linkedDocumentIds,
+    }
+
+    const store = this.getStore()
+    this.writeStorage({ ...store, decompressions: [record, ...store.decompressions].slice(0, 120) })
+    this.recordImport('zip', archiveName, importedDocuments, Date.now() - startedAt)
+    this.pushEvent('info', 'decompression.done', `ZIP archive imported: ${archiveName} (${importedDocuments.length} file(s)).`)
+
+    if (blockedEntries.length > 0) {
+      this.pushEvent('warning', 'decompression.blocked', `${blockedEntries.length} archive entrie(s) blocked for security policy.`)
+    }
+
+    this.logHistory('Knowledge decompression', `zip:${archiveName}`, 'modification', 'completed')
     return record
   }
 

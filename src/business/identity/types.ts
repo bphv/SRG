@@ -1,4 +1,4 @@
-import type { UserRole } from '#/app/services/business/BusinessFoundationService'
+import type { AccountStatus, UserRole } from '#/app/services/business/BusinessFoundationService'
 
 export type IdentityId = string
 
@@ -34,6 +34,7 @@ export type CreateIdentityInput = {
   email?: string
   password: string
   role: UserRole
+  accountStatus?: AccountStatus
   profile: {
     firstName: string
     lastName: string

@@ -3,6 +3,8 @@ import type { ExecutionResponse } from '#/execution/response/ExecutionResponse'
 
 export type UserRole = 'SuperAdmin' | 'Admin' | 'Manager' | 'User' | 'Guest'
 
+export type AccountStatus = 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'SUSPENDED'
+
 export type FeatureFlagKey =
   | 'vision'
   | 'image'
@@ -59,6 +61,12 @@ export type UserIdentity = {
   phone: string
   email?: string
   role: UserRole
+  accountStatus: AccountStatus
+  approvedAt?: string
+  approvedByUserId?: string
+  statusReason?: string
+  statusUpdatedAt: string
+  statusUpdatedByUserId?: string
   organizationId?: string
   departmentId?: string
   teamId?: string
@@ -269,6 +277,12 @@ export type AuthResult = {
   reason?: string
 }
 
+export type AccountAccess = {
+  allowed: boolean
+  status: AccountStatus
+  reason?: 'pending_approval' | 'rejected' | 'suspended'
+}
+
 export type BusinessSnapshot = {
   users: UserIdentity[]
   profiles: UserProfile[]
@@ -428,6 +442,16 @@ export class BusinessFoundationService {
   private static sequenceByDate: Record<string, number> = {}
   private static initialized = false
 
+  static normalizeMatriculeInput(identifier: string): string | undefined {
+    const normalized = identifier.trim().toUpperCase()
+    const match = /^SRG(\d{8})-(\d{1,6})$/.exec(normalized)
+    if (!match) return undefined
+
+    const sequenceValue = Number(match[2])
+    if (!Number.isInteger(sequenceValue) || sequenceValue <= 0) return undefined
+    return `SRG${match[1]}-${String(sequenceValue).padStart(6, '0')}`
+  }
+
   private static ensureInit() {
     if (this.initialized) return
 
@@ -557,6 +581,7 @@ export class BusinessFoundationService {
     email?: string
     password: string
     role: UserRole
+    accountStatus?: AccountStatus
     profile: Omit<UserProfile, 'userId'>
     organizationId?: string
     departmentId?: string
@@ -570,8 +595,7 @@ export class BusinessFoundationService {
   static authenticate(identifier: string, password: string): AuthResult {
     this.ensureInit()
 
-    const normalized = identifier.trim().toLowerCase()
-    const user = this.users.find((candidate) => candidate.username.toLowerCase() === normalized || candidate.matricule.toLowerCase() === normalized)
+    const user = this.findUserByIdentifier(identifier)
     if (!user) {
       this.observe('auth.login.failed', 'Authentication failed: user not found', { identifier })
       return { success: false, reason: 'user_not_found' }
@@ -595,8 +619,7 @@ export class BusinessFoundationService {
 
   static requestForgotPassword(identifier: string): { ticketId: string } {
     this.ensureInit()
-    const normalized = identifier.trim().toLowerCase()
-    const user = this.users.find((candidate) => candidate.username.toLowerCase() === normalized || candidate.matricule.toLowerCase() === normalized)
+    const user = this.findUserByIdentifier(identifier)
     if (!user) {
       throw new Error('Unknown user for forgot password.')
     }
@@ -685,6 +708,83 @@ export class BusinessFoundationService {
     this.ensureInit()
     this.users = this.users.map((user) => (user.id === userId ? { ...user, role } : user))
     this.observe('rbac.role.assign', 'Role assigned to user', { userId, role })
+  }
+
+  static getAccountAccess(userId: string): AccountAccess {
+    this.ensureInit()
+    const user = this.users.find((item) => item.id === userId)
+    if (!user) {
+      throw new Error('User not found.')
+    }
+
+    if (user.role === 'SuperAdmin' || user.role === 'Admin') {
+      return { allowed: true, status: user.accountStatus }
+    }
+
+    if (user.accountStatus === 'APPROVED') {
+      return { allowed: true, status: user.accountStatus }
+    }
+
+    if (user.accountStatus === 'PENDING_APPROVAL') {
+      return { allowed: false, status: user.accountStatus, reason: 'pending_approval' }
+    }
+
+    if (user.accountStatus === 'REJECTED') {
+      return { allowed: false, status: user.accountStatus, reason: 'rejected' }
+    }
+
+    return { allowed: false, status: user.accountStatus, reason: 'suspended' }
+  }
+
+  static requireApprovedAccount(userId: string): void {
+    const access = this.getAccountAccess(userId)
+    if (access.allowed) return
+
+    if (access.reason === 'pending_approval') {
+      throw new Error('ACCOUNT_PENDING_APPROVAL')
+    }
+    if (access.reason === 'rejected') {
+      throw new Error('ACCOUNT_REJECTED')
+    }
+    throw new Error('ACCOUNT_SUSPENDED')
+  }
+
+  static approveUser(userId: string, adminId: string): UserIdentity {
+    return this.transitionAccountStatus({
+      userId,
+      adminId,
+      nextStatus: 'APPROVED',
+      action: 'ACCOUNT_APPROVED',
+    })
+  }
+
+  static rejectUser(userId: string, adminId: string, reason?: string): UserIdentity {
+    return this.transitionAccountStatus({
+      userId,
+      adminId,
+      nextStatus: 'REJECTED',
+      action: 'ACCOUNT_REJECTED',
+      reason,
+    })
+  }
+
+  static suspendUser(userId: string, adminId: string, reason?: string): UserIdentity {
+    return this.transitionAccountStatus({
+      userId,
+      adminId,
+      nextStatus: 'SUSPENDED',
+      action: 'ACCOUNT_SUSPENDED',
+      reason,
+    })
+  }
+
+  static reactivateUser(userId: string, adminId: string): UserIdentity {
+    return this.transitionAccountStatus({
+      userId,
+      adminId,
+      nextStatus: 'APPROVED',
+      action: 'ACCOUNT_REACTIVATED',
+    })
   }
 
   static updateUserPhone(userId: string, phone: string): void {
@@ -1073,6 +1173,7 @@ export class BusinessFoundationService {
     email?: string
     password: string
     role: UserRole
+    accountStatus?: AccountStatus
     profile: Omit<UserProfile, 'userId'>
     organizationId?: string
     departmentId?: string
@@ -1090,9 +1191,20 @@ export class BusinessFoundationService {
       throw new Error('Phone already exists.')
     }
 
+    const normalizedEmail = input.email?.trim().toLowerCase()
+    if (
+      normalizedEmail &&
+      this.users.some((user) => (user.email ?? '').trim().toLowerCase() === normalizedEmail)
+    ) {
+      throw new Error('Email already exists.')
+    }
+
     const traceStart = nowIso()
     const userId = randomId('usr')
     const matricule = this.generateMatricule()
+
+    const createdAt = nowIso()
+    const accountStatus = input.accountStatus ?? 'APPROVED'
 
     const user: UserIdentity = {
       id: userId,
@@ -1101,10 +1213,16 @@ export class BusinessFoundationService {
       phone: input.phone,
       email: input.email,
       role: input.role,
+      accountStatus,
+      approvedAt: accountStatus === 'APPROVED' ? createdAt : undefined,
+      approvedByUserId: accountStatus === 'APPROVED' ? 'system' : undefined,
+      statusReason: undefined,
+      statusUpdatedAt: createdAt,
+      statusUpdatedByUserId: accountStatus === 'APPROVED' ? 'system' : undefined,
       organizationId: input.organizationId,
       departmentId: input.departmentId,
       teamId: input.teamId,
-      createdAt: nowIso(),
+      createdAt,
     }
 
     const profile: UserProfile = {
@@ -1256,17 +1374,92 @@ export class BusinessFoundationService {
 
   private static generateMatricule(): string {
     const dateKey = nowDateKey()
-    const nextValue = (this.sequenceByDate[dateKey] ?? 0) + 1
-    this.sequenceByDate[dateKey] = nextValue
+    const todayUsers = this.users
+      .map((user) => {
+        const match = /^SRG(\d{8})-(\d{6})$/.exec(user.matricule)
+        if (!match || match[1] !== dateKey) return 0
+        return Number(match[2])
+      })
+      .filter((value) => Number.isInteger(value) && value > 0)
 
-    const sequence = String(nextValue).padStart(6, '0')
-    const matricule = `SRG${dateKey}-${sequence}`
+    const knownMax = todayUsers.length > 0 ? Math.max(...todayUsers) : 0
+    const currentSequence = this.sequenceByDate[dateKey] ?? 0
+    let nextValue = Math.max(knownMax, currentSequence) + 1
 
-    if (this.users.some((user) => user.matricule === matricule)) {
-      return this.generateMatricule()
+    for (;;) {
+      const sequence = String(nextValue).padStart(6, '0')
+      const candidate = `SRG${dateKey}-${sequence}`
+      if (!this.users.some((user) => user.matricule === candidate)) {
+        this.sequenceByDate[dateKey] = nextValue
+        return candidate
+      }
+      nextValue += 1
+    }
+  }
+
+  private static findUserByIdentifier(identifier: string): UserIdentity | undefined {
+    const normalized = identifier.trim().toLowerCase()
+    const canonicalMatricule = this.normalizeMatriculeInput(identifier)
+
+    return this.users.find((candidate) => {
+      if (candidate.username.toLowerCase() === normalized) return true
+      if (candidate.matricule.toLowerCase() === normalized) return true
+      return canonicalMatricule !== undefined && candidate.matricule === canonicalMatricule
+    })
+  }
+
+  private static transitionAccountStatus(input: {
+    userId: string
+    adminId: string
+    nextStatus: AccountStatus
+    action: 'ACCOUNT_APPROVED' | 'ACCOUNT_REJECTED' | 'ACCOUNT_SUSPENDED' | 'ACCOUNT_REACTIVATED'
+    reason?: string
+  }): UserIdentity {
+    this.ensureInit()
+
+    const admin = this.users.find((item) => item.id === input.adminId)
+    if (!admin || (admin.role !== 'SuperAdmin' && admin.role !== 'Admin')) {
+      throw new Error('Only administrators can update account status.')
     }
 
-    return matricule
+    const target = this.users.find((item) => item.id === input.userId)
+    if (!target) {
+      throw new Error('Target user not found.')
+    }
+
+    const previousStatus = target.accountStatus
+    const now = nowIso()
+    const nextApprovedAt = input.nextStatus === 'APPROVED' ? target.approvedAt ?? now : undefined
+
+    this.users = this.users.map((user) => {
+      if (user.id !== input.userId) return user
+      return {
+        ...user,
+        accountStatus: input.nextStatus,
+        approvedAt: nextApprovedAt,
+        approvedByUserId: input.nextStatus === 'APPROVED' ? input.adminId : user.approvedByUserId,
+        statusReason: input.reason,
+        statusUpdatedAt: now,
+        statusUpdatedByUserId: input.adminId,
+      }
+    })
+
+    this.observe(input.action, 'Account status transitioned', {
+      userId: input.userId,
+      adminId: input.adminId,
+      action: input.action,
+      oldStatus: previousStatus,
+      newStatus: input.nextStatus,
+      reason: input.reason,
+      at: now,
+    })
+
+    const updated = this.users.find((item) => item.id === input.userId)
+    if (!updated) {
+      throw new Error('Failed to update account status.')
+    }
+
+    return updated
   }
 
   private static observe(operation: string, message: string, metadata?: Record<string, unknown>) {

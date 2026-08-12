@@ -5,7 +5,6 @@ import PromptEditor from '#/app/components/PromptEditor'
 import PromptList from '#/app/components/PromptList'
 import PromptSearch from '#/app/components/PromptSearch'
 import PromptVariablesPanel from '#/app/components/PromptVariablesPanel'
-import { CollapsibleFormSection, Field, FieldGroup, FormProgress, FormSection, FormToolbar, SmartInputField, SwitchField, ValidationMessage } from '#/app/components/ui/FormPrimitives'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { useNotifications } from '#/app/hooks/useNotifications'
 import { usePrompts } from '#/app/hooks/usePrompts'
@@ -22,7 +21,6 @@ import type { Prompt, PromptProvider } from '#/app/services/PromptService'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
 import { CollaborationWorkspaceService } from '#/app/services/CollaborationWorkspaceService'
 import { replaceVariables } from '#/app/services/PromptPreviewService'
-import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 import { GeneratorEngine } from '#/generator/engine/GeneratorEngine'
 import type { GenerationRequest } from '#/generator/request/GenerationRequest'
 import { ExecutionEngine } from '#/execution/engine/ExecutionEngine'
@@ -57,9 +55,8 @@ function GeneratePage() {
 
   const initialPrefs = useMemo(() => GenerateWorkspaceService.getPreferences(), [])
   const initialDraft = useMemo(() => GenerateWorkspaceService.getDraft(), [])
-  const uiPrefs = useMemo(() => WorkspacePreferencesService.getPreferences().filters['generate-ui'] ?? {}, [])
 
-  const [search, setSearch] = useState(typeof uiPrefs.search === 'string' ? uiPrefs.search : '')
+  const [search, setSearch] = useState('')
   const [selectedPromptId, setSelectedPromptId] = useState<string | null>(
     initialDraft.selectedPromptId !== null ? initialDraft.selectedPromptId : (prompts[0]?.id ?? null),
   )
@@ -91,22 +88,14 @@ function GeneratePage() {
   const [visionEnabled, setVisionEnabled] = useState(initialPrefs.vision)
   const [audioEnabled, setAudioEnabled] = useState(initialPrefs.audio)
   const [imageEnabled, setImageEnabled] = useState(initialPrefs.image)
-  const [splitViewEnabled, setSplitViewEnabled] = useState(typeof uiPrefs.splitViewEnabled === 'boolean' ? uiPrefs.splitViewEnabled : initialPrefs.splitView)
-  const [fullscreenEnabled, setFullscreenEnabled] = useState(typeof uiPrefs.fullscreenEnabled === 'boolean' ? uiPrefs.fullscreenEnabled : initialPrefs.fullscreen)
+  const [splitViewEnabled, setSplitViewEnabled] = useState(initialPrefs.splitView)
+  const [fullscreenEnabled, setFullscreenEnabled] = useState(initialPrefs.fullscreen)
 
   const [status, setStatus] = useState<LifecycleStatus>('idle')
   const [resultOutput, setResultOutput] = useState('')
   const [resultError, setResultError] = useState<string | null>(null)
-  const [outputFormat, setOutputFormat] = useState<GenerateOutputFormat>(
-    uiPrefs.outputFormat === 'markdown' || uiPrefs.outputFormat === 'json' || uiPrefs.outputFormat === 'text'
-      ? uiPrefs.outputFormat
-      : initialPrefs.outputFormat,
-  )
-  const [mobilePane, setMobilePane] = useState<MobilePane>(
-    uiPrefs.mobilePane === 'config' || uiPrefs.mobilePane === 'prompt' || uiPrefs.mobilePane === 'result'
-      ? uiPrefs.mobilePane
-      : 'prompt',
-  )
+  const [outputFormat, setOutputFormat] = useState<GenerateOutputFormat>(initialPrefs.outputFormat)
+  const [mobilePane, setMobilePane] = useState<MobilePane>('prompt')
   const [lastUsedProvider, setLastUsedProvider] = useState('mock')
   const [lastEstimateCredits, setLastEstimateCredits] = useState(0)
   const [lastEstimateCost, setLastEstimateCost] = useState(0)
@@ -238,16 +227,6 @@ function GeneratePage() {
       window.clearTimeout(timer)
     }
   }, [preferences, selectedPromptId, selectedTemplateId, workingPrompt?.name, workingPrompt?.content, variableValues])
-
-  useEffect(() => {
-    WorkspacePreferencesService.setFilters('generate-ui', {
-      search,
-      outputFormat,
-      mobilePane,
-      splitViewEnabled,
-      fullscreenEnabled,
-    })
-  }, [search, outputFormat, mobilePane, splitViewEnabled, fullscreenEnabled])
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -392,14 +371,6 @@ function GeneratePage() {
   )
 
   const previousOutput = history[1]?.output ?? ''
-  const requiredVariables = useMemo(
-    () => (workingPrompt?.versions[0]?.variables ?? []).filter((variable) => variable.required),
-    [workingPrompt],
-  )
-  const completedRequiredVariables = useMemo(
-    () => requiredVariables.filter((variable) => (variableValues[variable.name] ?? '').trim().length > 0).length,
-    [requiredVariables, variableValues],
-  )
 
   const observability = useMemo<ObservabilitySnapshot>(() => {
     const latest = history.at(0)
@@ -523,8 +494,8 @@ function GeneratePage() {
       errors.push('Le contenu du prompt est vide.')
     }
 
-    const requiredPromptVariables = workingPrompt.versions[0]?.variables.filter((variable) => variable.required) ?? []
-    const missing = requiredPromptVariables.filter((variable) => !(variableValues[variable.name] ?? '').trim())
+    const requiredVariables = workingPrompt.versions[0]?.variables.filter((variable) => variable.required) ?? []
+    const missing = requiredVariables.filter((variable) => !(variableValues[variable.name] ?? '').trim())
     if (missing.length > 0) {
       errors.push(`Variables obligatoires manquantes: ${missing.map((item) => item.name).join(', ')}`)
     }
@@ -745,15 +716,6 @@ function GeneratePage() {
     }
 
     await navigator.clipboard.writeText(text)
-    notifications.publish({
-      title: 'Sortie copiée',
-      message: 'Le résultat a été copié dans le presse-papiers.',
-      level: 'success',
-      priority: 'low',
-      category: 'system',
-      read: false,
-      channels: ['email'],
-    })
   }
 
   const handleDownload = () => {
@@ -772,15 +734,6 @@ function GeneratePage() {
     anchor.download = `generation-${Date.now()}.${isJson ? 'json' : 'txt'}`
     anchor.click()
     URL.revokeObjectURL(url)
-    notifications.publish({
-      title: 'Téléchargement prêt',
-      message: 'Le fichier de sortie a été exporté.',
-      level: 'success',
-      priority: 'low',
-      category: 'system',
-      read: false,
-      channels: ['email'],
-    })
   }
 
   const handleRetry = async () => {
@@ -802,15 +755,6 @@ function GeneratePage() {
         tags: workingPrompt.tags,
         versionComment: 'Saved from Generate workspace',
       })
-      notifications.publish({
-        title: 'Prompt sauvegardé',
-        message: 'Le prompt existant a été mis à jour.',
-        level: 'success',
-        priority: 'low',
-        category: 'generation',
-        read: false,
-        channels: ['email'],
-      })
       return
     }
 
@@ -825,15 +769,6 @@ function GeneratePage() {
       model,
       language: 'Français',
       variables: workingPrompt.versions[0]?.variables ?? [],
-    })
-    notifications.publish({
-      title: 'Prompt créé',
-      message: 'Le nouveau prompt a été sauvegardé dans votre bibliothèque.',
-      level: 'success',
-      priority: 'low',
-      category: 'generation',
-      read: false,
-      channels: ['email'],
     })
   }
 
@@ -887,14 +822,14 @@ function GeneratePage() {
             <button
               type="button"
               onClick={() => setSplitViewEnabled((current) => !current)}
-              className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+              className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
             >
               {splitViewEnabled ? 'Mono View' : 'Split View'}
             </button>
             <button
               type="button"
               onClick={() => setFullscreenEnabled((current) => !current)}
-              className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
+              className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
             >
               {fullscreenEnabled ? 'Exit Fullscreen' : 'Fullscreen'}
             </button>
@@ -902,7 +837,7 @@ function GeneratePage() {
               type="button"
               onClick={() => void handleGenerate()}
               disabled={status === 'queued' || status === 'running'}
-              className="rounded-3xl bg-[var(--srg-color-primary-500)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--srg-color-primary-600)] disabled:opacity-60"
+              className="rounded-3xl bg-[var(--lagoon-deep)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--palm)] disabled:opacity-60"
               aria-label="Lancer la génération"
             >
               Generate
@@ -919,30 +854,30 @@ function GeneratePage() {
         }
       />
 
-      <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 text-xs text-[var(--srg-text-muted)]">
+      <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-4 text-xs text-[var(--sea-ink-soft)]">
         Raccourcis: Ctrl+Enter (Generate), Ctrl+S (Save), Ctrl+Z / Ctrl+Y (Undo/Redo), F11 (Fullscreen)
       </div>
 
-      <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-4 lg:hidden">
+      <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-4 lg:hidden">
         <div className="grid grid-cols-3 gap-2 text-sm">
           <button
             type="button"
             onClick={() => setMobilePane('config')}
-            className={`rounded-2xl px-3 py-2 font-semibold ${mobilePane === 'config' ? 'bg-[var(--srg-color-primary-500)] text-white' : 'bg-[var(--srg-surface-strong)] text-[var(--srg-text-title)]'}`}
+            className={`rounded-2xl px-3 py-2 font-semibold ${mobilePane === 'config' ? 'bg-[var(--lagoon-deep)] text-white' : 'bg-[var(--surface-strong)] text-[var(--sea-ink)]'}`}
           >
             Configuration
           </button>
           <button
             type="button"
             onClick={() => setMobilePane('prompt')}
-            className={`rounded-2xl px-3 py-2 font-semibold ${mobilePane === 'prompt' ? 'bg-[var(--srg-color-primary-500)] text-white' : 'bg-[var(--srg-surface-strong)] text-[var(--srg-text-title)]'}`}
+            className={`rounded-2xl px-3 py-2 font-semibold ${mobilePane === 'prompt' ? 'bg-[var(--lagoon-deep)] text-white' : 'bg-[var(--surface-strong)] text-[var(--sea-ink)]'}`}
           >
             Prompt
           </button>
           <button
             type="button"
             onClick={() => setMobilePane('result')}
-            className={`rounded-2xl px-3 py-2 font-semibold ${mobilePane === 'result' ? 'bg-[var(--srg-color-primary-500)] text-white' : 'bg-[var(--srg-surface-strong)] text-[var(--srg-text-title)]'}`}
+            className={`rounded-2xl px-3 py-2 font-semibold ${mobilePane === 'result' ? 'bg-[var(--lagoon-deep)] text-white' : 'bg-[var(--surface-strong)] text-[var(--sea-ink)]'}`}
           >
             Résultat
           </button>
@@ -951,134 +886,221 @@ function GeneratePage() {
 
       <div className={`grid gap-6 ${splitViewEnabled ? 'xl:grid-cols-[320px_minmax(0,1fr)_420px]' : 'xl:grid-cols-[360px_minmax(0,1fr)]'}`}>
         <section className={`${mobilePane === 'config' ? 'block' : 'hidden'} space-y-6 xl:block`}>
-          <CollapsibleFormSection id="generate-config" title="Configuration" description="Paramètres runtime persistés pour la génération." defaultOpen>
-            <FormSection title="Runtime" description="Provider, modèle et paramètres d'inférence.">
-              <FieldGroup columns={2}>
-                <Field label="Provider runtime">
-                  <select value={providerChoice} onChange={(event) => setProviderChoice(event.target.value as GenerateProviderChoice)} aria-label="Provider">
-                    <option value="auto">Auto (best available)</option>
-                    <option value="openai">OpenAI</option>
-                    <option value="mock">Mock</option>
-                    <option value="claude" disabled>Claude (catalog only)</option>
-                    <option value="gemini" disabled>Gemini (catalog only)</option>
-                    <option value="openrouter" disabled>OpenRouter (catalog only)</option>
-                  </select>
-                </Field>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Configuration</h2>
+            <div className="mt-5 space-y-4 text-sm text-[var(--sea-ink-soft)]">
+              <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Provider runtime</span>
+                <select
+                  value={providerChoice}
+                  onChange={(event) => setProviderChoice(event.target.value as GenerateProviderChoice)}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                  aria-label="Provider"
+                >
+                  <option value="auto">Auto (best available)</option>
+                  <option value="openai">OpenAI</option>
+                  <option value="mock">Mock</option>
+                  <option value="claude" disabled>Claude (catalog only)</option>
+                  <option value="gemini" disabled>Gemini (catalog only)</option>
+                  <option value="openrouter" disabled>OpenRouter (catalog only)</option>
+                </select>
+              </label>
 
-                <Field label="Modèle">
-                  <select value={model} onChange={(event) => setModel(event.target.value)} aria-label="Modèle">
-                    {Object.values(OpenAIModels).map((item) => (
-                      <option key={item} value={item}>{item}</option>
-                    ))}
-                  </select>
-                </Field>
+              <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Modèle</span>
+                <select
+                  value={model}
+                  onChange={(event) => setModel(event.target.value)}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                  aria-label="Modèle"
+                >
+                  {Object.values(OpenAIModels).map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                  ))}
+                </select>
+              </label>
 
-                <Field label={`Température: ${temperature.toFixed(2)}`}>
-                  <input type="range" min={0} max={2} step={0.05} value={temperature} onChange={(event) => setTemperature(Number(event.target.value))} />
-                </Field>
+              <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Température: {temperature.toFixed(2)}</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={2}
+                  step={0.05}
+                  value={temperature}
+                  onChange={(event) => setTemperature(Number(event.target.value))}
+                />
+              </label>
 
-                <Field label="Max tokens">
-                  <input type="number" value={maxTokens} min={1} onChange={(event) => setMaxTokens(Number(event.target.value))} />
-                </Field>
+              <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Max tokens</span>
+                <input
+                  type="number"
+                  value={maxTokens}
+                  min={1}
+                  onChange={(event) => setMaxTokens(Number(event.target.value))}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                />
+              </label>
 
-                <Field label="Top P">
-                  <input type="number" min={0} max={1} step={0.05} value={topP} onChange={(event) => setTopP(Number(event.target.value))} />
-                </Field>
+              <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Top P</span>
+                <input
+                  type="number"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={topP}
+                  onChange={(event) => setTopP(Number(event.target.value))}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                />
+              </label>
 
-                <Field label="Top K">
-                  <input type="number" min={1} value={topK} onChange={(event) => setTopK(Number(event.target.value))} />
-                </Field>
+              <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Top K</span>
+                <input
+                  type="number"
+                  min={1}
+                  value={topK}
+                  onChange={(event) => setTopK(Number(event.target.value))}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                />
+              </label>
 
-                <Field label="Seed">
-                  <input type="number" value={seed} onChange={(event) => setSeed(Number(event.target.value))} />
-                </Field>
-              </FieldGroup>
+              <label className="grid gap-2">
+                <span className="font-semibold text-[var(--sea-ink)]">Seed</span>
+                <input
+                  type="number"
+                  value={seed}
+                  onChange={(event) => setSeed(Number(event.target.value))}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                />
+              </label>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <SwitchField label="Streaming" checked={streaming} onChange={setStreaming} />
-                <SwitchField label="JSON Mode" checked={jsonMode} onChange={setJsonMode} />
-                <SwitchField label="Reasoning" checked={reasoningEnabled} onChange={setReasoningEnabled} />
-                <SwitchField label="Tools" checked={toolsEnabled} onChange={setToolsEnabled} />
-                <SwitchField label="Vision" checked={visionEnabled} onChange={setVisionEnabled} />
-                <SwitchField label="Audio" checked={audioEnabled} onChange={setAudioEnabled} />
-                <SwitchField label="Image" checked={imageEnabled} onChange={setImageEnabled} />
+              <div className="grid gap-2 sm:grid-cols-2">
+                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                  <input type="checkbox" checked={streaming} onChange={(event) => setStreaming(event.target.checked)} />
+                  <span>Streaming</span>
+                </label>
+
+                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                  <input type="checkbox" checked={jsonMode} onChange={(event) => setJsonMode(event.target.checked)} />
+                  <span>JSON Mode</span>
+                </label>
+
+                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                  <input type="checkbox" checked={reasoningEnabled} onChange={(event) => setReasoningEnabled(event.target.checked)} />
+                  <span>Reasoning</span>
+                </label>
+
+                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                  <input type="checkbox" checked={toolsEnabled} onChange={(event) => setToolsEnabled(event.target.checked)} />
+                  <span>Tools</span>
+                </label>
+
+                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                  <input type="checkbox" checked={visionEnabled} onChange={(event) => setVisionEnabled(event.target.checked)} />
+                  <span>Vision</span>
+                </label>
+
+                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3">
+                  <input type="checkbox" checked={audioEnabled} onChange={(event) => setAudioEnabled(event.target.checked)} />
+                  <span>Audio</span>
+                </label>
+
+                <label className="inline-flex items-center gap-2 rounded-3xl bg-[var(--surface-strong)] px-4 py-3 sm:col-span-2">
+                  <input type="checkbox" checked={imageEnabled} onChange={(event) => setImageEnabled(event.target.checked)} />
+                  <span>Image</span>
+                </label>
               </div>
 
-              <div className="mt-3 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs">
-                <p><span className="font-semibold text-[var(--srg-text-title)]">Estimate:</span> {readiness.estimate.estimatedCredits.toFixed(2)} credits</p>
-                <p><span className="font-semibold text-[var(--srg-text-title)]">Cost:</span> ${readiness.estimate.estimatedCost.toFixed(4)}</p>
-                <p><span className="font-semibold text-[var(--srg-text-title)]">Readiness:</span> {readiness.ok ? 'ok' : 'blocked'}</p>
-                {!readiness.ok ? <ValidationMessage variant="warning">Certaines conditions de readiness ne sont pas satisfaites.</ValidationMessage> : null}
+              <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs">
+                <p><span className="font-semibold text-[var(--sea-ink)]">Estimate:</span> {readiness.estimate.estimatedCredits.toFixed(2)} credits</p>
+                <p><span className="font-semibold text-[var(--sea-ink)]">Cost:</span> ${readiness.estimate.estimatedCost.toFixed(4)}</p>
+                <p><span className="font-semibold text-[var(--sea-ink)]">Readiness:</span> {readiness.ok ? 'ok' : 'blocked'}</p>
               </div>
-            </FormSection>
-          </CollapsibleFormSection>
+            </div>
+          </div>
 
-          <CollapsibleFormSection id="generate-prompts" title="Prompts" description="Sélection, template et création rapide.">
-            <FieldGroup columns={1}>
-              <Field label="Choisir un prompt existant">
-                <select value={selectedPromptId ?? ''} onChange={(event) => setSelectedPromptId(event.target.value || null)}>
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Prompts</h3>
+            <div className="mt-4 space-y-4">
+              <label className="grid gap-2 text-sm">
+                <span className="font-semibold text-[var(--sea-ink)]">Choisir un prompt existant</span>
+                <select
+                  value={selectedPromptId ?? ''}
+                  onChange={(event) => setSelectedPromptId(event.target.value || null)}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                >
                   {filteredPrompts.map((prompt) => (
                     <option key={prompt.id} value={prompt.id}>{prompt.name}</option>
                   ))}
                 </select>
-              </Field>
+              </label>
 
-              <Field label="Choisir un template">
-                <select value={selectedTemplateId} onChange={(event) => handleUseTemplate(event.target.value)}>
+              <label className="grid gap-2 text-sm">
+                <span className="font-semibold text-[var(--sea-ink)]">Choisir un template</span>
+                <select
+                  value={selectedTemplateId}
+                  onChange={(event) => handleUseTemplate(event.target.value)}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                >
                   <option value="">Sélectionner</option>
                   {templateCandidates.map((template) => (
                     <option key={template.id} value={template.id}>{template.name}</option>
                   ))}
                 </select>
-              </Field>
+              </label>
 
-              <SmartInputField
-                id="generate-quick-prompt-name"
-                label="Prompt rapide"
-                value={quickPromptName}
-                onValueChange={setQuickPromptName}
-                placeholder="Nom du prompt rapide"
-                autosaveLabel="Draft local"
-              />
-            </FieldGroup>
+              <label className="grid gap-2 text-sm">
+                <span className="font-semibold text-[var(--sea-ink)]">Prompt rapide</span>
+                <input
+                  value={quickPromptName}
+                  onChange={(event) => setQuickPromptName(event.target.value)}
+                  placeholder="Nom du prompt rapide"
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-[var(--sea-ink)]"
+                />
+              </label>
 
-            <FormToolbar autosaveLabel="600 ms">
-              <button
-                type="button"
-                onClick={createQuickPrompt}
-                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
-              >
-                Créer prompt rapide
-              </button>
-              <button
-                type="button"
-                onClick={handleSavePrompt}
-                className="rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-3 text-sm font-semibold text-white"
-              >
-                Sauvegarder
-              </button>
-              <button
-                type="button"
-                onClick={handleUndoPrompt}
-                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
-              >
-                Undo
-              </button>
-              <button
-                type="button"
-                onClick={handleRedoPrompt}
-                className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 text-sm font-semibold text-[var(--srg-text-title)]"
-              >
-                Redo
-              </button>
-            </FormToolbar>
-          </CollapsibleFormSection>
+              <div className="grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={createQuickPrompt}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
+                >
+                  Créer prompt rapide
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSavePrompt}
+                  className="rounded-3xl bg-[var(--lagoon-deep)] px-4 py-3 text-sm font-semibold text-white"
+                >
+                  Sauvegarder
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUndoPrompt}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
+                >
+                  Undo
+                </button>
+                <button
+                  type="button"
+                  onClick={handleRedoPrompt}
+                  className="rounded-3xl border border-[var(--line)] bg-[var(--surface)] px-4 py-3 text-sm font-semibold text-[var(--sea-ink)]"
+                >
+                  Redo
+                </button>
+              </div>
+            </div>
+          </div>
 
-          <CollapsibleFormSection id="generate-provider-matrix" title="Provider Matrix" description="Visibilité rapide des providers disponibles.">
-            <div className="space-y-3">
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+            <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Provider Matrix</h3>
+            <div className="mt-4 space-y-3">
               {providerCatalog.map((provider) => (
-                <div key={provider.id} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-muted)]">
-                  <p className="font-semibold text-[var(--srg-text-title)]">{provider.label} ({provider.id})</p>
+                <div key={provider.id} className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs text-[var(--sea-ink-soft)]">
+                  <p className="font-semibold text-[var(--sea-ink)]">{provider.label} ({provider.id})</p>
                   <p>Status: {provider.status} · Health: {provider.health}</p>
                   <p>Latency: {provider.latencyMs} ms · Availability: {provider.availability}</p>
                   <p>SDK: {provider.sdkVersion} · Quota: {provider.quota}</p>
@@ -1086,11 +1108,11 @@ function GeneratePage() {
                 </div>
               ))}
             </div>
-          </CollapsibleFormSection>
+          </div>
         </section>
 
         <section className={`${mobilePane === 'prompt' ? 'block' : 'hidden'} space-y-6 xl:block`}>
-          <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-5 shadow-[var(--srg-shadow-md)]">
+          <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-5 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
             <PromptSearch value={search} onSearch={setSearch} onValueChange={setSearch} />
           </div>
 
@@ -1106,8 +1128,6 @@ function GeneratePage() {
             variables={workingPrompt?.versions[0]?.variables ?? []}
             onChange={(name, value) => setVariableValues((current) => ({ ...current, [name]: value }))}
           />
-
-          <FormProgress completed={completedRequiredVariables} total={requiredVariables.length} label="Variables requises complétées" />
 
           {validationErrors.length > 0 ? (
             <div className="rounded-[1.75rem] border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] p-4 text-sm text-[#9b2f2f]" role="alert">
@@ -1159,11 +1179,11 @@ function GeneratePage() {
             <HistoryPanel history={history} setResultOutput={setResultOutput} setLastUsedProvider={setLastUsedProvider} />
 
             {showCompare && previousOutput ? (
-              <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
-                <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Compare</h3>
+              <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+                <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Compare</h3>
                 <div className="mt-4 grid gap-4 xl:grid-cols-2">
-                  <pre className="whitespace-pre-wrap rounded-[1.5rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-title)]">{previousOutput}</pre>
-                  <pre className="whitespace-pre-wrap rounded-[1.5rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-title)]">{displayOutput}</pre>
+                  <pre className="whitespace-pre-wrap rounded-[1.5rem] border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs text-[var(--sea-ink)]">{previousOutput}</pre>
+                  <pre className="whitespace-pre-wrap rounded-[1.5rem] border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs text-[var(--sea-ink)]">{displayOutput}</pre>
                 </div>
               </div>
             ) : null}
@@ -1257,41 +1277,41 @@ function ResultPanel({
   streamChunks: string[]
 }) {
   return (
-    <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
+    <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-lg font-semibold text-[var(--srg-text-title)]">Résultat</h2>
-        <span className="rounded-full bg-[var(--srg-surface-strong)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">{status}</span>
+        <h2 className="text-lg font-semibold text-[var(--sea-ink)]">Résultat</h2>
+        <span className="rounded-full bg-[var(--surface-strong)] px-3 py-1 text-xs text-[var(--sea-ink-soft)]">{status}</span>
       </div>
 
       <div className="grid gap-2 sm:grid-cols-3">
         <button
           type="button"
           onClick={() => setOutputFormat('markdown')}
-          className={`rounded-2xl px-3 py-2 text-sm font-semibold ${outputFormat === 'markdown' ? 'bg-[var(--srg-color-primary-500)] text-white' : 'bg-[var(--srg-surface-strong)] text-[var(--srg-text-title)]'}`}
+          className={`rounded-2xl px-3 py-2 text-sm font-semibold ${outputFormat === 'markdown' ? 'bg-[var(--lagoon-deep)] text-white' : 'bg-[var(--surface-strong)] text-[var(--sea-ink)]'}`}
         >
           Markdown
         </button>
         <button
           type="button"
           onClick={() => setOutputFormat('json')}
-          className={`rounded-2xl px-3 py-2 text-sm font-semibold ${outputFormat === 'json' ? 'bg-[var(--srg-color-primary-500)] text-white' : 'bg-[var(--srg-surface-strong)] text-[var(--srg-text-title)]'}`}
+          className={`rounded-2xl px-3 py-2 text-sm font-semibold ${outputFormat === 'json' ? 'bg-[var(--lagoon-deep)] text-white' : 'bg-[var(--surface-strong)] text-[var(--sea-ink)]'}`}
         >
           JSON
         </button>
         <button
           type="button"
           onClick={() => setOutputFormat('text')}
-          className={`rounded-2xl px-3 py-2 text-sm font-semibold ${outputFormat === 'text' ? 'bg-[var(--srg-color-primary-500)] text-white' : 'bg-[var(--srg-surface-strong)] text-[var(--srg-text-title)]'}`}
+          className={`rounded-2xl px-3 py-2 text-sm font-semibold ${outputFormat === 'text' ? 'bg-[var(--lagoon-deep)] text-white' : 'bg-[var(--surface-strong)] text-[var(--sea-ink)]'}`}
         >
           Text
         </button>
       </div>
 
-      <div className="mt-4 rounded-[1.75rem] border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+      <div className="mt-4 rounded-[1.75rem] border border-[var(--line)] bg-[var(--surface-strong)] p-4">
         {outputFormat === 'json' ? (
-          <pre className="whitespace-pre-wrap break-words text-sm text-[var(--srg-text-title)]">{jsonOutput}</pre>
+          <pre className="whitespace-pre-wrap break-words text-sm text-[var(--sea-ink)]">{jsonOutput}</pre>
         ) : (
-          <pre className="whitespace-pre-wrap break-words text-sm text-[var(--srg-text-title)]">{displayOutput || 'Aucun résultat pour le moment.'}</pre>
+          <pre className="whitespace-pre-wrap break-words text-sm text-[var(--sea-ink)]">{displayOutput || 'Aucun résultat pour le moment.'}</pre>
         )}
       </div>
 
@@ -1302,11 +1322,11 @@ function ResultPanel({
       ) : null}
 
       <div className="mt-4 grid gap-2 sm:grid-cols-3">
-        <button type="button" onClick={() => void handleCopy()} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Copy</button>
-        <button type="button" onClick={handleDownload} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Download</button>
-        <button type="button" onClick={() => void handleRetry()} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Retry</button>
-        <button type="button" onClick={() => setShowCompare((current) => !current)} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-title)]">{showCompare ? 'Hide Compare' : 'Compare'}</button>
-        <button type="button" onClick={handleSavePrompt} className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-title)]">Save</button>
+        <button type="button" onClick={() => void handleCopy()} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--sea-ink)]">Copy</button>
+        <button type="button" onClick={handleDownload} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--sea-ink)]">Download</button>
+        <button type="button" onClick={() => void handleRetry()} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--sea-ink)]">Retry</button>
+        <button type="button" onClick={() => setShowCompare((current) => !current)} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--sea-ink)]">{showCompare ? 'Hide Compare' : 'Compare'}</button>
+        <button type="button" onClick={handleSavePrompt} className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--sea-ink)]">Save</button>
         <button type="button" onClick={handleDeleteResult} className="rounded-2xl border border-[rgba(223,78,78,0.24)] bg-[rgba(223,78,78,0.08)] px-3 py-2 text-sm font-semibold text-[#9b2f2f]">Delete</button>
       </div>
 
@@ -1316,7 +1336,7 @@ function ResultPanel({
             type="button"
             onClick={handleStopStreaming}
             disabled={!isStreamingActive || isStreamingPaused}
-            className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-title)] disabled:opacity-50"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--sea-ink)] disabled:opacity-50"
           >
             Stop
           </button>
@@ -1324,11 +1344,11 @@ function ResultPanel({
             type="button"
             onClick={handleResumeStreaming}
             disabled={!isStreamingPaused}
-            className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-sm font-semibold text-[var(--srg-text-title)] disabled:opacity-50"
+            className="rounded-2xl border border-[var(--line)] bg-[var(--surface)] px-3 py-2 text-sm font-semibold text-[var(--sea-ink)] disabled:opacity-50"
           >
             Resume
           </button>
-          <span className="inline-flex items-center rounded-2xl bg-[var(--srg-surface-strong)] px-3 py-2 text-xs text-[var(--srg-text-muted)]">
+          <span className="inline-flex items-center rounded-2xl bg-[var(--surface-strong)] px-3 py-2 text-xs text-[var(--sea-ink-soft)]">
             Stream {Math.min(streamCursor, streamChunks.length)}/{streamChunks.length}
           </span>
         </div>
@@ -1376,34 +1396,34 @@ function ObservabilityPanel({
   generationDiagnostics: Array<{ id: string; severity: string; message: string; at: string }>
 }) {
   return (
-    <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
-      <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Observabilité</h3>
-      <div className="mt-4 grid gap-3 text-sm text-[var(--srg-text-muted)] sm:grid-cols-2">
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Durée:</span> {observability.durationMs} ms</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Provider:</span> {observability.provider}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Modèle:</span> {observability.model}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Coût observé:</span> ${observability.costEstimate.toFixed(6)}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Tokens:</span> {observability.tokensTotal}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Statut:</span> {observability.status}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Estimate credits:</span> {lastEstimateCredits.toFixed(2)}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Estimate cost:</span> ${lastEstimateCost.toFixed(4)}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Credits utilisateur:</span> {activeProfile?.credits ?? 0}</p>
-        <p><span className="font-semibold text-[var(--srg-text-title)]">Wallet utilisateur:</span> {activeProfile?.wallet ?? 0}</p>
+    <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+      <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Observabilité</h3>
+      <div className="mt-4 grid gap-3 text-sm text-[var(--sea-ink-soft)] sm:grid-cols-2">
+        <p><span className="font-semibold text-[var(--sea-ink)]">Durée:</span> {observability.durationMs} ms</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Provider:</span> {observability.provider}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Modèle:</span> {observability.model}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Coût observé:</span> ${observability.costEstimate.toFixed(6)}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Tokens:</span> {observability.tokensTotal}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Statut:</span> {observability.status}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Estimate credits:</span> {lastEstimateCredits.toFixed(2)}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Estimate cost:</span> ${lastEstimateCost.toFixed(4)}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Credits utilisateur:</span> {activeProfile?.credits ?? 0}</p>
+        <p><span className="font-semibold text-[var(--sea-ink)]">Wallet utilisateur:</span> {activeProfile?.wallet ?? 0}</p>
       </div>
 
       <div className="mt-5 grid gap-4 xl:grid-cols-3">
-        <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-muted)]">
-          <p className="mb-2 font-semibold text-[var(--srg-text-title)]">Timeline</p>
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs text-[var(--sea-ink-soft)]">
+          <p className="mb-2 font-semibold text-[var(--sea-ink)]">Timeline</p>
           {generationTimeline.length === 0 ? <p>Aucune entrée.</p> : generationTimeline.map((item) => <p key={item.id}>{item.action} · {item.status} · {new Date(item.at).toLocaleTimeString()}</p>)}
         </div>
 
-        <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-muted)]">
-          <p className="mb-2 font-semibold text-[var(--srg-text-title)]">Events</p>
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs text-[var(--sea-ink-soft)]">
+          <p className="mb-2 font-semibold text-[var(--sea-ink)]">Events</p>
           {generationEvents.length === 0 ? <p>Aucun event.</p> : generationEvents.map((item) => <p key={item.id}>{item.type} · {new Date(item.at).toLocaleTimeString()}</p>)}
         </div>
 
-        <div className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-muted)]">
-          <p className="mb-2 font-semibold text-[var(--srg-text-title)]">Diagnostics</p>
+        <div className="rounded-2xl border border-[var(--line)] bg-[var(--surface-strong)] p-3 text-xs text-[var(--sea-ink-soft)]">
+          <p className="mb-2 font-semibold text-[var(--sea-ink)]">Diagnostics</p>
           {generationDiagnostics.length === 0 ? <p>Aucun diagnostic.</p> : generationDiagnostics.map((item) => <p key={item.id}>{item.severity.toUpperCase()} · {item.message}</p>)}
         </div>
       </div>
@@ -1421,11 +1441,11 @@ function HistoryPanel({
   setLastUsedProvider: React.Dispatch<React.SetStateAction<string>>
 }) {
   return (
-    <div className="rounded-[2rem] border border-[var(--srg-border)] bg-[var(--srg-surface)] p-6 shadow-[var(--srg-shadow-md)]">
-      <h3 className="text-lg font-semibold text-[var(--srg-text-title)]">Historique local</h3>
+    <div className="rounded-[2rem] border border-[var(--line)] bg-[var(--surface)] p-6 shadow-[0_18px_34px_rgba(30,90,72,0.08)]">
+      <h3 className="text-lg font-semibold text-[var(--sea-ink)]">Historique local</h3>
       <div className="mt-4 space-y-3">
         {history.length === 0 ? (
-          <p className="text-sm text-[var(--srg-text-muted)]">Aucune génération enregistrée.</p>
+          <p className="text-sm text-[var(--sea-ink-soft)]">Aucune génération enregistrée.</p>
         ) : (
           history.slice(0, 10).map((entry) => (
             <button
@@ -1435,10 +1455,10 @@ function HistoryPanel({
                 setResultOutput(entry.output)
                 setLastUsedProvider(entry.provider)
               }}
-              className="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4 text-left"
+              className="w-full rounded-3xl border border-[var(--line)] bg-[var(--surface-strong)] p-4 text-left"
             >
-              <p className="text-sm font-semibold text-[var(--srg-text-title)]">{entry.promptName} <span className="font-normal text-[var(--srg-text-muted)]">[{entry.status}]</span></p>
-              <p className="mt-1 text-xs text-[var(--srg-text-muted)]">{entry.provider} / {entry.model} · {entry.durationMs} ms · {entry.tokensInput + entry.tokensOutput} tokens · est {entry.estimatedCredits ?? 0} cr / used {entry.creditsUsed ?? 0} cr</p>
+              <p className="text-sm font-semibold text-[var(--sea-ink)]">{entry.promptName} <span className="font-normal text-[var(--sea-ink-soft)]">[{entry.status}]</span></p>
+              <p className="mt-1 text-xs text-[var(--sea-ink-soft)]">{entry.provider} / {entry.model} · {entry.durationMs} ms · {entry.tokensInput + entry.tokensOutput} tokens · est {entry.estimatedCredits ?? 0} cr / used {entry.creditsUsed ?? 0} cr</p>
             </button>
           ))
         )}

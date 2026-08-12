@@ -1,6 +1,8 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import ConversationWorkspace from '#/app/components/conversation/ConversationWorkspace'
+import { getOrderedCategories } from '#/app/navigation/categoryCatalog'
+import type { CategoryIconKind } from '#/app/navigation/categoryCatalog'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { useConversationWorkspace } from '#/app/hooks/useConversationWorkspace'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
@@ -13,6 +15,8 @@ type WorkspaceNode = {
   name: string
   description?: string
   to?: string
+  categorySlug?: string
+  subcategorySlug?: string
   activity?: ActivityLevel
 }
 
@@ -28,8 +32,23 @@ type WorkspaceCategory = {
   items: WorkspaceNode[]
 }
 
-const OFFICIAL_SPACES: WorkspaceCategory[] = [
-  {
+const iconByCategoryKind: Record<CategoryIconKind, string> = {
+  finance: '💰',
+  hr: '👷',
+  operations: '🏗️',
+  knowledge: '📚',
+  automation: '⚙️',
+  governance: '🛡️',
+}
+
+const activityByOrder = (order: number): ActivityLevel => {
+  if (order === 1) return 'active'
+  if (order % 2 === 0) return 'watch'
+  return 'idle'
+}
+
+const createOfficialSpaces = (): WorkspaceCategory[] => {
+  const base: WorkspaceCategory = {
     id: 'favoris',
     icon: '⭐',
     name: 'Favoris',
@@ -39,213 +58,31 @@ const OFFICIAL_SPACES: WorkspaceCategory[] = [
     hidden: false,
     custom: false,
     items: [],
-  },
-  {
-    id: 'operations',
-    icon: '🏗️',
-    name: 'Operations',
-    description: 'Execution, maintenance, essais, livrables et supply chain.',
-    expanded: true,
+  }
+
+  const categories = getOrderedCategories().map((category, index) => ({
+    id: category.id,
+    icon: iconByCategoryKind[category.icon],
+    name: category.name,
+    description: category.description,
+    expanded: index === 0,
     pinned: false,
     hidden: false,
     custom: false,
-    items: [
-      { id: 'maintenance', icon: '🔧', name: 'Maintenance', description: 'CMMS et interventions.', to: '/maintenance', activity: 'active' },
-      { id: 'commissioning', icon: '⚙️', name: 'Commissioning', description: 'Mise en route et controle.', to: '/project-execution', activity: 'watch' },
-      { id: 'essais', icon: '🧪', name: 'Essais', description: 'Planification et validation.', to: '/project-execution', activity: 'idle' },
-      { id: 'mise-en-service', icon: '🏭', name: 'Mise en service', description: 'Go-live industriel.', to: '/project-execution', activity: 'watch' },
-      { id: 'rapports', icon: '📑', name: 'Rapports', description: 'Generer et centraliser.', to: '/generate', activity: 'watch' },
-      { id: 'devis', icon: '💵', name: 'Devis', description: 'Chiffrage client.', to: '/devis', activity: 'active' },
-      { id: 'planning', icon: '📅', name: 'Planning', description: 'Delais et jalons.', to: '/projects', activity: 'watch' },
-      { id: 'stocks', icon: '📦', name: 'Stocks', description: 'Inventaire et alertes.', to: '/procurement-inventory', activity: 'active' },
-      { id: 'logistique', icon: '🚚', name: 'Logistique', description: 'Flux et expeditions.', to: '/procurement-inventory', activity: 'watch' },
-      { id: 'fournisseurs', icon: '🤝', name: 'Fournisseurs', description: 'Pilotage partenaire.', to: '/finance-suppliers', activity: 'idle' },
-      { id: 'clients-op', icon: '👥', name: 'Clients', description: 'Execution cote client.', to: '/finance-customers', activity: 'watch' },
-    ],
-  },
-  {
-    id: 'hr',
-    icon: '👷',
-    name: 'Ressources Humaines',
-    description: 'Employes, paie, conges, competences et recrutements.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'employees', icon: '👤', name: 'Employes', to: '/employees', activity: 'watch' },
-      { id: 'attendance', icon: '⏱️', name: 'Pointage', to: '/attendance', activity: 'active' },
-      { id: 'codes-affaires', icon: '🏷️', name: 'Codes d\'affaires', to: '/organization', activity: 'idle' },
-      { id: 'leaves', icon: '📅', name: 'Conges', to: '/leaves', activity: 'watch' },
-      { id: 'payroll', icon: '💰', name: 'Paie', to: '/payroll', activity: 'active' },
-      { id: 'trainings', icon: '🎓', name: 'Formations', to: '/trainings', activity: 'watch' },
-      { id: 'evaluations', icon: '📈', name: 'Evaluations', to: '/evaluations', activity: 'idle' },
-    ],
-  },
-  {
-    id: 'finance',
-    icon: '💰',
-    name: 'Finance',
-    description: 'Comptabilite, facturation, paiements, budget et tresorerie.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'accounting', icon: '📒', name: 'Comptabilite', to: '/accounting', activity: 'active' },
-      { id: 'facturation', icon: '🧾', name: 'Facturation', to: '/finance', activity: 'watch' },
-      { id: 'payments', icon: '💳', name: 'Paiements', to: '/treasury', activity: 'watch' },
-      { id: 'budgets', icon: '📊', name: 'Budgets', to: '/finance-budgets', activity: 'active' },
-      { id: 'tresorerie', icon: '💹', name: 'Tresorerie', to: '/treasury', activity: 'active' },
-    ],
-  },
-  {
-    id: 'meetings',
-    icon: '👥',
-    name: 'Reunions',
-    description: 'Preparation, compte rendu, actions et decisions.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'reunion-ia', icon: '🎙️', name: 'Reunion IA', to: '/chat', activity: 'watch' },
-      { id: 'comptes-rendus', icon: '📝', name: 'Comptes rendus', to: '/reviews', activity: 'watch' },
-      { id: 'plans-action', icon: '✅', name: 'Plans d\'action', to: '/workflow-automation', activity: 'active' },
-      { id: 'decisions', icon: '📌', name: 'Decisions', to: '/enterprise-insights', activity: 'active' },
-    ],
-  },
-  {
-    id: 'documents',
-    icon: '📄',
-    name: 'Documents',
-    description: 'Rapports, contrats, procedures et courriers.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'docs-rapports', icon: '📁', name: 'Rapports', to: '/knowledge-center', activity: 'watch' },
-      { id: 'contrats', icon: '📃', name: 'Contrats', to: '/prompt-templates', activity: 'watch' },
-      { id: 'procedures', icon: '📚', name: 'Procedures', to: '/knowledge-center', activity: 'idle' },
-      { id: 'courriers', icon: '✉️', name: 'Courriers', to: '/history', activity: 'idle' },
-    ],
-  },
-  {
-    id: 'knowledge',
-    icon: '📚',
-    name: 'Knowledge Center',
-    description: 'Normes, guides, documentation, FAQ et historique.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'normes', icon: '📖', name: 'Normes', to: '/knowledge-center', activity: 'watch' },
-      { id: 'guides', icon: '📘', name: 'Guides', to: '/knowledge-center', activity: 'watch' },
-      { id: 'documentation', icon: '📗', name: 'Documentation', to: '/knowledge-intelligence', activity: 'active' },
-      { id: 'faq', icon: '❓', name: 'FAQ', to: '/about', activity: 'idle' },
-      { id: 'historique', icon: '🗄️', name: 'Historique', to: '/history', activity: 'active' },
-    ],
-  },
-  {
-    id: 'analyses',
-    icon: '📊',
-    name: 'Analyses',
-    description: 'KPI, insights, previsions et tableaux de bord.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'kpi', icon: '📈', name: 'KPI', to: '/dashboard', activity: 'active' },
-      { id: 'enterprise-insights', icon: '🧠', name: 'Enterprise Insights', to: '/enterprise-insights', activity: 'active' },
-      { id: 'previsions', icon: '📉', name: 'Previsions', to: '/strategic-advisor', activity: 'watch' },
-      { id: 'tableaux-bord', icon: '📋', name: 'Tableaux de bord', to: '/observability', activity: 'watch' },
-    ],
-  },
-  {
-    id: 'automation',
-    icon: '⚙️',
-    name: 'Automatisation',
-    description: 'Agents IA, workflows, prompts et templates.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'agents-ia', icon: '🤖', name: 'Agents IA', to: '/agents', activity: 'active' },
-      { id: 'workflows', icon: '🔄', name: 'Workflows', to: '/workflow-automation', activity: 'active' },
-      { id: 'prompt-studio', icon: '🧩', name: 'Prompt Studio', to: '/prompt-studio', activity: 'watch' },
-      { id: 'templates', icon: '📦', name: 'Templates', to: '/prompt-templates', activity: 'watch' },
-    ],
-  },
-  {
-    id: 'crm',
-    icon: '🤝',
-    name: 'CRM',
-    description: 'Prospects, clients et contrats.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'prospects', icon: '👥', name: 'Prospects', to: '/chat', activity: 'watch' },
-      { id: 'clients-crm', icon: '🤝', name: 'Clients', to: '/finance-customers', activity: 'watch' },
-      { id: 'contracts-crm', icon: '📑', name: 'Contrats', to: '/hr-contracts', activity: 'idle' },
-    ],
-  },
-  {
-    id: 'admin',
-    icon: '🛡️',
-    name: 'Administration',
-    description: 'Utilisateurs, roles, API et connecteurs.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'users', icon: '👤', name: 'Utilisateurs', to: '/administration', activity: 'watch' },
-      { id: 'roles', icon: '🔑', name: 'Roles', to: '/administration', activity: 'watch' },
-      { id: 'api', icon: '🔌', name: 'API', to: '/providers', activity: 'active' },
-      { id: 'connecteurs', icon: '🌐', name: 'Connecteurs', to: '/settings', activity: 'watch' },
-    ],
-  },
-  {
-    id: 'pages',
-    icon: '🌍',
-    name: 'Pages',
-    description: 'Contenus publics et institutionnels.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'notre-histoire', icon: '📖', name: 'Notre histoire', to: '/about', activity: 'idle' },
-      { id: 'blog', icon: '📰', name: 'Blog', to: '/about', activity: 'idle' },
-      { id: 'documentation-pages', icon: '📚', name: 'Documentation', to: '/knowledge-center', activity: 'watch' },
-      { id: 'faq-pages', icon: '❓', name: 'FAQ', to: '/about', activity: 'idle' },
-      { id: 'contact', icon: '📞', name: 'Contact', to: '/about', activity: 'idle' },
-    ],
-  },
-  {
-    id: 'settings',
-    icon: '⚙️',
-    name: 'Parametres',
-    description: 'Apparence, entreprise, langues, notifications et personnalisation.',
-    expanded: false,
-    pinned: false,
-    hidden: false,
-    custom: false,
-    items: [
-      { id: 'appearance', icon: '🎨', name: 'Apparence', to: '/settings', activity: 'watch' },
-      { id: 'enterprise', icon: '🏢', name: 'Entreprise', to: '/settings', activity: 'watch' },
-      { id: 'languages', icon: '🌍', name: 'Langues', to: '/settings', activity: 'watch' },
-      { id: 'notifications', icon: '🔔', name: 'Notifications', to: '/settings', activity: 'active' },
-      { id: 'personnalisation', icon: '🧩', name: 'Personnalisation', to: '/settings', activity: 'watch' },
-    ],
-  },
-]
+    items: category.subcategories.map((subcategory) => ({
+      id: `${category.id}-${subcategory.id}`,
+      icon: '•',
+      name: subcategory.label,
+      description: `Conversation contextualisee ${category.name} / ${subcategory.label}.`,
+      categorySlug: category.id,
+      subcategorySlug: subcategory.id,
+      to: subcategory.targetPath,
+      activity: activityByOrder(subcategory.order),
+    })),
+  }))
+
+  return [base, ...categories]
+}
 
 const activityClass: Record<ActivityLevel, string> = {
   active: 'bg-emerald-500',
@@ -262,11 +99,12 @@ function BusinessSpacesPage() {
   const business = useBusiness()
   const { allConversations, refresh } = useConversationWorkspace()
 
-  const [categories, setCategories] = useState<WorkspaceCategory[]>(OFFICIAL_SPACES)
+  const [categories, setCategories] = useState<WorkspaceCategory[]>(() => createOfficialSpaces())
   const [favoriteItems, setFavoriteItems] = useState<string[]>([])
   const [showConversation, setShowConversation] = useState(true)
   const [newCategory, setNewCategory] = useState('')
   const [selectedNodeId, setSelectedNodeId] = useState<string>('')
+  const [draggedItem, setDraggedItem] = useState<{ categoryId: string; itemId: string } | null>(null)
 
   const flattenedItems = useMemo(
     () => categories.flatMap((category) => category.items.map((item) => ({ categoryId: category.id, categoryName: category.name, item }))),
@@ -383,6 +221,22 @@ function BusinessSpacesPage() {
     )
   }
 
+  const moveItemInsideCategory = (categoryId: string, sourceItemId: string, targetItemId: string) => {
+    if (sourceItemId === targetItemId) return
+    setCategories((current) =>
+      current.map((category) => {
+        if (category.id !== categoryId) return category
+        const sourceIndex = category.items.findIndex((item) => item.id === sourceItemId)
+        const targetIndex = category.items.findIndex((item) => item.id === targetItemId)
+        if (sourceIndex < 0 || targetIndex < 0) return category
+        const nextItems = [...category.items]
+        const [picked] = nextItems.splice(sourceIndex, 1)
+        nextItems.splice(targetIndex, 0, picked)
+        return { ...category, items: nextItems }
+      }),
+    )
+  }
+
   const openSpecializedConversation = (categoryName: string, item: WorkspaceNode) => {
     setSelectedNodeId(item.id)
     const title = `${categoryName} · ${item.name}`
@@ -396,6 +250,17 @@ function BusinessSpacesPage() {
 
     refresh()
     setShowConversation(true)
+
+    if (item.categorySlug && item.subcategorySlug) {
+      navigate({
+        to: '/conversation/$categorySlug/$subcategorySlug',
+        params: {
+          categorySlug: item.categorySlug,
+          subcategorySlug: item.subcategorySlug,
+        },
+      })
+      return
+    }
 
     if (item.to && item.to !== '/chat') {
       navigate({ to: item.to as never })
@@ -532,11 +397,28 @@ function BusinessSpacesPage() {
                         Cette categorie est vide. Ajoutez des sous-categories personnalisees.
                       </p>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="overflow-x-auto pb-2">
+                        <div className="flex min-w-max gap-2">
                         {category.items.map((item) => (
                           <div
                             key={item.id}
-                            className={`srg-space-row flex items-center gap-3 rounded-xl border px-3 py-2 ${selectedNodeId === item.id ? 'border-[#2f5fd4] bg-[#edf4ff]' : 'border-[#dce7fb] bg-[#f9fbff]'}`}
+                            draggable
+                            onDragStart={(event) => {
+                              setDraggedItem({ categoryId: category.id, itemId: item.id })
+                              event.dataTransfer.effectAllowed = 'move'
+                            }}
+                            onDragOver={(event) => {
+                              event.preventDefault()
+                              event.dataTransfer.dropEffect = 'move'
+                            }}
+                            onDrop={(event) => {
+                              event.preventDefault()
+                              if (!draggedItem || draggedItem.categoryId !== category.id) return
+                              moveItemInsideCategory(category.id, draggedItem.itemId, item.id)
+                              setDraggedItem(null)
+                            }}
+                            onDragEnd={() => setDraggedItem(null)}
+                            className={`srg-space-row flex w-[16.5rem] shrink-0 items-center gap-3 rounded-xl border px-3 py-2 ${selectedNodeId === item.id ? 'border-[#2f5fd4] bg-[#edf4ff]' : 'border-[#dce7fb] bg-[#f9fbff]'}`}
                           >
                             <button
                               type="button"
@@ -559,6 +441,7 @@ function BusinessSpacesPage() {
                             </button>
                           </div>
                         ))}
+                        </div>
                       </div>
                     )}
                   </div>
