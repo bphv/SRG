@@ -3,6 +3,7 @@ import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
+import { SubscriptionCounterService } from '#/app/services/SubscriptionCounterService'
 import type { AccountStatus, FeatureFlagKey, UserRole } from '#/app/services/business/BusinessFoundationService'
 
 export const Route = createFileRoute('/administration')({
@@ -790,6 +791,93 @@ function AdministrationPage() {
               <p>Plans: {snapshot.subscriptionPlans.map((plan) => plan.name).join(', ')}</p>
               <p>Providers de paiement (abstraction): Stripe, Flutterwave, PayPal, CinetPay, Orange Money, MTN Mobile Money</p>
               <p>Invoices: {snapshot.invoices.length} · Payments: {snapshot.payments.length} · Licenses: {snapshot.licenses.length}</p>
+            </div>
+
+            {/* ADMIN — Gestion des abonnements : compteur + actions auditees */}
+            <div className="mt-6 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-4">
+              <p className="font-semibold text-[var(--srg-text-title)]">Gestion Admin des Abonnements</p>
+              <p className="mt-1 text-xs text-[var(--srg-text-muted)]">
+                Compteur derive de renewalAt - now. Actions reservees aux SuperAdmin/Admin. Audit automatique (logs/events/traces).
+                Le frontend utilisateur ne peut jamais modifier un abonnement.
+              </p>
+
+              <div className="mt-4 overflow-x-auto">
+                <table className="w-full min-w-[700px] text-left text-xs">
+                  <thead>
+                    <tr className="border-b border-[var(--srg-border)] text-[var(--srg-text-muted)]">
+                      <th className="px-2 py-2">Utilisateur</th>
+                      <th className="px-2 py-2">Plan</th>
+                      <th className="px-2 py-2">Debut</th>
+                      <th className="px-2 py-2">Expiration</th>
+                      <th className="px-2 py-2">Statut</th>
+                      <th className="px-2 py-2">Jours restants</th>
+                      <th className="px-2 py-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {SubscriptionCounterService.listAllCounters().map((counter) => {
+                      const user = snapshot.users.find((item) => item.id === counter.userId)
+                      return (
+                        <tr key={counter.subscriptionId} className="border-b border-[var(--srg-border)]">
+                          <td className="px-2 py-2 font-semibold text-[var(--srg-text-title)]">{user?.username ?? counter.userId}</td>
+                          <td className="px-2 py-2">{counter.planName}</td>
+                          <td className="px-2 py-2">{SubscriptionCounterService.formatStartDate(counter.startedAt)}</td>
+                          <td className="px-2 py-2">{SubscriptionCounterService.formatRenewalDate(counter.renewalAt)}</td>
+                          <td className="px-2 py-2">
+                            <span className={`rounded-full px-2 py-1 font-semibold ${counter.status === 'active' ? 'bg-[rgba(46,164,122,0.12)] text-[#1a6b4a]' : counter.status === 'paused' ? 'bg-[rgba(230,168,67,0.16)] text-[#8a5a10]' : 'bg-[rgba(223,78,78,0.12)] text-[#9b2f2f]'}`}>
+                              {counter.status}
+                            </span>
+                          </td>
+                          <td className="px-2 py-2">
+                            <span className={`font-semibold ${counter.isExpired ? 'text-[#9b2f2f]' : counter.isExpiringSoon ? 'text-[#8a5a10]' : 'text-[#1a6b4a]'}`}>
+                              {counter.label}
+                            </span>
+                          </td>
+                          <td className="px-2 py-2">
+                            <div className="flex flex-wrap gap-1">
+                              <button
+                                type="button"
+                                onClick={() => { SubscriptionCounterService.adminExtend(counter.userId, actingAdminId, 30); business.refresh() }}
+                                className="rounded-xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-2 py-1 text-xs"
+                                title="Prolonger de 30 jours"
+                              >
+                                +30j
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { SubscriptionCounterService.adminReduce(counter.userId, actingAdminId, 7); business.refresh() }}
+                                className="rounded-xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-2 py-1 text-xs"
+                                title="Reduire de 7 jours"
+                              >
+                                -7j
+                              </button>
+                              {counter.status === 'active' ? (
+                                <button
+                                  type="button"
+                                  onClick={() => { SubscriptionCounterService.adminSuspend(counter.userId, actingAdminId, 'Suspendu par admin'); business.refresh() }}
+                                  className="rounded-xl border border-[rgba(230,168,67,0.4)] bg-[rgba(230,168,67,0.12)] px-2 py-1 text-xs text-[#8a5a10]"
+                                  title="Suspendre l'abonnement"
+                                >
+                                  Suspendre
+                                </button>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() => { SubscriptionCounterService.adminReactivate(counter.userId, actingAdminId); business.refresh() }}
+                                  className="rounded-xl border border-[rgba(46,164,122,0.4)] bg-[rgba(46,164,122,0.12)] px-2 py-1 text-xs text-[#1a6b4a]"
+                                  title="Reacter l'abonnement"
+                                >
+                                  Reactiver
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      )
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </Section>
 

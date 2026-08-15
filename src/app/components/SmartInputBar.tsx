@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import Button from '#/app/components/ui/Button'
 import { notificationService } from '#/app/services/NotificationService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
+import { useVoiceAssistant } from '#/app/hooks/useVoiceAssistant'
 
 export type SmartInputMode = 'search' | 'conversation' | 'command' | 'text'
 
@@ -137,6 +138,41 @@ export default function SmartInputBar({
   const recentDocuments = useMemo(() => filesPlaceholder.slice(0, 4), [filesPlaceholder])
   const [microphoneStatus, setMicrophoneStatus] = useState<AudioTestStatus>('idle')
   const [speakerStatus, setSpeakerStatus] = useState<AudioTestStatus>('idle')
+
+  // Ask SRG vocal : Speech Recognition -> texte -> pipeline existant (submitValue).
+  const voiceAssistant = useVoiceAssistant({ language })
+  const voiceTranscriptRef = useRef('')
+
+  // Lorsque la reconnaissance vocale produit un resultat final, on l'injecte
+  // dans l'input puis on le soumet via le pipeline existant.
+  useEffect(() => {
+    if (!voiceAssistant.lastTranscript) return
+    if (voiceTranscriptRef.current === voiceAssistant.lastTranscript) return
+    voiceTranscriptRef.current = voiceAssistant.lastTranscript
+    updateValue(voiceAssistant.lastTranscript)
+    submitValue(voiceAssistant.lastTranscript)
+    voiceAssistant.resetTranscripts()
+  }, [voiceAssistant.lastTranscript])
+
+  const voiceButtonLabel = voiceAssistant.isListening
+    ? 'Ecoute...'
+    : voiceAssistant.isProcessing
+      ? 'Traitement...'
+      : voiceAssistant.isSpeaking
+        ? 'SRG repond...'
+        : 'Voix'
+
+  const toggleVoiceAssistant = () => {
+    if (voiceAssistant.isListening) {
+      voiceAssistant.stopListening()
+      return
+    }
+    if (voiceAssistant.isSpeaking) {
+      voiceAssistant.stopSpeaking()
+      return
+    }
+    voiceAssistant.startListening({ language })
+  }
 
   useEffect(() => {
     if (value !== undefined && value !== internalValue) {
@@ -546,6 +582,18 @@ export default function SmartInputBar({
 
         {!compact ? (
           <>
+            <Button
+              type="button"
+              variant={voiceAssistant.isListening ? 'primary' : 'secondary'}
+              size="sm"
+              onClick={toggleVoiceAssistant}
+              aria-label="Ask SRG vocal"
+              aria-pressed={voiceAssistant.isListening}
+              title={voiceAssistant.recognitionAvailable ? 'Ask SRG vocal' : 'Reconnaissance vocale non disponible sur ce navigateur'}
+            >
+              <span aria-hidden>{voiceAssistant.isListening ? '🔴' : '🎙️'}</span>
+              <span className="hidden md:inline">{voiceButtonLabel}</span>
+            </Button>
             <Button type="button" variant="secondary" size="sm" onClick={() => { void toggleMicrophone() }} aria-label="Microphone">
               <span aria-hidden>🎤</span>
               <span className="hidden md:inline">Micro ({microphoneStatus})</span>

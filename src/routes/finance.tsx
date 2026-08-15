@@ -1,6 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
+import UniversalFilter from '#/app/components/UniversalFilter'
 import FinanceWorkspace from '#/app/components/finance/FinanceWorkspace'
 import { FinanceWorkspaceService } from '#/app/services/FinanceWorkspaceService'
 import { ProcurementInventoryWorkspaceService } from '#/app/services/ProcurementInventoryWorkspaceService'
@@ -10,14 +12,52 @@ export const Route = createFileRoute('/finance')({
   component: FinancePage,
 })
 
+const FINANCE_VIEW_SUGGESTIONS = [
+  'overview',
+  'accounting',
+  'treasury',
+  'customers',
+  'suppliers',
+  'budgets',
+  'management-control',
+]
+
 function FinancePage() {
   const finance = FinanceWorkspaceService.getSummary()
   const procurement = ProcurementInventoryWorkspaceService.getSummary()
   const projects = ProjectExecutionWorkspaceService.getSummary()
+  const [filterQuery, setFilterQuery] = useState('')
+
+  const matchedViews = useMemo(() => {
+    const normalized = filterQuery.trim().toLowerCase()
+    if (!normalized) return FINANCE_VIEW_SUGGESTIONS
+    return FINANCE_VIEW_SUGGESTIONS.filter((view) => view.toLowerCase().includes(normalized))
+  }, [filterQuery])
 
   return (
     <div className="space-y-6">
       <PageHeader title="Finance Workspace" description="Enterprise Accounting, Finance and Management Control." />
+
+      {/* Filtre universel : filtre local des vues Finance, contexte page preserve */}
+      <UniversalFilter
+        persistKey="route-finance"
+        placeholder="Filtrer les vues Finance (accounting, treasury, customers...)"
+        ariaLabel="Filtre des vues Finance"
+        value={filterQuery}
+        onValueChange={setFilterQuery}
+        suggestions={FINANCE_VIEW_SUGGESTIONS}
+        resultCountLabel={`${matchedViews.length} vue${matchedViews.length > 1 ? 's' : ''} Finance correspondante${matchedViews.length > 1 ? 's' : ''}`}
+      />
+
+      {matchedViews.length > 0 && filterQuery.trim() ? (
+        <div className="flex flex-wrap gap-2">
+          {matchedViews.map((view) => (
+            <span key={view} className="rounded-full border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-3 py-1 text-xs text-[var(--srg-text-muted)]">
+              {view}
+            </span>
+          ))}
+        </div>
+      ) : null}
 
       <Section title="Elements associes" description="Liens Finance ↔ Procurement ↔ Projects sans recalcul metier.">
         <div className="grid gap-3 md:grid-cols-3 text-sm">

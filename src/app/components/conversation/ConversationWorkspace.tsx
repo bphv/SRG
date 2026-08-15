@@ -1,9 +1,10 @@
 import { Link } from '@tanstack/react-router'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import EmptyState from '#/app/components/EmptyState'
 import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { useConversationWorkspace } from '#/app/hooks/useConversationWorkspace'
+import { useVoiceAssistant } from '#/app/hooks/useVoiceAssistant'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
 import type { ConversationAttachment, ConversationMessage, ConversationRecord, ConversationRole } from '#/app/services/ConversationWorkspaceService'
@@ -69,6 +70,33 @@ export default function ConversationWorkspace() {
 
   const selectedStats = activeConversation ? ConversationWorkspaceService.getStatistics(activeConversation) : null
   const compared = useMemo(() => allConversations.filter((item) => compareIds.includes(item.id)).slice(0, 2), [allConversations, compareIds])
+
+  // Ask SRG vocal : Speech Recognition -> draft -> sendMessage (pipeline existant).
+  const voiceAssistant = useVoiceAssistant()
+  const voiceTranscriptRef = useState({ last: '' })[0]
+
+  // Lorsque la reconnaissance vocale produit un resultat final, on l'injecte
+  // dans le draft puis on envoie via le pipeline existant.
+  useEffect(() => {
+    if (!activeConversation) return
+    if (!voiceAssistant.lastTranscript) return
+    if (voiceTranscriptRef.last === voiceAssistant.lastTranscript) return
+    voiceTranscriptRef.last = voiceAssistant.lastTranscript
+    ConversationWorkspaceService.setDraft(activeConversation.id, voiceAssistant.lastTranscript)
+    ConversationWorkspaceService.sendMessage(activeConversation.id)
+    voiceAssistant.resetTranscripts()
+    refresh()
+  }, [voiceAssistant.lastTranscript])
+
+  // Derniere reponse assistant pour lecture vocale.
+  const lastAssistantMessage = activeConversation
+    ? [...activeConversation.messages].reverse().find((message) => message.role === 'assistant' && message.status === 'completed')
+    : undefined
+
+  const speakLastResponse = () => {
+    if (!lastAssistantMessage) return
+    voiceAssistant.speak(lastAssistantMessage.content)
+  }
 
   const send = () => {
     if (!activeConversation) return
@@ -280,12 +308,62 @@ export default function ConversationWorkspace() {
                     <button type="button" onClick={() => { ConversationWorkspaceService.undoDraft(activeConversation.id); refresh() }} className="rounded-2xl border border-[var(--srg-border)] px-3 py-2 text-xs">Undo</button>
                     <button type="button" onClick={() => { ConversationWorkspaceService.redoDraft(activeConversation.id); refresh() }} className="rounded-2xl border border-[var(--srg-border)] px-3 py-2 text-xs">Redo</button>
                     <button type="button" onClick={send} className="rounded-2xl bg-[var(--srg-color-primary-500)] px-3 py-2 text-xs font-semibold text-white">Send</button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (voiceAssistant.isListening) {
+                          voiceAssistant.stopListening()
+                        } else if (voiceAssistant.isSpeaking) {
+                          voiceAssistant.stopSpeaking()
+                        } else {
+                          voiceAssistant.startListening()
+                        }
+                      }}
+                      aria-label="Ask SRG vocal"
+                      aria-pressed={voiceAssistant.isListening}
+                      title={voiceAssistant.recognitionAvailable ? 'Dicter un message' : 'Reconnaissance vocale non disponible sur ce navigateur'}
+                      className={`rounded-2xl px-3 py-2 text-xs font-semibold ${voiceAssistant.isListening ? 'bg-[var(--srg-color-primary-500)] text-white' : 'border border-[var(--srg-border)]'}`}
+                    >
+                      {voiceAssistant.isListening ? '🔴 Ecoute...' : voiceAssistant.isProcessing ? '⏳ Traitement...' : voiceAssistant.isSpeaking ? '🔊 SRG repond...' : '🎙️ Voix'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={speakLastResponse}
+                      disabled={!lastAssistantMessage || !voiceAssistant.synthesisAvailable}
+                      title={voiceAssistant.synthesisAvailable ? 'Lire la derniere reponse' : 'Voix non disponible sur cet appareil/navigateur'}
+                      className="rounded-2xl border border-[var(--srg-border)] px-3 py-2 text-xs disabled:opacity-40"
+                    >
+                      🔊 Lire la reponse
+                    </button>
                     <button type="button" onClick={() => { ConversationWorkspaceService.setDraft(activeConversation.id, `${activeConversation.draft}\nContinue.`); ConversationWorkspaceService.sendMessage(activeConversation.id); refresh() }} className="rounded-2xl border border-[var(--srg-border)] px-3 py-2 text-xs">Continue</button>
                     <button type="button" onClick={() => { ConversationWorkspaceService.retryLastAssistant(activeConversation.id); refresh() }} className="rounded-2xl border border-[var(--srg-border)] px-3 py-2 text-xs">Regenerate</button>
                     <label className="rounded-2xl border border-[var(--srg-border)] px-3 py-2 text-xs">
                       Attachments
                       <input type="file" className="hidden" onChange={(event) => { const file = event.target.files?.[0]; if (file) onAttach(file); event.target.value = '' }} />
                     </label>
+                  </div>
+
+                  <div className="mt-3 flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs text-[var(--srg-text-muted)]">
+                    <span className="font-semibold text-[var(--srg-text-title)]">Reponse vocale</span>
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={voiceAssistant.voiceResponseEnabled}
+                      onClick={() => voiceAssistant.setVoiceResponseEnabled(!voiceAssistant.voiceResponseEnabled)}
+                      className={`rounded-full px-3 py-1 font-semibold ${voiceAssistant.voiceResponseEnabled ? 'bg-[var(--srg-color-primary-500)] text-white' : 'border border-[var(--srg-border)]'}`}
+                    >
+                      {voiceAssistant.voiceResponseEnabled ? 'ON' : 'OFF'}
+                    </button>
+                    <span>
+                      {voiceAssistant.synthesisAvailable ? 'Voix disponible' : 'Voix non disponible sur cet appareil/navigateur'}
+                    </span>
+                    {voiceAssistant.isSpeaking ? (
+                      <>
+                        <button type="button" onClick={voiceAssistant.stopSpeaking} className="rounded-xl border border-[var(--srg-border)] px-2 py-1">Couper</button>
+                        <button type="button" onClick={voiceAssistant.pauseSpeaking} className="rounded-xl border border-[var(--srg-border)] px-2 py-1">Pause</button>
+                        <button type="button" onClick={voiceAssistant.resumeSpeaking} className="rounded-xl border border-[var(--srg-border)] px-2 py-1">Reprendre</button>
+                      </>
+                    ) : null}
                   </div>
 
                   <div className="mt-3 rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-3 text-xs text-[var(--srg-text-muted)]">

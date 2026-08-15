@@ -213,6 +213,16 @@ export class AuthAccountService {
     }
   }
 
+  /**
+   * Règle d'administration SRG : le compte "srgadmin" associé au nom
+   * "BIYAGA Philippe Vincent" est créé comme SuperAdmin approuvé.
+   */
+  private isSrgAdminAccount(personal: RegistrationPersonalStep): boolean {
+    const username = personal.username.trim().toLowerCase()
+    const fullName = `${personal.firstName.trim()} ${personal.lastName.trim()}`.toLowerCase()
+    return username === 'srgadmin' && fullName.includes('biyaga') && fullName.includes('philippe')
+  }
+
   registerFromWizard(input: RegistrationWizardInput): UserIdentity {
     const step1 = this.validateStep1(input.personal)
     if (!step1.isValid) {
@@ -253,13 +263,15 @@ export class AuthAccountService {
       teamId = team.id
     }
 
+    const isAdminAccount = this.isSrgAdminAccount(input.personal)
+
     const context = this.orchestrator.createAccount({
       username: input.personal.username.trim(),
       phone: input.personal.phone.trim(),
       email: input.personal.email?.trim(),
       password: input.security.password,
-      role: 'User',
-      accountStatus: 'PENDING_APPROVAL',
+      role: isAdminAccount ? 'SuperAdmin' : 'User',
+      accountStatus: isAdminAccount ? 'APPROVED' : 'PENDING_APPROVAL',
       profile: {
         firstName: input.personal.firstName,
         lastName: input.personal.lastName,

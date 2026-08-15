@@ -11,6 +11,7 @@ import { useNotifications } from '#/app/hooks/useNotifications'
 import { useTheme } from '#/app/hooks/useTheme'
 import { useBreadcrumb } from '#/app/hooks/useBreadcrumb'
 import { useBusiness } from '#/app/hooks/useBusiness'
+import { SubscriptionCounterService } from '#/app/services/SubscriptionCounterService'
 import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferencesService'
 
 const NotificationCenter = lazy(() => import('#/app/components/NotificationCenter'))
@@ -310,6 +311,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               <p className="font-semibold text-[var(--srg-text-title)]">{tenant.activeUser}</p>
               <p>{tenant.activeEnterprise}</p>
               <p className="mt-1">Tenant: {tenant.tenantId}</p>
+              {(() => {
+                const userId = business.currentSession?.userId
+                if (!userId) return null
+                const counter = SubscriptionCounterService.getCounter(userId)
+                if (!counter) return null
+                return (
+                  <p
+                    className={`mt-2 rounded-xl px-2 py-1 font-semibold ${counter.isExpired ? 'bg-[rgba(223,78,78,0.12)] text-[#9b2f2f]' : counter.isExpiringSoon ? 'bg-[rgba(230,168,67,0.16)] text-[#8a5a10]' : 'bg-[rgba(46,164,122,0.12)] text-[#1a6b4a]'}`}
+                    title={`Plan ${counter.planName} • Debut: ${SubscriptionCounterService.formatStartDate(counter.startedAt)} • Renouvellement: ${SubscriptionCounterService.formatRenewalDate(counter.renewalAt)}`}
+                  >
+                    {counter.planName} • {counter.label}
+                  </p>
+                )
+              })()}
             </div>
             <button
               type="button"

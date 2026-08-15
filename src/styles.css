@@ -1455,3 +1455,193 @@ a {
   }
 }
 
+/* ============================================================
+   SRG PREMIUM DESIGN — Motifs réutilisables (Phase 4)
+   Classes utilitaires premium pour habiller les pages sans
+   casser les fonctionnalités existantes.
+   ============================================================ */
+
+/* Carte premium avec dégradé subtil et ombre douce */
+.srg-card-premium {
+  position: relative;
+  overflow: hidden;
+  border-radius: 1.5rem;
+  border: 1px solid var(--srg-border, var(--line));
+  background: linear-gradient(
+    135deg,
+    var(--srg-surface-strong, var(--surface-strong)) 0%,
+    var(--srg-surface, var(--surface)) 100%
+  );
+  box-shadow:
+    0 4px 24px rgba(23, 58, 64, 0.08),
+    inset 0 1px 0 var(--inset-glint, rgba(255, 255, 255, 0.82));
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.srg-card-premium:hover {
+  box-shadow:
+    0 8px 32px rgba(23, 58, 64, 0.12),
+    inset 0 1px 0 var(--inset-glint, rgba(255, 255, 255, 0.82));
+  transform: translateY(-2px);
+}
+
+/* Bande décorative premium (accent doré/navy) */
+.srg-card-premium::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    var(--srg-official-gold, oklch(0.78 0.14 80)) 0%,
+    var(--srg-color-primary-500, var(--srg-official-navy)) 50%,
+    var(--srg-official-gold, oklch(0.78 0.14 80)) 100%
+  );
+  opacity: 0.85;
+}
+
+/* En-tête de section premium */
+.srg-section-premium {
+  position: relative;
+  padding: 1.5rem;
+  border-radius: 1.5rem;
+  border: 1px solid var(--srg-border, var(--line));
+  background: var(--srg-surface, var(--surface));
+}
+
+.srg-section-premium > .srg-section-title {
+  font-family: "Fraunces", serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--srg-text-title, var(--srg-official-foreground));
+  letter-spacing: -0.01em;
+}
+
+/* Badge statut premium */
+.srg-badge-premium {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid var(--chip-line, rgba(47, 106, 74, 0.18));
+  background: var(--chip-bg, rgba(255, 255, 255, 0.8));
+  color: var(--srg-text-title, var(--srg-official-foreground));
+}
+
+.srg-badge-premium--success {
+  border-color: rgba(46, 164, 122, 0.4);
+  background: rgba(46, 164, 122, 0.12);
+  color: #1a6b4a;
+}
+
+.srg-badge-premium--warning {
+  border-color: rgba(230, 168, 67, 0.4);
+  background: rgba(230, 168, 67, 0.12);
+  color: #8a5a10;
+}
+
+.srg-badge-premium--danger {
+  border-color: rgba(223, 78, 78, 0.4);
+  background: rgba(223, 78, 78, 0.12);
+  color: #9b2f2f;
+}
+
+/* Bouton premium (CTA) */
+.srg-btn-premium {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.875rem;
+  color: white;
+  background: linear-gradient(
+    135deg,
+    var(--srg-color-primary-500, var(--srg-official-navy)) 0%,
+    var(--srg-color-primary-600, color-mix(in oklab, var(--srg-official-navy) 88%, black)) 100%
+  );
+  box-shadow: 0 4px 16px rgba(23, 58, 64, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.srg-btn-premium:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(23, 58, 64, 0.28);
+}
+
+.srg-btn-premium:active {
+  transform: translateY(0);
+}
+
+/* Motif de fond décoratif (vagues subtiles) */
+.srg-bg-pattern {
+  position: relative;
+}
+
+.srg-bg-pattern::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    ellipse 80% 50% at 50% -20%,
+    var(--hero-a, rgba(79, 184, 178, 0.36)),
+    transparent
+  );
+  opacity: 0.5;
+  z-index: 0;
+}
+
+.srg-bg-pattern > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Séparateur décoratif premium */
+.srg-divider-premium {
+  height: 1px;
+  border: none;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--srg-border, var(--line)) 20%,
+    var(--srg-official-gold, oklch(0.78 0.14 80)) 50%,
+    var(--srg-border, var(--line)) 80%,
+    transparent 100%
+  );
+  opacity: 0.6;
+}
+
+/* Animation d'apparition douce */
+@keyframes srg-fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.srg-animate-in {
+  animation: srg-fade-in-up 0.4s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .srg-animate-in {
+    animation: none;
+  }
+  .srg-card-premium,
+  .srg-btn-premium {
+    transition: none;
+  }
+}
+

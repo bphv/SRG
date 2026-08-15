@@ -36,3 +36,42 @@ Aucune suppression. Voici l'état exact par composant.
 Le système de crédits/wallet est utilisé par les conversations (quota, wallet, credits
 affichés dans ConversationWorkspaceService) et par l'authentification (UserProfileSnapshot
 wallet/credits/plan). Il reste fonctionnel en mode simulé.
+
+## Compteur d'abonnement (frontend)
+
+| Élément | Statut |
+|---|---|
+| SubscriptionCounterService (lecture seule) | IMPLEMENTED |
+| Affichage compteur dans AppShell (plan + jours restants + tooltip) | IMPLEMENTED |
+| Statut 'paused' affiché comme 'Suspendu' | IMPLEMENTED |
+| Modification par frontend utilisateur | INTERDIT (aucun champ éditable) |
+
+Le compteur est dérivé uniquement de `UserSubscription.renewalAt - now`.
+Aucune donnée d'abonnement n'est modifiable par le frontend utilisateur.
+
+## Actions admin sur les abonnements
+
+| Action | Méthode | Audit |
+|---|---|---|
+| Prolonger (+N jours) | BusinessFoundationService.adminAdjustSubscriptionDays | observe('subscription.admin.adjust') |
+| Réduire (-N jours) | BusinessFoundationService.adminAdjustSubscriptionDays (négatif) | observe('subscription.admin.adjust') |
+| Suspendre | BusinessFoundationService.adminSuspendSubscription | observe('subscription.admin.suspend') |
+| Réactiver | BusinessFoundationService.adminReactivateSubscription | observe('subscription.admin.reactivate') |
+
+Ces actions sont réservées aux rôles SuperAdmin/Admin (vérification dans
+SubscriptionCounterService.assertAdmin). Elles sont exposées dans /administration
+(section "Gestion Admin des Abonnements"). Chaque action écrit dans logs/events/traces.
+
+## PaymentEngine — détail du branchement
+
+| Élément | Statut |
+|---|---|
+| PaymentEngine (src/business/billing/PaymentEngine.ts) | IMPLEMENTED (logique complète) |
+| StubPaymentGateway interne | SIMULATED (mode: 'stub' déclaré) |
+| Usage dans src/app / src/routes | NOT CONNECTED (aucune UI de paiement branchée) |
+| recordPayment via BusinessFoundationService | SIMULATED (utilisé par /administration) |
+
+Le flux actuellement visible dans /administration ("Créer facture + paiement")
+passe directement par BusinessFoundationService.recordPayment (paiement simulé).
+PaymentEngine est opérationnel quand une UI de paiement sera branchée, mais
+n'est PAS connecté à une passerelle réelle.

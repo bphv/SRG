@@ -986,6 +986,86 @@ export class BusinessFoundationService {
     return this.createSubscriptionInternal(input)
   }
 
+  /**
+   * ADMIN ONLY — ajuste la duree d'un abonnement (extension ou reduction).
+   * Audit automatique via observe().
+   * @param adminId Identifiant de l'administrateur (obligatoire pour audit)
+   * @param days Nombre de jours a ajouter (positif) ou retirer (negatif)
+   */
+  static adminAdjustSubscriptionDays(input: { userId: string; adminId: string; days: number }): UserSubscription {
+    this.ensureInit()
+    const current = this.subscriptions.find((item) => item.userId === input.userId)
+    if (!current) {
+      throw new Error(`No subscription found for user ${input.userId}`)
+    }
+
+    const renewalDate = new Date(current.renewalAt)
+    renewalDate.setDate(renewalDate.getDate() + input.days)
+
+    const updated: UserSubscription = {
+      ...current,
+      renewalAt: renewalDate.toISOString(),
+    }
+
+    this.subscriptions = this.subscriptions.map((item) => (item.userId === input.userId ? updated : item))
+    this.observe('subscription.admin.adjust', 'Admin adjusted subscription duration', {
+      userId: input.userId,
+      adminId: input.adminId,
+      days: input.days,
+      newRenewalAt: updated.renewalAt,
+    })
+    return updated
+  }
+
+  /**
+   * ADMIN ONLY — suspend un abonnement (status = 'paused').
+   * Audit automatique via observe().
+   */
+  static adminSuspendSubscription(input: { userId: string; adminId: string; reason?: string }): UserSubscription {
+    this.ensureInit()
+    const current = this.subscriptions.find((item) => item.userId === input.userId)
+    if (!current) {
+      throw new Error(`No subscription found for user ${input.userId}`)
+    }
+
+    const updated: UserSubscription = {
+      ...current,
+      status: 'paused',
+    }
+
+    this.subscriptions = this.subscriptions.map((item) => (item.userId === input.userId ? updated : item))
+    this.observe('subscription.admin.suspend', 'Admin suspended subscription', {
+      userId: input.userId,
+      adminId: input.adminId,
+      reason: input.reason ?? 'No reason provided',
+    })
+    return updated
+  }
+
+  /**
+   * ADMIN ONLY — reactive un abonnement suspendu (status = 'active').
+   * Audit automatique via observe().
+   */
+  static adminReactivateSubscription(input: { userId: string; adminId: string }): UserSubscription {
+    this.ensureInit()
+    const current = this.subscriptions.find((item) => item.userId === input.userId)
+    if (!current) {
+      throw new Error(`No subscription found for user ${input.userId}`)
+    }
+
+    const updated: UserSubscription = {
+      ...current,
+      status: 'active',
+    }
+
+    this.subscriptions = this.subscriptions.map((item) => (item.userId === input.userId ? updated : item))
+    this.observe('subscription.admin.reactivate', 'Admin reactivated subscription', {
+      userId: input.userId,
+      adminId: input.adminId,
+    })
+    return updated
+  }
+
   static createInvoice(input: { userId: string; amount: number; currency?: string; taxAmount?: number }): Invoice {
     this.ensureInit()
 

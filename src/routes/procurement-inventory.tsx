@@ -1,6 +1,8 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
+import UniversalFilter from '#/app/components/UniversalFilter'
 import ProcurementInventoryWorkspace from '#/app/components/procurement/ProcurementInventoryWorkspace'
 import { ProcurementInventoryWorkspaceService } from '#/app/services/ProcurementInventoryWorkspaceService'
 import { FinanceWorkspaceService } from '#/app/services/FinanceWorkspaceService'
@@ -10,16 +12,44 @@ export const Route = createFileRoute('/procurement-inventory')({
   component: ProcurementInventoryPage,
 })
 
+const PROCUREMENT_SUGGESTIONS = [
+  'purchasing',
+  'tenders',
+  'suppliers',
+  'orders',
+  'stocks',
+  'receptions',
+  'logistics',
+]
+
 function ProcurementInventoryPage() {
   const procurement = ProcurementInventoryWorkspaceService.getSummary()
   const finance = FinanceWorkspaceService.getSummary()
   const projects = ProjectExecutionWorkspaceService.getSummary()
+  const [filterQuery, setFilterQuery] = useState('')
+
+  const matchedItems = useMemo(() => {
+    const normalized = filterQuery.trim().toLowerCase()
+    if (!normalized) return PROCUREMENT_SUGGESTIONS
+    return PROCUREMENT_SUGGESTIONS.filter((item) => item.toLowerCase().includes(normalized))
+  }, [filterQuery])
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Enterprise Procurement & Inventory Workspace"
         description="Industrial purchasing, tenders, suppliers, orders, stocks, receptions and logistics end-to-end"
+      />
+
+      {/* Filtre universel : filtre local du contenu Procurement, contexte page preserve */}
+      <UniversalFilter
+        persistKey="route-procurement-inventory"
+        placeholder="Filtrer le contenu Procurement (suppliers, orders, stocks...)"
+        ariaLabel="Filtre du contenu Procurement"
+        value={filterQuery}
+        onValueChange={setFilterQuery}
+        suggestions={PROCUREMENT_SUGGESTIONS}
+        resultCountLabel={`${matchedItems.length} element${matchedItems.length > 1 ? 's' : ''} correspondant${matchedItems.length > 1 ? 's' : ''}`}
       />
 
       <Section title="Elements associes" description="Liens Procurement ↔ Finance ↔ Projects a partir des donnees existantes.">
