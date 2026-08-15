@@ -99,6 +99,8 @@ export type ConversationContext = {
   subcategoryLabel?: string
   userId?: string
   sessionId?: string
+  /** Contexte métier injecté depuis TradeKnowledgeRegistry (VERIFIED/GENERATED/MISSING). */
+  tradeContext?: string
 }
 
 export type ConversationReport = {
@@ -305,19 +307,30 @@ function createConversationRecord(
   }
 }
 
-function buildAssistantResponse(prompt: string, provider: string, model: string): string {
-  return [
+function buildAssistantResponse(prompt: string, provider: string, model: string, tradeContext?: string): string {
+  const lines = [
     `Provider: ${provider}`,
     `Model: ${model}`,
     '',
     'Synthese de la demande:',
     prompt,
-    '',
-    'Plan propose:',
-    '- Clarifier le contexte et les contraintes.',
-    '- Proposer une solution actionnable.',
-    '- Lister points de controle (cout, latence, tokens, risque).',
-  ].join('\n')
+  ]
+
+  if (tradeContext) {
+    lines.push('', 'Contexte metier actif:', tradeContext)
+    lines.push('', 'Traitement selon la politique metier SRG:')
+    lines.push('- VERIFIED : connaissances documentees dans la base SRG.')
+    lines.push('- GENERATED : contenu genere par SRG, toujours etiquete comme tel.')
+    lines.push('- MISSING : information technique absente ; SRG demande le document ou la precision necessaire.')
+    lines.push('', 'Si des informations requises sont manquantes, SRG les demande avant de produire une reponse complete.')
+  } else {
+    lines.push('', 'Plan propose:')
+    lines.push('- Clarifier le contexte et les contraintes.')
+    lines.push('- Proposer une solution actionnable.')
+    lines.push('- Lister points de controle (cout, latence, tokens, risque).')
+  }
+
+  return lines.join('\n')
 }
 
 /**
@@ -657,7 +670,7 @@ export class ConversationWorkspaceService {
       attachments: [...current.draftAttachments],
     }
 
-    const assistantBody = buildAssistantResponse(prompt, current.provider, current.model)
+    const assistantBody = buildAssistantResponse(prompt, current.provider, current.model, current.context?.tradeContext)
     const latency = Math.max(120, current.latencyMs)
     const outputTokens = messageTokens(assistantBody)
     const assistantMessage: ConversationMessage = {
@@ -866,6 +879,7 @@ export class ConversationWorkspaceService {
         item.messages.filter((entry) => entry.role === 'user').at(-1)?.content ?? item.draft,
         item.provider,
         item.model,
+        item.context?.tradeContext,
       )
       return {
         ...item,

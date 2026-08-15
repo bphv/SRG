@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
+import { buildTradeContextBlock } from '#/app/knowledge/TradeKnowledgeRegistry'
 import { getCategoryBySlug, getSubcategoryBySlug } from '#/app/navigation/categoryCatalog'
 import { ConversationWorkspaceService } from '#/app/services/ConversationWorkspaceService'
 
@@ -21,11 +22,13 @@ function ContextualConversationRedirect() {
         .listConversations()
         .find((conversation) => conversation.title === title)
 
+      const tradeContext = buildTradeContextBlock(categorySlug, subcategorySlug)
       const context = {
         categorySlug,
         subcategorySlug,
         categoryLabel: category.name,
         subcategoryLabel: subcategory.label,
+        ...(tradeContext ? { tradeContext } : {}),
       }
 
       if (existing) {
