@@ -1,0 +1,160 @@
+{
+  "date": "2026-08-15T11:38:30.578Z",
+  "results": [
+    {
+      "fonction": "Home",
+      "test": "Chargement page accueil",
+      "resultat": "PASS",
+      "preuve": "title=\"SRG Enterprise Intelligence Platform\""
+    },
+    {
+      "fonction": "Page 2",
+      "test": "12 catégories affichées",
+      "resultat": "PASS",
+      "preuve": "12/12: Finance, Ressources Humaines, Operations, Projets, CRM, Reunions, Documents, Knowledge, Analytics, Automation, Qualite, Gouvernance"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie finance",
+      "resultat": "PASS",
+      "preuve": "862 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie hr",
+      "resultat": "PASS",
+      "preuve": "1005 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie operations",
+      "resultat": "PASS",
+      "preuve": "690 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie projects",
+      "resultat": "PASS",
+      "preuve": "447 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie crm",
+      "resultat": "PASS",
+      "preuve": "557 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie meetings",
+      "resultat": "PASS",
+      "preuve": "577 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie documents",
+      "resultat": "PASS",
+      "preuve": "484 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie knowledge",
+      "resultat": "PASS",
+      "preuve": "549 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie analytics",
+      "resultat": "PASS",
+      "preuve": "586 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie automation",
+      "resultat": "PASS",
+      "preuve": "671 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie quality",
+      "resultat": "PASS",
+      "preuve": "324 caractères rendus"
+    },
+    {
+      "fonction": "Page 3",
+      "test": "Catégorie governance",
+      "resultat": "PASS",
+      "preuve": "549 caractères rendus"
+    },
+    {
+      "fonction": "Conversation",
+      "test": "Deux conversations indépendantes (finance/accounting vs hr/payroll)",
+      "resultat": "PASS",
+      "preuve": "conv1=true, conv2=true"
+    },
+    {
+      "fonction": "Métier mécanicien",
+      "test": "Question circuit freinage Mercedes 190",
+      "resultat": "PASS",
+      "preuve": "Réponse métier reçue (VERIFIED/GENERATED/MISSING ou SIMULATED)"
+    },
+    {
+      "fonction": "Knowledge Center",
+      "test": "Ouverture et rendu",
+      "resultat": "PASS",
+      "preuve": "20226 caractères"
+    },
+    {
+      "fonction": "ZIP",
+      "test": "Upload archive test 2 fichiers",
+      "resultat": "PASS",
+      "preuve": "Documents importés détectés"
+    },
+    {
+      "fonction": "Administration",
+      "test": "Ouverture page administration",
+      "resultat": "PASS",
+      "preuve": "10045 caractères"
+    },
+    {
+      "fonction": "Projects",
+      "test": "Ouverture page projets",
+      "resultat": "PASS",
+      "preuve": "6945 caractères"
+    },
+    {
+      "fonction": "Providers",
+      "test": "Ouverture Test Center",
+      "resultat": "PASS",
+      "preuve": "8219 caractères"
+    },
+    {
+      "fonction": "Auth",
+      "test": "Ouverture page authentification",
+      "resultat": "PASS",
+      "preuve": "5971 caractères"
+    },
+    {
+      "fonction": "Monétisation",
+      "test": "Ouverture page billing/wallet",
+      "resultat": "PASS",
+      "preuve": "5186 caractères"
+    },
+    {
+      "fonction": "Mobile",
+      "test": "Home sans débordement horizontal 390x844",
+      "resultat": "PASS",
+      "preuve": "scrollWidth=390, clientWidth=390"
+    },
+    {
+      "fonction": "Mobile",
+      "test": "Page 2 catégories visibles sur mobile",
+      "resultat": "PASS",
+      "preuve": "5/5 catégories détectées"
+    }
+  ],
+  "summary": {
+    "pass": 25,
+    "partial": 0,
+    "fail": 0
+  }
+}
