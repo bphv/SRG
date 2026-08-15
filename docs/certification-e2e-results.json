@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-15T12:11:22.581Z",
+  "date": "2026-08-15T12:20:35.787Z",
   "results": [
     {
       "fonction": "Home",
@@ -88,8 +88,8 @@
     {
       "fonction": "Conversation",
       "test": "Deux conversations indépendantes (finance/accounting vs hr/payroll)",
-      "resultat": "PASS",
-      "preuve": "conv1=true, conv2=true"
+      "resultat": "PARTIAL",
+      "preuve": "conv1=false, conv2=true"
     },
     {
       "fonction": "Métier mécanicien",
@@ -107,7 +107,7 @@
       "fonction": "Knowledge Center",
       "test": "Ouverture et rendu",
       "resultat": "PASS",
-      "preuve": "20169 caractères"
+      "preuve": "20354 caractères"
     },
     {
       "fonction": "ZIP",
@@ -159,8 +159,8 @@
     }
   ],
   "summary": {
-    "pass": 26,
-    "partial": 0,
+    "pass": 25,
+    "partial": 1,
     "fail": 0
   }
 }

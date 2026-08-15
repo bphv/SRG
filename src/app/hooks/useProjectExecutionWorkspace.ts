@@ -5,7 +5,7 @@ import { WorkspacePreferencesService } from '#/app/services/WorkspacePreferences
 export function useProjectExecutionWorkspace() {
   const [tick, setTick] = useState(0)
   const preferences = WorkspacePreferencesService.getPreferences()
-  const persisted = preferences.filters['project-execution-workspace']
+  const persisted = preferences.filters['project-execution-workspace'] ?? {}
 
   const [selectedProjectId, setSelectedProjectIdState] = useState(typeof persisted.selectedProjectId === 'string' ? persisted.selectedProjectId : '')
 

@@ -1,0 +1,154 @@
+{
+  "date": "2026-08-15T13:03:03.025Z",
+  "results": [
+    {
+      "fonction": "1. Home",
+      "test": "Chargement accueil",
+      "resultat": "PASS",
+      "preuve": "title=\"SRG Enterprise Intelligence Platform\""
+    },
+    {
+      "fonction": "2. /categories",
+      "test": "12 catégories officielles",
+      "resultat": "PASS",
+      "preuve": "12/12"
+    },
+    {
+      "fonction": "3+4. Pages 3",
+      "test": "12 catégories rendues",
+      "resultat": "PASS",
+      "preuve": "12/12"
+    },
+    {
+      "fonction": "5. Conversations",
+      "test": "4 couples catégorie/sous-catégorie",
+      "resultat": "PASS",
+      "preuve": "4/4"
+    },
+    {
+      "fonction": "6. Indépendance",
+      "test": "Contextes distincts finance vs hr",
+      "resultat": "PASS",
+      "preuve": "finance=true, hr=true"
+    },
+    {
+      "fonction": "7+8. Historique/Reprise",
+      "test": "Page historique rendue",
+      "resultat": "PASS",
+      "preuve": "5788 caractères"
+    },
+    {
+      "fonction": "9+10. Rapport/Export",
+      "test": "Page génération rapport",
+      "resultat": "PASS",
+      "preuve": "9166 caractères"
+    },
+    {
+      "fonction": "11. Knowledge Center",
+      "test": "Ouverture et rendu",
+      "resultat": "PASS",
+      "preuve": "19982 caractères"
+    },
+    {
+      "fonction": "12. Import ZIP",
+      "test": "Upload réel 2 fichiers",
+      "resultat": "PASS",
+      "preuve": "Documents importés détectés"
+    },
+    {
+      "fonction": "13. Administration",
+      "test": "Ouverture page",
+      "resultat": "PASS",
+      "preuve": "10045 caractères"
+    },
+    {
+      "fonction": "14-16. Workflow compte",
+      "test": "Formulaire inscription/connexion présent",
+      "resultat": "PASS",
+      "preuve": "Interface auth complète détectée"
+    },
+    {
+      "fonction": "17. Projects",
+      "test": "Ouverture page projets",
+      "resultat": "PASS",
+      "preuve": "6945 caractères"
+    },
+    {
+      "fonction": "18. Chantier",
+      "test": "Page exécution/chantier",
+      "resultat": "PASS",
+      "preuve": "9202 caractères"
+    },
+    {
+      "fonction": "19. Pointage",
+      "test": "Page présences/pointage",
+      "resultat": "PASS",
+      "preuve": "6714 caractères"
+    },
+    {
+      "fonction": "20. Providers",
+      "test": "Test Center",
+      "resultat": "PASS",
+      "preuve": "8219 caractères"
+    },
+    {
+      "fonction": "23. Wallet/Facturation",
+      "test": "Page billing",
+      "resultat": "PASS",
+      "preuve": "5399 caractères"
+    },
+    {
+      "fonction": "25. 404",
+      "test": "notFoundComponent SRG",
+      "resultat": "PASS",
+      "preuve": "Page 404 propre avec liens retour"
+    },
+    {
+      "fonction": "Métier Mécanicien",
+      "test": "Question métier + réponse",
+      "resultat": "PASS",
+      "preuve": "Réponse avec statut métier"
+    },
+    {
+      "fonction": "Métier Électricien",
+      "test": "Question métier + réponse",
+      "resultat": "PASS",
+      "preuve": "Réponse avec statut métier"
+    },
+    {
+      "fonction": "Métier Maçon",
+      "test": "Question métier + réponse",
+      "resultat": "PASS",
+      "preuve": "Réponse avec statut métier"
+    },
+    {
+      "fonction": "Métier Chef de chantier",
+      "test": "Question métier + réponse",
+      "resultat": "PASS",
+      "preuve": "Réponse avec statut métier"
+    },
+    {
+      "fonction": "Métier Gestionnaire projet",
+      "test": "Question métier + réponse",
+      "resultat": "PASS",
+      "preuve": "Réponse avec statut métier"
+    },
+    {
+      "fonction": "24. Mobile",
+      "test": "Pas de débordement 390x844",
+      "resultat": "PASS",
+      "preuve": "scrollWidth=390, clientWidth=390"
+    },
+    {
+      "fonction": "24. Mobile",
+      "test": "Catégories visibles mobile",
+      "resultat": "PASS",
+      "preuve": "5/5"
+    }
+  ],
+  "summary": {
+    "pass": 24,
+    "partial": 0,
+    "fail": 0
+  }
+}
