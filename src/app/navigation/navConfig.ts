@@ -8,6 +8,13 @@ export type AppNavItem = {
 
 export const navItems: AppNavItem[] = [
   {
+    id: 'categories',
+    title: 'Categories',
+    description: 'Page 2 officielle SRG: centre de navigation des categories metier.',
+    path: '/categories',
+    icon: '🧭',
+  },
+  {
     id: 'agents',
     title: 'AI Agents',
     description: 'No-code agent builder, workflows, automation, memory and observability.',

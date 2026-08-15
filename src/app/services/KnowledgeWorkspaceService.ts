@@ -610,15 +610,83 @@ function defaultStore(): KnowledgeWorkspaceStore {
     collectionIds: ['kcol-core'],
   })
 
+  // Unified Knowledge Center articles (merged from legacy KnowledgeCenterService static catalog).
+  const gettingStarted = makeDocument({
+    title: 'Getting Started with SRG',
+    description: "Vue d'ensemble du dashboard, des projets, des prompts et de la generation.",
+    content: 'SRG centralise vos projets, prompts, historiques et providers dans un workspace unique. Commencez par creer un projet, enrichissez votre Prompt Studio, puis lancez vos generations depuis AI Playground.',
+    type: 'documentation',
+    category: 'documentation',
+    tags: ['onboarding', 'dashboard', 'workspace'],
+    source: 'seed:knowledge-center',
+    author: 'System',
+    collectionIds: ['kcol-core'],
+  })
+  const generationFailures = makeDocument({
+    title: 'Pourquoi une generation peut echouer ?',
+    description: 'Causes frequentes: provider indisponible, variables manquantes, quotas ou prompt invalide.',
+    content: 'Avant de relancer, verifiez le provider selectionne, les variables obligatoires et le quota disponible. Utilisez la page Providers pour tester la sante du connecteur et la page History pour comparer les executions echouees.',
+    type: 'faq',
+    category: 'faq',
+    tags: ['faq', 'errors', 'generation'],
+    source: 'seed:knowledge-center',
+    author: 'System',
+    collectionIds: ['kcol-rag'],
+  })
+  const versionedPrompt = makeDocument({
+    title: 'Construire un Prompt versionne',
+    description: 'Bonnes pratiques pour les variables, la validation et la comparaison de versions.',
+    content: 'Un bon prompt versionne commence par une structure stable, des variables nommees clairement, puis un historique lisible. Dans Prompt Studio, comparez deux versions avant publication et gardez des commentaires de changement concis.',
+    type: 'guide',
+    category: 'guides',
+    tags: ['prompts', 'versioning', 'validation'],
+    source: 'seed:knowledge-center',
+    author: 'System',
+    collectionIds: ['kcol-core'],
+  })
+  const projectTutorial = makeDocument({
+    title: "Tutoriel: de l idee au projet partage",
+    description: 'Creer, dupliquer, archiver, partager et exporter un projet.',
+    content: 'Creez un projet, ajoutez vos prompts, epinglez-le en favori, puis utilisez les actions de partage et export pour transmettre le contexte a votre equipe.',
+    type: 'documentation',
+    category: 'tutorials',
+    tags: ['projects', 'sharing', 'export'],
+    source: 'seed:knowledge-center',
+    author: 'System',
+    collectionIds: ['kcol-core'],
+  })
+  const multilingualExample = makeDocument({
+    title: 'Exemple: resume produit multilingue',
+    description: 'Exemple complet avec variables de langue, ton et segment utilisateur.',
+    content: 'Prompt: Redige un resume pour {{segment}} en {{language}} avec un ton {{tone}}. Utilisez ce pattern dans Generate ou Prompt Templates pour standardiser les sorties multilingues.',
+    type: 'documentation',
+    category: 'examples',
+    tags: ['example', 'marketing', 'multilingual'],
+    source: 'seed:knowledge-center',
+    author: 'System',
+    collectionIds: ['kcol-core'],
+  })
+  const workspaceApi = makeDocument({
+    title: 'Workspace API surface',
+    description: 'Description des services visibles: projets, prompts, notifications, history, providers.',
+    content: "La couche visible SRG expose des services d application pour manipuler les projets, les prompts, l historique local, le centre de notifications et les providers. Les couches kernel, execution et business bas niveau restent encapsulees.",
+    type: 'documentation',
+    category: 'api',
+    tags: ['api', 'services', 'workspace'],
+    source: 'seed:knowledge-center',
+    author: 'System',
+    collectionIds: ['kcol-core'],
+  })
+
   const now = nowIso()
   return {
-    documents: [architecture, faq, markdown],
+    documents: [architecture, faq, markdown, gettingStarted, generationFailures, versionedPrompt, projectTutorial, multilingualExample, workspaceApi],
     collections: [
       {
         id: 'kcol-core',
         name: 'Core Knowledge',
         description: 'Cross-workspace documentation.',
-        documentIds: [architecture.id, markdown.id],
+        documentIds: [architecture.id, markdown.id, gettingStarted.id, versionedPrompt.id, projectTutorial.id, multilingualExample.id, workspaceApi.id],
         favorite: true,
         archived: false,
         createdAt: now,
@@ -628,7 +696,7 @@ function defaultStore(): KnowledgeWorkspaceStore {
         id: 'kcol-rag',
         name: 'RAG Recipes',
         description: 'Retrieval patterns and context templates.',
-        documentIds: [faq.id],
+        documentIds: [faq.id, generationFailures.id],
         favorite: false,
         archived: false,
         createdAt: now,

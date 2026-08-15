@@ -107,6 +107,63 @@ function CategoriesPage() {
 }
 
 function CategoryIcon({ kind }: { kind: ReturnType<typeof getOrderedCategories>[number]['icon'] }) {
+  if (kind === 'crm') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <circle cx="9" cy="8" r="2.6" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="16.5" cy="9.5" r="2.1" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M4 18a5 5 0 0 1 10 0M13.5 17.2a3.6 3.6 0 0 1 6.5 0" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (kind === 'meetings') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <rect x="4" y="6" width="16" height="12" rx="2.4" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="9.5" cy="11" r="1.6" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <circle cx="14.5" cy="11" r="1.6" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M7 15.5h10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (kind === 'documents') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <path d="M7 4h7l4 4v12H7z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M14 4v4h4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+        <path d="M9.5 12.5h5M9.5 15.5h5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (kind === 'projects') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <rect x="4" y="5" width="16" height="15" rx="2.2" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="M4 9.5h16M9 5v4.5M15 13h5M15 16.5h3" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (kind === 'analytics') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <path d="M4 19h16M6 16V9m4 7V6m4 10v-5m4 5V8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      </svg>
+    )
+  }
+
+  if (kind === 'quality') {
+    return (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+        <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1.8" />
+        <path d="m8.5 12.2 2.3 2.3 4.7-4.8" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+
   if (kind === 'finance') {
     return (
       <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>

@@ -3,6 +3,9 @@ import { HistoryWorkspaceService } from '#/app/services/HistoryWorkspaceService'
 import { notificationService } from '#/app/services/NotificationService'
 import { ProviderWorkspaceService } from '#/app/services/ProviderWorkspaceService'
 import { WorkspaceExchangeService } from '#/app/services/WorkspaceExchangeService'
+import { ExecutionEngine } from '#/execution/engine/ExecutionEngine'
+import { OpenAIProviderFactory } from '#/providers/openai/OpenAIProviderFactory'
+import { ProviderRegistry } from '#/providers/registry/ProviderRegistry'
 
 export type ConversationRole = 'user' | 'assistant' | 'system' | 'developer' | 'tool' | 'function' | 'error' | 'warning' | 'info'
 export type ConversationMessageStatus = 'streaming' | 'cancelled' | 'retry' | 'failed' | 'completed' | 'pending'
@@ -315,6 +318,74 @@ function buildAssistantResponse(prompt: string, provider: string, model: string)
     '- Proposer une solution actionnable.',
     '- Lister points de controle (cout, latence, tokens, risque).',
   ].join('\n')
+}
+
+/**
+ * Etat moteur de la conversation.
+ * - REAL: un provider reel (OpenAI) est configure via VITE_OPENAI_API_KEY et
+ *   l'appel transite par l'architecture officielle Provider/ExecutionEngine.
+ * - SIMULATED: pas de cle configuree -> reponse locale explicite, jamais
+ *   presentee comme une IA operationnelle.
+ */
+export type ConversationEngineMode = 'REAL' | 'SIMULATED'
+
+function resolveEngineMode(): ConversationEngineMode {
+  const apiKey = (import.meta.env.VITE_OPENAI_API_KEY as string | undefined) ?? ''
+  return apiKey.trim().length > 0 ? 'REAL' : 'SIMULATED'
+}
+
+async function runRealEngine(prompt: string, model: string): Promise<{ output: string; status: 'completed' | 'failed'; errors: string[] }> {
+  const apiKey = import.meta.env.VITE_OPENAI_API_KEY as string | undefined
+  const provider = new OpenAIProviderFactory().create(
+    {
+      id: 'openai',
+      name: 'OpenAI',
+      capabilities: ['chat', 'completion', 'streaming', 'jsonMode', 'structuredOutput'],
+      priority: 100,
+    },
+    {
+      apiKey,
+      defaultModel: model || 'gpt-4.1-mini',
+    },
+  )
+
+  try {
+    await provider.initialize()
+    const registry = new ProviderRegistry()
+    registry.register(provider)
+
+    const engine = new ExecutionEngine(
+      {
+        id: 'conversation-workspace-engine',
+        name: 'Conversation Workspace Engine',
+        category: 'service',
+      },
+      {},
+      { providerRegistry: registry },
+    )
+
+    const response = await engine.execute({
+      id: `conversation-execution-${Date.now()}`,
+      generationId: `conversation-generation-${Date.now()}`,
+      input: prompt,
+      prompt,
+      metadata: { source: 'conversation-workspace' },
+    })
+
+    return {
+      output: String(response.output ?? ''),
+      status: response.status === 'completed' ? 'completed' : 'failed',
+      errors: response.status === 'completed' ? [] : (response.errors ?? ['execution failed']),
+    }
+  } catch (error) {
+    return {
+      output: '',
+      status: 'failed',
+      errors: [error instanceof Error ? error.message : 'unknown engine failure'],
+    }
+  } finally {
+    await provider.shutdown().catch(() => undefined)
+  }
 }
 
 export class ConversationWorkspaceService {
@@ -630,6 +701,91 @@ export class ConversationWorkspaceService {
     this.pushTimeline(idValue, 'info', 'subscription.state', `Subscription ${current.subscription} in use.`)
     this.pushDiagnostic(idValue, 'tokens', `Input ${userMessage.tokens} / Output ${assistantMessage.tokens} tokens.`)
     this.pushDiagnostic(idValue, 'cost', `Estimated cost ${assistantMessage.cost.toFixed(6)} on ${current.provider}/${current.model}.`)
+
+    // Branchement moteur officiel SRG:
+    // - REAL: VITE_OPENAI_API_KEY presente -> ExecutionEngine + OpenAIProvider (vrai appel LLM).
+    // - SIMULATED: pas de cle -> reponse locale explicite (mock declare, jamais presente comme IA reelle).
+    const engineMode = resolveEngineMode()
+    this.pushTimeline(
+      idValue,
+      'info',
+      'engine.mode',
+      engineMode === 'REAL'
+        ? 'Engine mode REAL: request routed through Provider/ExecutionEngine architecture.'
+        : 'Engine mode SIMULATED: no API key configured (VITE_OPENAI_API_KEY). Local structured response used.',
+    )
+
+    if (engineMode === 'REAL') {
+      void runRealEngine(prompt, current.model).then((result) => {
+        const completedAt = nowIso()
+        if (result.status === 'completed' && result.output.trim().length > 0) {
+          this.updateConversation(idValue, (item) => ({
+            ...item,
+            status: 'completed',
+            messages: item.messages.map((entry) =>
+              entry.id === assistantMessage.id
+                ? { ...entry, status: 'completed', content: result.output, createdAt: completedAt }
+                : entry,
+            ),
+            streaming: {
+              ...item.streaming,
+              active: false,
+              paused: false,
+              progress: 100,
+              deliveredChunks: item.streaming.totalChunks,
+              lastEventAt: completedAt,
+            },
+            updatedAt: completedAt,
+          }))
+          this.pushTimeline(idValue, 'info', 'engine.response', 'Real provider response received and stream completed.')
+        } else {
+          this.updateConversation(idValue, (item) => ({
+            ...item,
+            status: 'failed',
+            messages: item.messages.map((entry) =>
+              entry.id === assistantMessage.id
+                ? {
+                    ...entry,
+                    status: 'failed',
+                    content: `Engine error: ${result.errors.join(', ') || 'unknown error'}. Fallback summary:\n${assistantBody}`,
+                  }
+                : entry,
+            ),
+            streaming: {
+              ...item.streaming,
+              active: false,
+              paused: false,
+              lastEventAt: completedAt,
+            },
+            updatedAt: completedAt,
+          }))
+          this.pushTimeline(idValue, 'error', 'engine.failure', `Real engine call failed: ${result.errors.join(', ') || 'unknown error'}`)
+          this.pushDiagnostic(idValue, 'provider', `Real engine failure on ${current.provider}/${current.model}.`)
+        }
+      })
+    } else {
+      // Mode SIMULATED: completion locale immediate, explicitement etiquetee.
+      const simulatedBody = `[SIMULATED - aucun provider reel connecte]\n\n${assistantBody}`
+      this.updateConversation(idValue, (item) => ({
+        ...item,
+        status: 'completed',
+        messages: item.messages.map((entry) =>
+          entry.id === assistantMessage.id
+            ? { ...entry, status: 'completed', content: simulatedBody }
+            : entry,
+        ),
+        streaming: {
+          ...item.streaming,
+          active: false,
+          paused: false,
+          progress: 100,
+          deliveredChunks: item.streaming.totalChunks,
+          lastEventAt: nowIso(),
+        },
+        updatedAt: nowIso(),
+      }))
+      this.pushTimeline(idValue, 'info', 'engine.simulated', 'Simulated response applied (no API key configured).')
+    }
 
     HistoryWorkspaceService.addRecord({
       id: id('history-conversation'),

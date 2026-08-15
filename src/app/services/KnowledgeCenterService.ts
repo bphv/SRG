@@ -1,3 +1,17 @@
+/**
+ * LEGACY — KnowledgeCenterService (static catalog).
+ *
+ * Statut: UNIFIE dans KnowledgeWorkspaceService.
+ * Les 6 articles statiques ci-dessous ont été migrés comme documents seed
+ * (source: 'seed:knowledge-center') dans KnowledgeWorkspaceService.defaultStore().
+ *
+ * La route officielle /knowledge-center utilise KnowledgeWorkspace,
+ * adossé à KnowledgeWorkspaceService (ZIP réel, OCR, RAG, exports).
+ *
+ * Ce fichier est conservé à titre d'archive de la taxonomie documentaire
+ * d'origine et ne doit plus être branché à aucune UI.
+ * Aucune suppression avant validation complète de la migration.
+ */
 export type KnowledgeCategory = 'documentation' | 'faq' | 'guides' | 'tutorials' | 'examples' | 'api'
 
 export type KnowledgeArticle = {

@@ -68,7 +68,7 @@ function HomePage() {
   const submitInput = (rawValue: string) => {
     const command = rawValue.trim() || 'Ask SRG universal input'
     askSrgRuntime.pushRecentCommand(command)
-    navigate({ to: '/chat' })
+    navigate({ to: '/categories' })
   }
 
   const startVoiceRecognition = () => {
@@ -205,8 +205,8 @@ function HomePage() {
             <button
               type="button"
               className="srg-home-orb-button"
-              aria-label="Ouvrir la conversation Ask SRG"
-              onClick={() => navigate({ to: '/chat' })}
+              aria-label="Ouvrir les categories Ask SRG"
+              onClick={() => navigate({ to: '/categories' })}
             >
               <span className="srg-home-orb-wrap" aria-hidden>
                 <span className="srg-home-orb-halo" />
