@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-15T13:03:03.025Z",
+  "date": "2026-08-15T14:28:03.279Z",
   "results": [
     {
       "fonction": "1. Home",
@@ -35,7 +35,7 @@
       "fonction": "7+8. Historique/Reprise",
       "test": "Page historique rendue",
       "resultat": "PASS",
-      "preuve": "5788 caractères"
+      "preuve": "6985 caractères"
     },
     {
       "fonction": "9+10. Rapport/Export",
@@ -47,7 +47,7 @@
       "fonction": "11. Knowledge Center",
       "test": "Ouverture et rendu",
       "resultat": "PASS",
-      "preuve": "19982 caractères"
+      "preuve": "20355 caractères"
     },
     {
       "fonction": "12. Import ZIP",

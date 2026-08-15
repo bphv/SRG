@@ -1,0 +1,136 @@
+{
+  "date": "2026-08-15T14:48:24.363Z",
+  "results": [
+    {
+      "fonction": "Flux principal",
+      "test": "HOME chargement",
+      "resultat": "PASS",
+      "preuve": "title=\"SRG Enterprise Intelligence Platform\""
+    },
+    {
+      "fonction": "Flux principal",
+      "test": "/categories 12 catégories",
+      "resultat": "PASS",
+      "preuve": "12/12"
+    },
+    {
+      "fonction": "Flux principal",
+      "test": "Page 3 finance",
+      "resultat": "PASS",
+      "preuve": "862 caractères"
+    },
+    {
+      "fonction": "Flux principal",
+      "test": "Conversation question+réponse",
+      "resultat": "PASS",
+      "preuve": "Réponse avec statut métier"
+    },
+    {
+      "fonction": "Flux principal",
+      "test": "Rapport génération",
+      "resultat": "PASS",
+      "preuve": "9262 caractères"
+    },
+    {
+      "fonction": "Flux principal",
+      "test": "Historique/Reprise",
+      "resultat": "PASS",
+      "preuve": "7004 caractères"
+    },
+    {
+      "fonction": "12 catégories",
+      "test": "Pages 3 rendues",
+      "resultat": "PASS",
+      "preuve": "12/12"
+    },
+    {
+      "fonction": "Conversations",
+      "test": "Indépendance finance vs hr",
+      "resultat": "PASS",
+      "preuve": "finance=true, hr=true"
+    },
+    {
+      "fonction": "Auth",
+      "test": "Création compte 4 étapes",
+      "resultat": "PASS",
+      "preuve": "Compte créé avec matricule"
+    },
+    {
+      "fonction": "Auth",
+      "test": "Formulaire login présent",
+      "resultat": "PASS",
+      "preuve": "Identifier + Password détectés"
+    },
+    {
+      "fonction": "Admin",
+      "test": "Workflow approve/reject/suspend/reactivate",
+      "resultat": "PASS",
+      "preuve": "approve=true, reject=true, suspend=true, reactivate=true"
+    },
+    {
+      "fonction": "Knowledge",
+      "test": "Import ZIP 3 documents métiers",
+      "resultat": "PASS",
+      "preuve": "Documents importés détectés"
+    },
+    {
+      "fonction": "Projects",
+      "test": "Ouverture page projets",
+      "resultat": "PASS",
+      "preuve": "6945 caractères"
+    },
+    {
+      "fonction": "Chantier",
+      "test": "Page exécution/chantier",
+      "resultat": "PASS",
+      "preuve": "9202 caractères"
+    },
+    {
+      "fonction": "Pointage",
+      "test": "Page présences/pointage",
+      "resultat": "PASS",
+      "preuve": "6714 caractères"
+    },
+    {
+      "fonction": "Reports",
+      "test": "Génération rapport",
+      "resultat": "PASS",
+      "preuve": "10102 caractères"
+    },
+    {
+      "fonction": "Providers",
+      "test": "Test Center",
+      "resultat": "PASS",
+      "preuve": "8219 caractères"
+    },
+    {
+      "fonction": "Mobile",
+      "test": "Pas de débordement 390x844",
+      "resultat": "PASS",
+      "preuve": "scrollWidth=390, clientWidth=390"
+    },
+    {
+      "fonction": "Mobile",
+      "test": "Catégories visibles mobile",
+      "resultat": "PASS",
+      "preuve": "5/5"
+    },
+    {
+      "fonction": "Audio",
+      "test": "APIs navigateur disponibles",
+      "resultat": "PASS",
+      "preuve": "getUserMedia=true, speechSynthesis=true"
+    },
+    {
+      "fonction": "404",
+      "test": "notFoundComponent SRG",
+      "resultat": "PASS",
+      "preuve": "Page 404 propre avec liens retour"
+    }
+  ],
+  "summary": {
+    "pass": 21,
+    "partial": 0,
+    "fail": 0
+  }
+}
