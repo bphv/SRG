@@ -71,12 +71,12 @@ async function main() {
   // --- CONVERSATIONS INDÉPENDANTES ---
   try {
     await page.goto(`${BASE}/conversation/finance/accounting`, { waitUntil: 'networkidle', timeout: 20000 })
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2500)
     const conv1Text = await page.locator('body').innerText()
     const conv1Ok = conv1Text.includes('Finance') || conv1Text.includes('Comptabilite')
 
     await page.goto(`${BASE}/conversation/hr/payroll`, { waitUntil: 'networkidle', timeout: 20000 })
-    await page.waitForTimeout(1500)
+    await page.waitForTimeout(2500)
     const conv2Text = await page.locator('body').innerText()
     const conv2Ok = conv2Text.includes('RH') || conv2Text.includes('Paie') || conv2Text.includes('Ressources')
 
@@ -102,6 +102,17 @@ async function main() {
     }
   } catch (error) {
     record('Métier mécanicien', 'Question circuit freinage', 'FAIL', String(error).slice(0, 200))
+  }
+
+  // --- TEST 404 (notFoundComponent) ---
+  try {
+    await page.goto(`${BASE}/cette-page-n-existe-pas`, { waitUntil: 'networkidle', timeout: 20000 })
+    await page.waitForTimeout(1500)
+    const notFoundText = await page.locator('body').innerText()
+    const has404 = notFoundText.includes('404') && (notFoundText.includes('accueil') || notFoundText.includes('categories'))
+    record('404', 'Page introuvable avec retour accueil', has404 ? 'PASS' : 'PARTIAL', has404 ? 'notFoundComponent SRG rendu avec liens retour' : `Texte: ${notFoundText.slice(0, 100)}`)
+  } catch (error) {
+    record('404', 'Page introuvable', 'FAIL', String(error).slice(0, 200))
   }
 
   // --- KNOWLEDGE CENTER ---

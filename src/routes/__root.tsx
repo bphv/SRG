@@ -1,4 +1,4 @@
-import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router'
 import { AppProviders } from '#/app/contexts/AppProviders'
 import AppShell from '#/app/layout/AppShell'
 import KernelBootstrap from '#/core/bootstrap/KernelBootstrap'
@@ -29,7 +29,30 @@ export const Route = createRootRoute({
     ],
   }),
   shellComponent: RootDocument,
+  notFoundComponent: NotFoundPage,
 })
+
+function NotFoundPage() {
+  return (
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-6 px-6 py-16 text-center">
+      <p className="text-xs font-semibold uppercase tracking-[0.35em] text-[var(--srg-color-primary-500)]">Erreur 404</p>
+      <h1 className="max-w-xl text-3xl font-bold text-[var(--srg-text-title)] md:text-4xl">
+        Cette page n'existe pas dans SRG.
+      </h1>
+      <p className="max-w-lg text-sm text-[var(--srg-text-muted)]">
+        La ressource demandee est introuvable ou a ete deplacee. Utilisez la navigation officielle pour retrouver votre espace metier.
+      </p>
+      <div className="flex flex-wrap items-center justify-center gap-3">
+        <Link to="/" className="rounded-3xl bg-[var(--srg-color-primary-500)] px-6 py-3 text-sm font-semibold text-white">
+          Retour a l'accueil
+        </Link>
+        <Link to="/categories" className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-6 py-3 text-sm font-semibold text-[var(--srg-text-title)]">
+          Ouvrir les categories metier
+        </Link>
+      </div>
+    </div>
+  )
+}
 
 function RootDocument({ children }: { children: React.ReactNode }) {
   return (

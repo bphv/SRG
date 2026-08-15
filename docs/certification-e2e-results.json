@@ -1,5 +1,5 @@
 {
-  "date": "2026-08-15T11:38:30.578Z",
+  "date": "2026-08-15T12:11:22.581Z",
   "results": [
     {
       "fonction": "Home",
@@ -98,10 +98,16 @@
       "preuve": "Réponse métier reçue (VERIFIED/GENERATED/MISSING ou SIMULATED)"
     },
     {
+      "fonction": "404",
+      "test": "Page introuvable avec retour accueil",
+      "resultat": "PASS",
+      "preuve": "notFoundComponent SRG rendu avec liens retour"
+    },
+    {
       "fonction": "Knowledge Center",
       "test": "Ouverture et rendu",
       "resultat": "PASS",
-      "preuve": "20226 caractères"
+      "preuve": "20169 caractères"
     },
     {
       "fonction": "ZIP",
@@ -137,7 +143,7 @@
       "fonction": "Monétisation",
       "test": "Ouverture page billing/wallet",
       "resultat": "PASS",
-      "preuve": "5186 caractères"
+      "preuve": "5399 caractères"
     },
     {
       "fonction": "Mobile",
@@ -153,7 +159,7 @@
     }
   ],
   "summary": {
-    "pass": 25,
+    "pass": 26,
     "partial": 0,
     "fail": 0
   }
