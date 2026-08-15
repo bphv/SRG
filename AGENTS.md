@@ -95,3 +95,31 @@ tanstackIntent:
     run: "npx @tanstack/intent@latest load @tanstack/virtual-file-routes#virtual-file-routes"
     for: "Programmatic route tree building as an alternative to filesystem conventions: rootRoute, index, route, layout, physical, defineVirtualSubtreeConfig. Use with TanStack Router plugin's virtualRouteConfig option."
 <!-- intent-skills:end -->
+
+# GIT CHECKPOINT OBLIGATOIRE — SRG
+
+Toute tâche SRG terminée et validée doit être sauvegardée dans Git et poussée vers GitHub avant de passer à la tâche suivante. Chaque tâche doit avoir son propre commit descriptif. Aucun travail terminé ne doit rester uniquement dans l'environnement local. Aucun `force push`, aucune réécriture d'historique et aucun commit de fonctionnalités non validées. En cas d'échec du push, arrêter le processus Git et signaler précisément le problème.
+
+## Procédure de fin de tâche
+
+1. Vérifier les fichiers modifiés.
+2. Exécuter les validations appropriées (generate-routes, tsc, lint, build).
+3. `git status`
+4. `git add -A`
+5. `git commit -m "feat: description de la tâche"`
+6. `git push origin main`
+7. Vérifier que le push a réussi.
+8. `git status` final.
+9. Fournir le hash du commit dans le rapport.
+
+## Interdictions
+
+- Jamais `git push --force`.
+- Jamais réécrire l'historique.
+- Jamais supprimer des commits.
+- Jamais écraser une branche distante.
+- Jamais `git reset --hard` sans autorisation explicite.
+
+## Protection du projet
+
+Avant chaque nouvelle mission importante, consulter `docs/` et notamment les rapports d'audit/certification existants. Ne jamais repartir d'une vision partielle du projet. Si deux architectures ou deux versions d'une fonctionnalité existent, ne pas choisir arbitrairement : identifier le conflit et demander une décision avant suppression/remplacement.
