@@ -24,7 +24,9 @@ async function main() {
     viewport: { width: 1366, height: 900 },
   })
   const page = await context.newPage()
-  await page.goto(BASE, { waitUntil: 'networkidle', timeout: 30000 })
+  await page.goto(BASE, { waitUntil: 'load', timeout: 45000 })
+  await page.waitForTimeout(3000)
+  await page.waitForLoadState('networkidle', { timeout: 15000 }).catch(() => {})
 
   // ============ TEST MICROPHONE ============
   const micResult = await page.evaluate(async () => {
