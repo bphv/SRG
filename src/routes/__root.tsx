@@ -1,6 +1,7 @@
-import { HeadContent, Link, Scripts, createRootRoute } from '@tanstack/react-router'
+import { HeadContent, Link, Scripts, createRootRoute, useRouterState } from '@tanstack/react-router'
 import { AppProviders } from '#/app/contexts/AppProviders'
 import AppShell from '#/app/layout/AppShell'
+import AuthLayout from '#/app/layout/AuthLayout'
 import KernelBootstrap from '#/core/bootstrap/KernelBootstrap'
 
 import appCss from '../styles.css?url'
@@ -54,7 +55,16 @@ function NotFoundPage() {
   )
 }
 
+/** Routes qui ne doivent PAS etre enveloppees par AppShell (experience isolee). */
+const SHELL_EXCLUDED_ROUTES = ['/auth', '/account-pending']
+
+function useIsShellExcluded(): boolean {
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  return SHELL_EXCLUDED_ROUTES.some((route) => pathname === route || pathname.startsWith(`${route}/`))
+}
+
 function RootDocument({ children }: { children: React.ReactNode }) {
+  const isShellExcluded = useIsShellExcluded()
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -63,7 +73,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body className="font-sans antialiased [overflow-wrap:anywhere] selection:bg-[rgba(79,184,178,0.24)]">
         <AppProviders>
-          <AppShell>{children}</AppShell>
+          {isShellExcluded ? <AuthLayout>{children}</AuthLayout> : <AppShell>{children}</AppShell>}
         </AppProviders>
         <KernelBootstrap />
         <Scripts />
