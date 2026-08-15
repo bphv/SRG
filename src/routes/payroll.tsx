@@ -1,4 +1,5 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
+import NavigationArrows from '#/app/components/NavigationArrows'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import HumanResourcesWorkspace from '#/app/components/hr/HumanResourcesWorkspace'
@@ -13,6 +14,7 @@ function PayrollPage() {
 
   return (
     <div className="space-y-6">
+      <NavigationArrows backTo="/categories" backLabel="Categories" nextTo="/attendance" nextLabel="Pointage" />
       <PageHeader title="Paie" description="Preparation, validation, reglement et controle de la paie." />
 
       <Section title="Synthese paie" description="Indicateurs cles du module paie RH.">

@@ -1,5 +1,6 @@
 import { Link, createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
+import NavigationArrows from '#/app/components/NavigationArrows'
 import PageHeader from '#/app/components/PageHeader'
 import Section from '#/app/components/Section'
 import UniversalFilter from '#/app/components/UniversalFilter'
@@ -36,6 +37,7 @@ function FinancePage() {
 
   return (
     <div className="space-y-6">
+      <NavigationArrows backTo="/categories" backLabel="Categories" nextTo="/devis" nextLabel="Devis" />
       <PageHeader title="Finance Workspace" description="Enterprise Accounting, Finance and Management Control." />
 
       {/* Filtre universel : filtre local des vues Finance, contexte page preserve */}

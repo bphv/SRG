@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
+import PasswordField from '#/app/components/PasswordField'
 import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { useTheme } from '#/app/hooks/useTheme'
@@ -233,8 +234,24 @@ function ProfilePage() {
 
       <Section title="Modifier le mot de passe" description="Validation de complexité et anti-réutilisation.">
         <div className="grid gap-3 md:grid-cols-2">
-          <input type="password" placeholder="Mot de passe actuel" value={currentPassword} onChange={(event) => setCurrentPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
-          <input type="password" placeholder="Nouveau mot de passe" value={nextPassword} onChange={(event) => setNextPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3" />
+          <PasswordField
+            label="Mot de passe actuel"
+            value={currentPassword}
+            onChange={setCurrentPassword}
+            placeholder="Mot de passe actuel"
+            autoComplete="current-password"
+            className="grid gap-1.5 text-sm"
+            inputClassName="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 pr-12"
+          />
+          <PasswordField
+            label="Nouveau mot de passe"
+            value={nextPassword}
+            onChange={setNextPassword}
+            placeholder="Nouveau mot de passe"
+            autoComplete="new-password"
+            className="grid gap-1.5 text-sm"
+            inputClassName="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-3 pr-12"
+          />
         </div>
         <button type="button" onClick={changePassword} className="mt-3 rounded-3xl bg-[var(--srg-color-primary-500)] px-4 py-2 text-sm font-semibold text-white">Changer le mot de passe</button>
       </Section>

@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import PageHeader from '#/app/components/PageHeader'
+import PasswordField from '#/app/components/PasswordField'
 import Section from '#/app/components/Section'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { SubscriptionCounterService } from '#/app/services/SubscriptionCounterService'
@@ -532,10 +533,15 @@ function AdministrationPage() {
                 <span className="font-semibold text-[var(--srg-text-title)]">Email (facultatif)</span>
                 <input value={email} onChange={(event) => setEmail(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
-              <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--srg-text-title)]">Mot de passe</span>
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
-              </label>
+              <PasswordField
+                label="Mot de passe"
+                value={password}
+                onChange={setPassword}
+                placeholder="Mot de passe"
+                autoComplete="new-password"
+                className="grid gap-2 text-sm"
+                inputClassName="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 pr-12"
+              />
               <label className="grid gap-2 text-sm">
                 <span className="font-semibold text-[var(--srg-text-title)]">Nom</span>
                 <input value={lastName} onChange={(event) => setLastName(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
@@ -676,10 +682,15 @@ function AdministrationPage() {
                 <span className="font-semibold text-[var(--srg-text-title)]">Identifier (username ou matricule)</span>
                 <input value={authIdentifier} onChange={(event) => setAuthIdentifier(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
-              <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--srg-text-title)]">Password</span>
-                <input type="password" value={authPassword} onChange={(event) => setAuthPassword(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
-              </label>
+              <PasswordField
+                label="Password"
+                value={authPassword}
+                onChange={setAuthPassword}
+                placeholder="Password"
+                autoComplete="current-password"
+                className="grid gap-2 text-sm"
+                inputClassName="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 pr-12"
+              />
             </div>
             <button type="button" onClick={handleAuthenticate} className="mt-4 rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-5 py-3 text-sm font-semibold text-[var(--srg-text-title)]">
               Tester connexion
@@ -698,10 +709,15 @@ function AdministrationPage() {
                 <span className="font-semibold text-[var(--srg-text-title)]">Reset Ticket ID</span>
                 <input value={resetTicketId} onChange={(event) => setResetTicketId(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
               </label>
-              <label className="grid gap-2 text-sm">
-                <span className="font-semibold text-[var(--srg-text-title)]">Nouveau password</span>
-                <input type="password" value={resetPassword} onChange={(event) => setResetPasswordValue(event.target.value)} className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3" />
-              </label>
+              <PasswordField
+                label="Nouveau password"
+                value={resetPassword}
+                onChange={setResetPasswordValue}
+                placeholder="Nouveau password"
+                autoComplete="new-password"
+                className="grid gap-2 text-sm"
+                inputClassName="w-full rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 pr-12"
+              />
             </div>
             <button type="button" onClick={handleResetPassword} className="mt-4 rounded-3xl bg-[var(--srg-color-primary-500)] px-5 py-3 text-sm font-semibold text-white">
               Reset password

@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
+import PasswordField from '#/app/components/PasswordField'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import type { OtpProviderName } from '#/business/identity'
 
@@ -377,16 +378,22 @@ function AuthPage() {
 
             {step === 3 ? (
               <div className="grid gap-4">
-                <label className="grid gap-1.5 text-sm">
-                  <span className="font-medium text-[var(--srg-text-title)]">Mot de passe</span>
-                  <input type="password" value={security.password} onChange={(event) => setSecurity((current) => ({ ...current, password: event.target.value }))} className={inputClass} placeholder="Mot de passe solide" />
-                  {step3Attempted ? <FieldError message={step3Validation.password.valid ? undefined : step3Validation.password.message} /> : null}
-                </label>
-                <label className="grid gap-1.5 text-sm">
-                  <span className="font-medium text-[var(--srg-text-title)]">Confirmation du mot de passe</span>
-                  <input type="password" value={security.confirmPassword} onChange={(event) => setSecurity((current) => ({ ...current, confirmPassword: event.target.value }))} className={inputClass} placeholder="Confirmez le mot de passe" />
-                  {step3Attempted ? <FieldError message={step3Validation.confirmPassword.valid ? undefined : step3Validation.confirmPassword.message} /> : null}
-                </label>
+                <PasswordField
+                  label="Mot de passe"
+                  value={security.password}
+                  onChange={(value) => setSecurity((current) => ({ ...current, password: value }))}
+                  placeholder="Mot de passe solide"
+                  autoComplete="new-password"
+                  error={step3Attempted && !step3Validation.password.valid ? step3Validation.password.message : undefined}
+                />
+                <PasswordField
+                  label="Confirmation du mot de passe"
+                  value={security.confirmPassword}
+                  onChange={(value) => setSecurity((current) => ({ ...current, confirmPassword: value }))}
+                  placeholder="Confirmez le mot de passe"
+                  autoComplete="new-password"
+                  error={step3Attempted && !step3Validation.confirmPassword.valid ? step3Validation.confirmPassword.message : undefined}
+                />
                 <div className="rounded-xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] px-4 py-3 text-sm">
                   Force du mot de passe : <strong className="text-[var(--srg-text-title)]">{step3Validation.strength}</strong>
                 </div>
@@ -461,10 +468,14 @@ function AuthPage() {
               <span className="font-medium text-[var(--srg-text-title)]">Identifier</span>
               <input value={loginIdentifier} onChange={(event) => setLoginIdentifier(event.target.value)} className={inputClass} placeholder="Username ou Matricule SRG" aria-label="Identifier" />
             </label>
-            <label className="grid gap-1.5 text-sm">
-              <span className="font-medium text-[var(--srg-text-title)]">Password</span>
-              <input type="password" value={loginPassword} onChange={(event) => setLoginPassword(event.target.value)} className={inputClass} placeholder="Votre mot de passe" aria-label="Password" />
-            </label>
+            <PasswordField
+              label="Password"
+              value={loginPassword}
+              onChange={setLoginPassword}
+              placeholder="Votre mot de passe"
+              ariaLabel="Password"
+              autoComplete="current-password"
+            />
             <label className="flex items-center gap-3 text-sm">
               <input type="checkbox" checked={rememberMe} onChange={(event) => setRememberMe(event.target.checked)} className="h-4 w-4 rounded border-[var(--srg-border)]" />
               <span>Remember me</span>
@@ -528,10 +539,13 @@ function AuthPage() {
                 <p className="text-sm text-[var(--srg-text-muted)]">
                   Code verifie. Choisissez votre nouveau mot de passe.
                 </p>
-                <label className="grid gap-1.5 text-sm">
-                  <span className="font-medium text-[var(--srg-text-title)]">Nouveau mot de passe</span>
-                  <input type="password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className={inputClass} placeholder="Nouveau mot de passe" />
-                </label>
+                <PasswordField
+                  label="Nouveau mot de passe"
+                  value={newPassword}
+                  onChange={setNewPassword}
+                  placeholder="Nouveau mot de passe"
+                  autoComplete="new-password"
+                />
                 <button type="button" onClick={finalizeReset} className={`${primaryButtonClass} w-full`}>
                   Reinitialiser le mot de passe
                 </button>

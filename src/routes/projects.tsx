@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { createFileRoute } from '@tanstack/react-router'
+import NavigationArrows from '#/app/components/NavigationArrows'
 import PageHeader from '#/app/components/PageHeader'
 import ProjectToolbar from '#/app/components/ProjectToolbar'
 import ProjectFilters from '#/app/components/ProjectFilters'
@@ -197,6 +198,7 @@ function ProjectsPage() {
 
   return (
     <div className="space-y-6">
+      <NavigationArrows backTo="/categories" backLabel="Categories" nextTo="/history" nextLabel="Historique" />
       <PageHeader
         title="Projects"
         description="Gérez vos projets IA, suivez les indicateurs clés et organisez votre travail."

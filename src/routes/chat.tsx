@@ -1,5 +1,6 @@
 import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
+import NavigationArrows from '#/app/components/NavigationArrows'
 import ConversationWorkspace from '#/app/components/conversation/ConversationWorkspace'
 import { useBusiness } from '#/app/hooks/useBusiness'
 import { useConversationWorkspace } from '#/app/hooks/useConversationWorkspace'
@@ -464,6 +465,8 @@ function BusinessSpacesPage() {
             </div>
           ) : null}
         </section>
+
+        <NavigationArrows backTo="/categories" backLabel="Categories" nextTo="/history" nextLabel="Historique" />
 
         <section className="srg-space-favorites rounded-[2rem] border border-[#d9e5ff] bg-white/92 p-5 shadow-[0_14px_40px_rgba(21,68,186,0.12)]">
           <div className="flex items-end justify-between gap-3">
