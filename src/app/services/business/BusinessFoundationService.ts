@@ -407,6 +407,8 @@ const PAYMENT_PROVIDERS: PaymentProviderAdapter[] = [
   { id: 'mtn-momo', label: 'MTN Mobile Money', supports: ['mobile-money'], mode: 'mocked' },
 ]
 
+const BUSINESS_STORAGE_KEY = 'srg-business-foundation-v1'
+
 export class BusinessFoundationService {
   private static users: UserIdentity[] = []
   private static profiles: UserProfile[] = []
@@ -442,6 +444,83 @@ export class BusinessFoundationService {
   private static sequenceByDate: Record<string, number> = {}
   private static initialized = false
 
+  private static saveToStorage(): void {
+    if (typeof window === 'undefined') return
+    try {
+      const payload = {
+        users: this.users,
+        profiles: this.profiles,
+        credentials: this.credentials,
+        organizations: this.organizations,
+        departments: this.departments,
+        teams: this.teams,
+        wallets: this.wallets,
+        walletTransactions: this.walletTransactions,
+        creditAccounts: this.creditAccounts,
+        creditTransactions: this.creditTransactions,
+        creditHistory: this.creditHistory,
+        subscriptions: this.subscriptions,
+        invoices: this.invoices,
+        payments: this.payments,
+        paymentMethods: this.paymentMethods,
+        coupons: this.coupons,
+        taxes: this.taxes,
+        licenses: this.licenses,
+        featureFlagsByUser: this.featureFlagsByUser,
+        sequenceByDate: this.sequenceByDate,
+      }
+      window.localStorage.setItem(BUSINESS_STORAGE_KEY, JSON.stringify(payload))
+    } catch {
+      // stockage plein ou indisponible — ignorer silencieusement
+    }
+  }
+
+  private static loadFromStorage(): boolean {
+    if (typeof window === 'undefined') return false
+    try {
+      const raw = window.localStorage.getItem(BUSINESS_STORAGE_KEY)
+      if (!raw) return false
+      const payload = JSON.parse(raw) as Record<string, unknown>
+      if (!Array.isArray(payload.users) || payload.users.length === 0) return false
+
+      const readArray = <T>(key: string): T[] => {
+        const value = payload[key]
+        return Array.isArray(value) ? (value as T[]) : []
+      }
+      const readRecord = <T>(key: string, fallback: T): T => {
+        const value = payload[key]
+        if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+          return value as T
+        }
+        return fallback
+      }
+
+      this.users = readArray<UserIdentity>('users')
+      this.profiles = readArray<UserProfile>('profiles')
+      this.credentials = readArray<AuthCredential>('credentials')
+      this.organizations = readArray<Organization>('organizations')
+      this.departments = readArray<Department>('departments')
+      this.teams = readArray<Team>('teams')
+      this.wallets = readArray<Wallet>('wallets')
+      this.walletTransactions = readArray<WalletTransaction>('walletTransactions')
+      this.creditAccounts = readArray<CreditAccount>('creditAccounts')
+      this.creditTransactions = readArray<CreditTransaction>('creditTransactions')
+      this.creditHistory = readArray<CreditHistory>('creditHistory')
+      this.subscriptions = readArray<UserSubscription>('subscriptions')
+      this.invoices = readArray<Invoice>('invoices')
+      this.payments = readArray<Payment>('payments')
+      this.paymentMethods = readArray<PaymentMethod>('paymentMethods')
+      this.coupons = readArray<Coupon>('coupons')
+      this.taxes = readArray<Tax>('taxes')
+      this.licenses = readArray<License>('licenses')
+      this.featureFlagsByUser = readRecord<Record<string, FeatureFlags>>('featureFlagsByUser', {})
+      this.sequenceByDate = readRecord<Record<string, number>>('sequenceByDate', {})
+      return true
+    } catch {
+      return false
+    }
+  }
+
   static normalizeMatriculeInput(identifier: string): string | undefined {
     const normalized = identifier.trim().toUpperCase()
     const match = /^SRG(\d{8})-(\d{1,6})$/.exec(normalized)
@@ -454,6 +533,12 @@ export class BusinessFoundationService {
 
   private static ensureInit() {
     if (this.initialized) return
+
+    // Essayer de charger depuis localStorage d'abord
+    if (this.loadFromStorage()) {
+      this.initialized = true
+      return
+    }
 
     const organization = this.createOrganizationInternal({
       name: 'SRG Corporation',
@@ -538,6 +623,7 @@ export class BusinessFoundationService {
     ]
 
     this.initialized = true
+    this.saveToStorage()
   }
 
   static getSnapshot(): BusinessSnapshot {
@@ -1591,5 +1677,8 @@ export class BusinessFoundationService {
       traceEntry,
       ...this.traces,
     ].slice(0, 300)
+
+    // Persister après chaque mutation observée
+    this.saveToStorage()
   }
 }

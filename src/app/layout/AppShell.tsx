@@ -217,7 +217,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       location.pathname.startsWith('/conversation/')
 
     if (!allowedPath) {
-      navigate({ to: '/account-pending', search: { status: user.accountStatus } })
+      navigate({ to: '/account-pending', search: { status: user.accountStatus, matricule: user.matricule, username: user.username } })
     }
   }, [business.currentSession?.userId, business.snapshot.users, location.pathname, navigate])
 
@@ -306,6 +306,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               aria-label="Open profile"
             >
               Profil
+            </button>
+            <button
+              type="button"
+              className="rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-4 py-2 text-sm text-[var(--srg-text-body)] transition hover:bg-[var(--srg-hover)]"
+              onClick={() => {
+                const sessionId = business.currentSession?.sessionId
+                if (sessionId) {
+                  business.logoutSession(sessionId)
+                }
+                navigate({ to: '/auth' })
+              }}
+              aria-label="Deconnexion"
+            >
+              Deconnexion
             </button>
             <div className="hidden rounded-2xl border border-[var(--srg-border)] bg-[var(--srg-surface)] px-3 py-2 text-xs text-[var(--srg-text-muted)] lg:block">
               <p className="font-semibold text-[var(--srg-text-title)]">{tenant.activeUser}</p>

@@ -5,12 +5,14 @@ import Section from '#/app/components/Section'
 export const Route = createFileRoute('/account-pending')({
   validateSearch: (search: Record<string, unknown>) => ({
     status: typeof search.status === 'string' ? search.status : 'PENDING_APPROVAL',
+    matricule: typeof search.matricule === 'string' ? search.matricule : undefined,
+    username: typeof search.username === 'string' ? search.username : undefined,
   }),
   component: AccountPendingPage,
 })
 
 function AccountPendingPage() {
-  const { status } = Route.useSearch()
+  const { status, matricule, username } = Route.useSearch()
 
   const message =
     status === 'REJECTED'
@@ -30,6 +32,25 @@ function AccountPendingPage() {
         <div className="rounded-3xl border border-[var(--srg-border)] bg-[var(--srg-surface-strong)] p-5 text-sm text-[var(--srg-text-muted)]">
           <p className="font-semibold text-[var(--srg-text-title)]">Statut actuel: {status}</p>
           <p className="mt-2">{message}</p>
+
+          {matricule || username ? (
+            <div className="mt-4 rounded-2xl border border-[var(--srg-color-primary-500)]/40 bg-[var(--srg-color-primary-500)]/10 p-4">
+              {username ? (
+                <p className="text-[var(--srg-text-body)]">
+                  Username : <strong className="font-mono text-[var(--srg-text-title)]">{username}</strong>
+                </p>
+              ) : null}
+              {matricule ? (
+                <p className="mt-1 text-[var(--srg-text-body)]">
+                  Matricule SRG : <strong className="font-mono text-[var(--srg-color-primary-500)]">{matricule}</strong>
+                </p>
+              ) : null}
+              <p className="mt-2 text-xs text-[var(--srg-text-muted)]">
+                Conservez precieusement ce matricule : il vous permet de vous connecter a votre espace SRG, en plus de votre username.
+              </p>
+            </div>
+          ) : null}
+
           <p className="mt-4">
             Un administrateur peut approuver, rejeter ou suspendre le compte depuis l'espace Administration.
           </p>

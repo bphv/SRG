@@ -184,7 +184,7 @@ function AuthPage() {
         const status = loginResult.accountStatus ?? 'PENDING_APPROVAL'
         setLoginStatus(`Compte cree. Statut: ${status}. En attente de validation administrateur.`)
         setRegisterStatus(`Compte cree avec succes. Matricule: ${user.matricule}. Votre compte est en attente d'approbation.`)
-        navigate({ to: '/account-pending', search: { status } })
+        navigate({ to: '/account-pending', search: { status, matricule: user.matricule, username: user.username } })
         return
       }
 
@@ -215,7 +215,22 @@ function AuthPage() {
     if (result.requiresApproval) {
       const status = result.accountStatus ?? 'PENDING_APPROVAL'
       setLoginStatus(`Compte authentifie mais acces restreint: ${status}. Validation administrateur requise.`)
-      navigate({ to: '/account-pending', search: { status } })
+      // Retrouver l'utilisateur pour afficher le matricule sur /account-pending
+      const normalized = loginIdentifier.trim().toLowerCase()
+      const matchedUser = business.snapshot.users.find((item) =>
+        item.username.toLowerCase() === normalized
+        || item.matricule.toLowerCase() === normalized
+        || item.phone.trim() === loginIdentifier.trim()
+        || (item.email ?? '').trim().toLowerCase() === normalized,
+      )
+      navigate({
+        to: '/account-pending',
+        search: {
+          status,
+          matricule: matchedUser?.matricule,
+          username: matchedUser?.username,
+        },
+      })
       return
     }
 

@@ -1,11 +1,15 @@
-import { Link, createFileRoute } from '@tanstack/react-router'
+import { Link, createFileRoute, useNavigate } from '@tanstack/react-router'
 import { getOrderedCategories } from '#/app/navigation/categoryCatalog'
+import { useBusiness } from '#/app/hooks/useBusiness'
 
 export const Route = createFileRoute('/categories')({
   component: CategoriesPage,
 })
 
 function CategoriesPage() {
+  const navigate = useNavigate()
+  const business = useBusiness()
+
   const buildWhatsAppHref = (rawContact?: string) => {
     if (!rawContact) return null
     const digits = rawContact.replace(/[^\d]/g, '')
@@ -35,6 +39,20 @@ function CategoriesPage() {
             >
               Accueil
             </Link>
+            <button
+              type="button"
+              className="inline-flex h-10 items-center rounded-xl border border-slate-300 bg-slate-100 px-3 text-sm font-medium text-slate-900 transition hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500"
+              onClick={() => {
+                const sessionId = business.currentSession?.sessionId
+                if (sessionId) {
+                  business.logoutSession(sessionId)
+                }
+                navigate({ to: '/auth' })
+              }}
+              aria-label="Deconnexion"
+            >
+              Deconnexion
+            </button>
           </div>
 
           <nav aria-label="Fil d Ariane" className="text-sm text-slate-600">
